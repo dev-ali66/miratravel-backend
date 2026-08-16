@@ -239,6 +239,8 @@ Table Permission {
   resource String
   scope Scope [not null]
   roles Role [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
 }
 
 Table Reservation {
@@ -265,6 +267,8 @@ Table Role {
   name String [unique, not null]
   permissions Permission [not null]
   users Auth [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
 }
 
 Table Session {

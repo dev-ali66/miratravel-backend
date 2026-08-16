@@ -10,6 +10,8 @@ import journeysPricingRoutes from "./src/modules/cms/journeysPricing/journeysPri
 import journeysHeadingRoutes from "./src/modules/cms/journeysHeading/journeysHeading.routes.js";
 import wishlistRoutes from "./src/modules/wishList/wishList.routes.js";
 import { mount } from "./src/docs/swagger/routeRegistry.js";
+import rolesRoutes from "./src/modules/settings/roles/roles.routes.js";
+import permissionsRoutes from "./src/modules/settings/permissions/permissions.routes.js";
 export const bootstraps = (app: any) => {
   mount(app, "/api/v1/auth", authRoutes);
   mount(app, "/api/v1/pages", pagesRoutes);
@@ -22,4 +24,6 @@ export const bootstraps = (app: any) => {
   mount(app, "/api/v1/journeys-pricing", journeysPricingRoutes);
   mount(app, "/api/v1/journeys-heading", journeysHeadingRoutes);
   mount(app, "/api/v1/wishlist", wishlistRoutes);
+  mount(app, "/api/v1/roles", rolesRoutes);
+  mount(app, "/api/v1/permissions", permissionsRoutes);
 };

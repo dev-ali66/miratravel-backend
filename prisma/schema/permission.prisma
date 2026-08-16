@@ -1,9 +1,11 @@
 model Permission {
-  id       String  @id @unique @default(cuid())
-  action   Action
-  resource String?
-  scope    Scope
-  roles    Role[]  @relation("PermissionToRole")
+  id        String   @id @unique @default(cuid())
+  action    Action
+  resource  String?
+  scope     Scope
+  roles     Role[]   @relation("PermissionToRole")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum Action {
@@ -12,6 +14,7 @@ enum Action {
   UPDATE
   DELETE
 }
+
 enum Scope {
   OWN
   ANY
