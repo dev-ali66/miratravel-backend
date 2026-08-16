@@ -1,0 +1,385 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table Auth {
+  id String [pk]
+  email String [unique, not null]
+  password String [not null]
+  isVerified Boolean [not null, default: false]
+  status Status [not null, default: 'ACTIVE']
+  otp String
+  otpExpiresAt DateTime
+  passwordResetToken String
+  passwordResetExpiresAt DateTime
+  emailToken String
+  failedLoginAttempts Int [not null, default: 0]
+  lockUntil DateTime
+  isDeleted Boolean [not null, default: false]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  sessions Session [not null]
+  roles Role [not null]
+  userPersonalInfo UserPersonalInfo
+  userSettings UserSettings
+  reservations Reservation [not null]
+  wishlists Wishlist [not null]
+}
+
+Table Destinations {
+  id String [pk]
+  name String [unique, not null]
+  slug String [unique, not null]
+  text String
+  url String
+  destinationImages String[] [not null]
+  destinationVideos String[] [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  joruneys Joruneys [not null]
+}
+
+Table Joruneys {
+  id String [pk]
+  destinationId String
+  name String [not null]
+  slug String [unique, not null]
+  text String [not null]
+  location String [not null]
+  url String [not null]
+  destinationImages String[] [not null]
+  destinationVideos String[] [not null]
+  isFeatured Boolean [not null, default: false]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  journeysHeading JourneysHeading
+  journeysOverviews JourneysOverview [not null]
+  journeysItineraries JourneysItinerary [not null]
+  journeysIncludes JourneysIncludes [not null]
+  journeysPricing JourneysPricing
+  reservations Reservation [not null]
+  wishlists Wishlist [not null]
+  destination Destinations
+}
+
+Table JourneysHeading {
+  id String [pk]
+  journeyId String [unique, not null]
+  order Int
+  key String
+  title String
+  subTitle String
+  h1 String
+  h2 String
+  text String
+  features String[] [not null]
+  small String
+  button String
+  buttonUrl String
+  maxGuest Int [not null]
+  journeysHeadingSectionImages String[] [not null]
+  journeysHeadingSectionVideos String[] [not null]
+  data Json
+  isPublished Boolean [not null, default: false]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  journey Joruneys [not null]
+
+  indexes {
+    (journeyId, order) [unique]
+  }
+}
+
+Table JourneysOverview {
+  id String [pk]
+  journeyId String [not null]
+  order Int
+  key String
+  title String
+  subTitle String
+  h1 String
+  h2 String
+  text String
+  features String[] [not null]
+  small String
+  button String
+  buttonUrl String
+  journeyOverviewSectionImages String[] [not null]
+  journeyOverviewpageSectionVideos String[] [not null]
+  data Json
+  isPublished Boolean [not null, default: false]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  journey Joruneys [not null]
+
+  indexes {
+    (journeyId, order) [unique]
+  }
+}
+
+Table JourneysItinerary {
+  id String [pk]
+  journeyId String [not null]
+  order Int
+  key String
+  title String
+  subTitle String
+  h1 String
+  h2 String
+  text String
+  small String
+  button String
+  buttonUrl String
+  journeysItinerarySectionImages String[] [not null]
+  journeysItinerarySectionVideos String[] [not null]
+  data Json
+  isPublished Boolean [not null, default: false]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  journey Joruneys [not null]
+
+  indexes {
+    (journeyId, order) [unique]
+  }
+}
+
+Table JourneysIncludes {
+  id String [pk]
+  journeyId String [not null]
+  order Int
+  key String
+  title String
+  subTitle String
+  h1 String
+  h2 String
+  text String
+  features String[] [not null]
+  small String
+  button String
+  buttonUrl String
+  journeysIncludesSectionImages String[] [not null]
+  journeysIncludesSectionVideos String[] [not null]
+  data Json
+  isPublished Boolean [not null, default: false]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  journey Joruneys [not null]
+
+  indexes {
+    (journeyId, order) [unique]
+  }
+}
+
+Table JourneysPricing {
+  id String [pk]
+  journeyId String [unique, not null]
+  order Int
+  key String
+  price String [not null]
+  title String
+  subTitle String
+  h1 String
+  h2 String
+  text String
+  features String[] [not null]
+  small String
+  button String
+  buttonUrl String
+  journeysPricingSectionImages String[] [not null]
+  journeysPricingSectionVideos String[] [not null]
+  data Json
+  isPublished Boolean [not null, default: false]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  journey Joruneys [not null]
+
+  indexes {
+    (journeyId, order) [unique]
+  }
+}
+
+Table Pages {
+  id String [pk]
+  name String [unique, not null]
+  slug String [unique, not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  pagesSections PagesSection [not null]
+}
+
+Table PagesSection {
+  id String [pk]
+  pageId String [not null]
+  order Int [not null]
+  key String
+  title String
+  subTitle String
+  h1 String
+  h2 String
+  text String
+  small String
+  button String
+  buttonUrl String
+  pageSectionImages String[] [not null]
+  pageSectionVideos String[] [not null]
+  data Json
+  isPublished Boolean [not null, default: false]
+  pages Pages [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+
+  indexes {
+    (pageId, order) [unique]
+  }
+}
+
+Table Permission {
+  id String [pk]
+  action Action [not null]
+  resource String
+  scope Scope [not null]
+  roles Role [not null]
+}
+
+Table Reservation {
+  id String [pk]
+  authId String [not null]
+  joruneyId String [not null]
+  firstName String [not null]
+  lastName String [not null]
+  email String [not null]
+  phone String [not null]
+  arrivalDate DateTime [not null]
+  departureDate DateTime [not null]
+  groupType String [not null]
+  groupInfo String [not null]
+  specialRequest String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user Auth [not null]
+  journey Joruneys [not null]
+}
+
+Table Role {
+  id String [pk]
+  name String [unique, not null]
+  permissions Permission [not null]
+  users Auth [not null]
+}
+
+Table Session {
+  id String [pk]
+  authId String [not null]
+  refreshTokenHash String [not null]
+  tokenFamily String [not null]
+  deviceName String
+  userAgent String
+  ipAddress String
+  fingerprintHash String
+  isRevoked Boolean [not null, default: false]
+  revokeReason String
+  expiresAt DateTime [not null]
+  lastUsedAt DateTime
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user Auth [not null]
+}
+
+Table UserSettings {
+  id String [pk]
+  authId String [unique, not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user Auth [not null]
+}
+
+Table UserPersonalInfo {
+  id String [pk]
+  authId String [unique, not null]
+  firstName String
+  lastName String
+  phone String
+  country String
+  state String
+  city String
+  zipCode String
+  about String
+  photoUrl String[] [not null]
+  user Auth [not null]
+}
+
+Table Wishlist {
+  id String [pk]
+  authId String [not null]
+  journeyId String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user Auth [not null]
+  journey Joruneys [not null]
+
+  indexes {
+    (authId, journeyId) [unique]
+  }
+}
+
+Table RoleToUser {
+  rolesId String [ref: > Role.id]
+  usersId String [ref: > Auth.id]
+}
+
+Table PermissionToRole {
+  rolesId String [ref: > Role.id]
+  permissionsId String [ref: > Permission.id]
+}
+
+Enum Status {
+  ACTIVE
+  INACTIVE
+  DEACTIVE
+  BLOCKED
+  SUSPENDED
+  PENDING
+  DELETED
+  ARCHIVED
+}
+
+Enum Action {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+}
+
+Enum Scope {
+  OWN
+  ANY
+  OTHER
+}
+
+Ref: Joruneys.destinationId > Destinations.id
+
+Ref: JourneysHeading.journeyId - Joruneys.id
+
+Ref: JourneysOverview.journeyId > Joruneys.id
+
+Ref: JourneysItinerary.journeyId > Joruneys.id
+
+Ref: JourneysIncludes.journeyId > Joruneys.id
+
+Ref: JourneysPricing.journeyId - Joruneys.id
+
+Ref: PagesSection.pageId > Pages.id [delete: Cascade]
+
+Ref: Reservation.authId > Auth.id [delete: Cascade]
+
+Ref: Reservation.joruneyId > Joruneys.id
+
+Ref: Session.authId > Auth.id [delete: Cascade]
+
+Ref: UserSettings.authId - Auth.id [delete: Cascade]
+
+Ref: UserPersonalInfo.authId - Auth.id [delete: Cascade]
+
+Ref: Wishlist.authId > Auth.id [delete: Cascade]
+
+Ref: Wishlist.journeyId > Joruneys.id

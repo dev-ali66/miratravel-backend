@@ -1,0 +1,19 @@
+model Permission {
+  id       String  @id @unique @default(cuid())
+  action   Action
+  resource String?
+  scope    Scope
+  roles    Role[]  @relation("PermissionToRole")
+}
+
+enum Action {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+}
+enum Scope {
+  OWN
+  ANY
+  OTHER
+}

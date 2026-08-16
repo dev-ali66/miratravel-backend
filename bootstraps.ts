@@ -1,0 +1,25 @@
+import authRoutes from "./src/modules/auth/auth.routes.js";
+import pagesRoutes from "./src/modules/cms/pages/pages.routes.js";
+import pagesSectionRoutes from "./src/modules/cms/pagesSection/pagesSection.routes.js";
+import destinationRoutes from "./src/modules/cms/destination/destination.routes.js";
+import journeysRoutes from "./src/modules/cms/journeys/journeys.routes.js";
+import journeysOverviewRoutes from "./src/modules/cms/journeysPricing/journeysPricing.routes.js";
+import journeysItineraryRoutes from "./src/modules/cms/journeysItinerary/journeysItinerary.routes.js";
+import JourneysIncludesRoutes from "./src/modules/cms/journeysIncludes/JourneysIncludes.routes.js";
+import journeysPricingRoutes from "./src/modules/cms/journeysPricing/journeysPricing.routes.js";
+import journeysHeadingRoutes from "./src/modules/cms/journeysHeading/journeysHeading.routes.js";
+import wishlistRoutes from "./src/modules/wishList/wishList.routes.js";
+import { mount } from "./src/docs/swagger/routeRegistry.js";
+export const bootstraps = (app: any) => {
+  mount(app, "/api/v1/auth", authRoutes);
+  mount(app, "/api/v1/pages", pagesRoutes);
+  mount(app, "/api/v1/pages-section", pagesSectionRoutes);
+  mount(app, "/api/v1/destination", destinationRoutes);
+  mount(app, "/api/v1/journeys", journeysRoutes);
+  mount(app, "/api/v1/journeys-overview", journeysOverviewRoutes);
+  mount(app, "/api/v1/journeys-itinerary", journeysItineraryRoutes);
+  mount(app, "/api/v1/journeys-includes", JourneysIncludesRoutes);
+  mount(app, "/api/v1/journeys-pricing", journeysPricingRoutes);
+  mount(app, "/api/v1/journeys-heading", journeysHeadingRoutes);
+  mount(app, "/api/v1/wishlist", wishlistRoutes);
+};

@@ -1,0 +1,27 @@
+// {
+//   "compilerOptions": {
+//     "module": "NodeNext",
+//     "moduleResolution": "NodeNext",
+//     "target": "es2016",
+//     "esModuleInterop": true,
+//     "skipLibCheck": true,
+//     "outDir": "./dist",
+//     "rootDir": "./"
+//   }
+// }
+
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+
+    "rootDir": ".",
+    "outDir": "./dist",
+
+    "sourceMap": true
+  },
+  "exclude": ["node_modules", "dist"]
+}

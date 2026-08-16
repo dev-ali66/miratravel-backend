@@ -1,0 +1,22 @@
+model UserSettings {
+  id        String   @id @default(uuid())
+  authId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      Auth     @relation(fields: [authId], references: [id], onDelete: Cascade)
+}
+
+model UserPersonalInfo {
+  id        String   @id @default(cuid())
+  authId    String   @unique
+  firstName String?  @db.VarChar(100)
+  lastName  String?  @db.VarChar(50)
+  phone     String?  @db.VarChar(20)
+  country   String?  @db.VarChar(20)
+  state     String?  @db.VarChar(20)
+  city      String?  @db.VarChar(20)
+  zipCode   String?  @db.VarChar(10)
+  about     String?  @db.VarChar(500)
+  photoUrl  String[]
+  user      Auth     @relation(fields: [authId], references: [id], onDelete: Cascade)
+}

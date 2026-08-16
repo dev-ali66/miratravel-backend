@@ -1,0 +1,6 @@
+model Role {
+  id                  String                @id @unique @default(cuid())
+  name                String                @unique
+  permissions         Permission[]          @relation("PermissionToRole")
+  users               Auth[]                @relation("RoleToUser" )
+}

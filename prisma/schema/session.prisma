@@ -1,0 +1,21 @@
+model Session {
+  id               String    @id @default(cuid())
+  authId           String
+  refreshTokenHash String
+  tokenFamily      String
+  deviceName       String?
+  userAgent        String?
+  ipAddress        String?
+  fingerprintHash  String?
+  isRevoked        Boolean   @default(false)
+  revokeReason     String?
+  expiresAt        DateTime
+  lastUsedAt       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  user             Auth      @relation(fields: [authId], references: [id], onDelete: Cascade)
+
+  @@index([authId])
+  @@index([tokenFamily])
+  @@index([expiresAt])
+}
