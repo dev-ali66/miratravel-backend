@@ -154,23 +154,23 @@ export const manageRecordWithFiles = async ({
     }
     // Apply scope rules
     if (req.action.toUpperCase() === "CREATE") {
-      if (scope === "OWN" && attachUser) updateData.authId = req.auth.id;
+      if (scope === "OWN" && attachUser) updateData.createdBy = req.auth.id;
       // if (scope === "OWN" && !attachUser) throw new ApiError("Cannot create this record");
     } else if (req.action.toUpperCase() === "UPDATE") {
       if (scope === "OWN" && !isOwner)
         throw new ApiError("You can only update your own authorized records");
 
       if (scope === "OWN" && isOwner && attachUser)
-        updateData.authId = req.auth.id;
+        updateData.createdBy = req.auth.id;
 
       if (scope === "OTHER") {
         if (!previousRecord)
           throw new ApiError("Record not found for OTHER scope");
-        if (attachUser) updateData.authId = req.validated?.user?.id; // assign validated.auth.id if attached
+        if (attachUser) updateData.createdBy = req.validated?.user?.id; // assign validated.auth.id if attached
       }
       if (scope === "ANY") {
         if (attachUser) {
-          updateData.authId = isOwner ? req.auth.id : req.validated?.user?.id;
+          updateData.createdBy = isOwner ? req.auth.id : req.validated?.user?.id;
         }
       }
     }

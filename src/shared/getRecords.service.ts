@@ -67,7 +67,7 @@ export const getRecords = async ({
     if (value === undefined || value === null) return acc;
     if (typeof value === "string" && value.trim() === "") return acc;
 
-    if (key === "id" || key === "user" || key === "status") acc[key] = value;
+    if (key === "id" || key === "user" || key === "status" || key === "parentId" || key === "locationId") acc[key] = value;
     else if (typeof value === "string") {
       acc[key] = { contains: value, mode: "insensitive" };
     } else {

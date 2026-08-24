@@ -1,0 +1,33 @@
+model CmsPage {
+  id        String           @id @default(cuid())
+  name      String
+  slug      String           @unique
+  metadata  Json?
+  sections  CmsPageSection[]
+  deletedAt DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([deletedAt])
+}
+
+model CmsPageSection {
+  id        String    @id @default(cuid())
+  pageId    String
+  name      String
+  slug      String
+  type      String
+  order     Int       @default(0)
+  metadata  Json?
+  data      Json?
+  page      CmsPage   @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([pageId, slug])
+  @@index([pageId])
+  @@index([pageId, order])
+  @@index([deletedAt])
+}
+

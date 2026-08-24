@@ -22,215 +22,81 @@ Table Auth {
   roles Role [not null]
   userPersonalInfo UserPersonalInfo
   userSettings UserSettings
-  reservations Reservation [not null]
-  wishlists Wishlist [not null]
 }
 
-Table Destinations {
+Table CmsPage {
   id String [pk]
-  name String [unique, not null]
-  slug String [unique, not null]
-  text String
-  url String
-  destinationImages String[] [not null]
-  destinationVideos String[] [not null]
-  createdAt DateTime [default: `now()`, not null]
-  updatedAt DateTime [not null]
-  joruneys Joruneys [not null]
-}
-
-Table Joruneys {
-  id String [pk]
-  destinationId String
   name String [not null]
   slug String [unique, not null]
-  text String [not null]
-  location String [not null]
-  url String [not null]
-  destinationImages String[] [not null]
-  destinationVideos String[] [not null]
-  isFeatured Boolean [not null, default: false]
+  metadata Json
+  sections CmsPageSection [not null]
+  deletedAt DateTime
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
-  journeysHeading JourneysHeading
-  journeysOverviews JourneysOverview [not null]
-  journeysItineraries JourneysItinerary [not null]
-  journeysIncludes JourneysIncludes [not null]
-  journeysPricing JourneysPricing
-  reservations Reservation [not null]
-  wishlists Wishlist [not null]
-  destination Destinations
 }
 
-Table JourneysHeading {
-  id String [pk]
-  journeyId String [unique, not null]
-  order Int
-  key String
-  title String
-  subTitle String
-  h1 String
-  h2 String
-  text String
-  features String[] [not null]
-  small String
-  button String
-  buttonUrl String
-  maxGuest Int [not null]
-  journeysHeadingSectionImages String[] [not null]
-  journeysHeadingSectionVideos String[] [not null]
-  data Json
-  isPublished Boolean [not null, default: false]
-  createdAt DateTime [default: `now()`, not null]
-  updatedAt DateTime [not null]
-  journey Joruneys [not null]
-
-  indexes {
-    (journeyId, order) [unique]
-  }
-}
-
-Table JourneysOverview {
-  id String [pk]
-  journeyId String [not null]
-  order Int
-  key String
-  title String
-  subTitle String
-  h1 String
-  h2 String
-  text String
-  features String[] [not null]
-  small String
-  button String
-  buttonUrl String
-  journeyOverviewSectionImages String[] [not null]
-  journeyOverviewpageSectionVideos String[] [not null]
-  data Json
-  isPublished Boolean [not null, default: false]
-  createdAt DateTime [default: `now()`, not null]
-  updatedAt DateTime [not null]
-  journey Joruneys [not null]
-
-  indexes {
-    (journeyId, order) [unique]
-  }
-}
-
-Table JourneysItinerary {
-  id String [pk]
-  journeyId String [not null]
-  order Int
-  key String
-  title String
-  subTitle String
-  h1 String
-  h2 String
-  text String
-  small String
-  button String
-  buttonUrl String
-  journeysItinerarySectionImages String[] [not null]
-  journeysItinerarySectionVideos String[] [not null]
-  data Json
-  isPublished Boolean [not null, default: false]
-  createdAt DateTime [default: `now()`, not null]
-  updatedAt DateTime [not null]
-  journey Joruneys [not null]
-
-  indexes {
-    (journeyId, order) [unique]
-  }
-}
-
-Table JourneysIncludes {
-  id String [pk]
-  journeyId String [not null]
-  order Int
-  key String
-  title String
-  subTitle String
-  h1 String
-  h2 String
-  text String
-  features String[] [not null]
-  small String
-  button String
-  buttonUrl String
-  journeysIncludesSectionImages String[] [not null]
-  journeysIncludesSectionVideos String[] [not null]
-  data Json
-  isPublished Boolean [not null, default: false]
-  createdAt DateTime [default: `now()`, not null]
-  updatedAt DateTime [not null]
-  journey Joruneys [not null]
-
-  indexes {
-    (journeyId, order) [unique]
-  }
-}
-
-Table JourneysPricing {
-  id String [pk]
-  journeyId String [unique, not null]
-  order Int
-  key String
-  price String [not null]
-  title String
-  subTitle String
-  h1 String
-  h2 String
-  text String
-  features String[] [not null]
-  small String
-  button String
-  buttonUrl String
-  journeysPricingSectionImages String[] [not null]
-  journeysPricingSectionVideos String[] [not null]
-  data Json
-  isPublished Boolean [not null, default: false]
-  createdAt DateTime [default: `now()`, not null]
-  updatedAt DateTime [not null]
-  journey Joruneys [not null]
-
-  indexes {
-    (journeyId, order) [unique]
-  }
-}
-
-Table Pages {
-  id String [pk]
-  name String [unique, not null]
-  slug String [unique, not null]
-  createdAt DateTime [default: `now()`, not null]
-  updatedAt DateTime [not null]
-  pagesSections PagesSection [not null]
-}
-
-Table PagesSection {
+Table CmsPageSection {
   id String [pk]
   pageId String [not null]
-  order Int [not null]
-  key String
-  title String
-  subTitle String
-  h1 String
-  h2 String
-  text String
-  small String
-  button String
-  buttonUrl String
-  pageSectionImages String[] [not null]
-  pageSectionVideos String[] [not null]
+  name String [not null]
+  slug String [not null]
+  type String [not null]
+  order Int [not null, default: 0]
+  metadata Json
   data Json
-  isPublished Boolean [not null, default: false]
-  pages Pages [not null]
+  page CmsPage [not null]
+  deletedAt DateTime
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
 
   indexes {
-    (pageId, order) [unique]
+    (pageId, slug) [unique]
   }
+}
+
+Table CountryPage {
+  id String [pk]
+  locationId String [unique, not null]
+  location Location [not null]
+  metadata Json
+  sections CountryPageSection [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table CountryPageSection {
+  id String [pk]
+  pageId String [not null]
+  page CountryPage [not null]
+  name String [not null]
+  slug String [not null]
+  order Int [not null, default: 0]
+  metadata Json
+  data Json
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+
+  indexes {
+    (pageId, slug) [unique]
+  }
+}
+
+Table Location {
+  id String [pk]
+  name String [not null]
+  slug String [unique, not null]
+  type LocationType [not null]
+  parentId String
+  parent Location
+  children Location [not null]
+  geoData Json
+  metadata Json
+  data Json
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  countryPage CountryPage [not null]
+  regionPage RegionPage [not null]
+  placePage PlacePage [not null]
 }
 
 Table Permission {
@@ -243,23 +109,58 @@ Table Permission {
   updatedAt DateTime [not null]
 }
 
-Table Reservation {
+Table PlacePage {
   id String [pk]
-  authId String [not null]
-  joruneyId String [not null]
-  firstName String [not null]
-  lastName String [not null]
-  email String [not null]
-  phone String [not null]
-  arrivalDate DateTime [not null]
-  departureDate DateTime [not null]
-  groupType String [not null]
-  groupInfo String [not null]
-  specialRequest String [not null]
+  locationId String [unique, not null]
+  location Location [not null]
+  metadata Json
+  sections PlacePageSection [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
-  user Auth [not null]
-  journey Joruneys [not null]
+}
+
+Table PlacePageSection {
+  id String [pk]
+  pageId String [not null]
+  page PlacePage [not null]
+  name String [not null]
+  slug String [not null]
+  order Int [not null, default: 0]
+  metadata Json
+  data Json
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+
+  indexes {
+    (pageId, slug) [unique]
+  }
+}
+
+Table RegionPage {
+  id String [pk]
+  locationId String [unique, not null]
+  location Location [not null]
+  metadata Json
+  sections RegionPageSection [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table RegionPageSection {
+  id String [pk]
+  pageId String [not null]
+  page RegionPage [not null]
+  name String [not null]
+  slug String [not null]
+  order Int [not null, default: 0]
+  metadata Json
+  data Json
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+
+  indexes {
+    (pageId, slug) [unique]
+  }
 }
 
 Table Role {
@@ -312,20 +213,6 @@ Table UserPersonalInfo {
   user Auth [not null]
 }
 
-Table Wishlist {
-  id String [pk]
-  authId String [not null]
-  journeyId String [not null]
-  createdAt DateTime [default: `now()`, not null]
-  updatedAt DateTime [not null]
-  user Auth [not null]
-  journey Joruneys [not null]
-
-  indexes {
-    (authId, journeyId) [unique]
-  }
-}
-
 Table RoleToUser {
   rolesId String [ref: > Role.id]
   usersId String [ref: > Auth.id]
@@ -347,6 +234,14 @@ Enum Status {
   ARCHIVED
 }
 
+Enum LocationType {
+  CONTINENT
+  REGION
+  COUNTRY
+  SUB_REGION
+  PLACE
+}
+
 Enum Action {
   CREATE
   READ
@@ -360,30 +255,24 @@ Enum Scope {
   OTHER
 }
 
-Ref: Joruneys.destinationId > Destinations.id
+Ref: CmsPageSection.pageId > CmsPage.id [delete: Cascade]
 
-Ref: JourneysHeading.journeyId - Joruneys.id
+Ref: CountryPage.locationId > Location.id [delete: Cascade]
 
-Ref: JourneysOverview.journeyId > Joruneys.id
+Ref: CountryPageSection.pageId > CountryPage.id [delete: Cascade]
 
-Ref: JourneysItinerary.journeyId > Joruneys.id
+Ref: Location.parentId - Location.id
 
-Ref: JourneysIncludes.journeyId > Joruneys.id
+Ref: PlacePage.locationId > Location.id [delete: Cascade]
 
-Ref: JourneysPricing.journeyId - Joruneys.id
+Ref: PlacePageSection.pageId > PlacePage.id [delete: Cascade]
 
-Ref: PagesSection.pageId > Pages.id [delete: Cascade]
+Ref: RegionPage.locationId > Location.id [delete: Cascade]
 
-Ref: Reservation.authId > Auth.id [delete: Cascade]
-
-Ref: Reservation.joruneyId > Joruneys.id
+Ref: RegionPageSection.pageId > RegionPage.id [delete: Cascade]
 
 Ref: Session.authId > Auth.id [delete: Cascade]
 
 Ref: UserSettings.authId - Auth.id [delete: Cascade]
 
 Ref: UserPersonalInfo.authId - Auth.id [delete: Cascade]
-
-Ref: Wishlist.authId > Auth.id [delete: Cascade]
-
-Ref: Wishlist.journeyId > Joruneys.id

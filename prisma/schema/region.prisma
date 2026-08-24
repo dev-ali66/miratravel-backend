@@ -1,0 +1,25 @@
+model RegionPage {
+    id         String               @id @default(cuid())
+    locationId String               @unique
+    location   Location             @relation(fields: [locationId], references: [id], onDelete: Cascade)
+    metadata   Json?
+    sections   RegionPageSection[]
+    createdAt  DateTime             @default(now())
+    updatedAt  DateTime             @updatedAt
+}
+
+model RegionPageSection {
+    id        String      @id @default(cuid())
+    pageId    String
+    page      RegionPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+    name      String
+    slug      String
+    order     Int         @default(0)
+    metadata  Json?
+    data      Json?
+    createdAt DateTime    @default(now())
+    updatedAt DateTime    @updatedAt
+
+    @@unique([pageId, slug])
+    @@index([pageId])
+}

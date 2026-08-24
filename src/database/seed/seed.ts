@@ -3,7 +3,7 @@ import prisma from "../../config/prisma.js";
 
 export const seed = async ({
   email = "admin@dev.com",
-  password = "admin@dev.com1M",
+  password = "Pa$$w0rd.",
 } = {}) => {
   await prisma.$transaction(
     async (tx: any) => {

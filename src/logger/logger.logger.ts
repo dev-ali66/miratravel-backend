@@ -52,7 +52,7 @@ class Logger {
       `[${timestamp}] ${level.padEnd(7)}`
     );
 
-    // console.log(prefix, ...this.format(args));
+    console.log(prefix, ...this.format(args));
   }
 
   info(...args: any[]) {
