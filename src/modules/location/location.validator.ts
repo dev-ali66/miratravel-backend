@@ -2,10 +2,16 @@ import { z } from "zod";
 
 const locationTypeEnum = z.enum([
   "CONTINENT",
+  "SUBCONTINENT",
   "REGION",
   "COUNTRY",
-  "SUB_REGION",
+  "ADMINISTRATIVE_AREA",
+  "CITY",
+  "TOWN",
+  "VILLAGE",
+  "DESTINATION",
   "PLACE",
+  "LANDMARK",
 ]);
 
 export const getLocationValidator = z.object({

@@ -16,6 +16,7 @@ export const manageCountryPageValidator = z.object({
       locationId: z.string().trim().optional(),
 
       metadata: z.any().optional(),
+      data: z.any().optional(),
 
     })
     .superRefine((data, ctx) => {

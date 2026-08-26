@@ -22,6 +22,8 @@ export const manageCmsPageValidator = z.object({
       slug: z.string().optional(),
 
       metadata: z.any().optional(),
+
+      data: z.any().optional(),
     })
     .transform((data) => {
       // Name থেকে slug generate

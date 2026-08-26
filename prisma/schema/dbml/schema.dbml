@@ -29,6 +29,7 @@ Table CmsPage {
   name String [not null]
   slug String [unique, not null]
   metadata Json
+  data Json
   sections CmsPageSection [not null]
   deletedAt DateTime
   createdAt DateTime [default: `now()`, not null]
@@ -59,6 +60,7 @@ Table CountryPage {
   locationId String [unique, not null]
   location Location [not null]
   metadata Json
+  data Json
   sections CountryPageSection [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
@@ -81,6 +83,134 @@ Table CountryPageSection {
   }
 }
 
+Table Journey {
+  id String [pk]
+  slug String [unique, not null]
+  title String [not null]
+  subtitle String
+  price Decimal [not null]
+  currency String [not null, default: 'EUR']
+  minDays Int [not null]
+  maxDays Int [not null]
+  heroImage String[] [not null]
+  gallery String[] [not null]
+  highlights String[] [not null]
+  included String[] [not null]
+  notIncluded String[] [not null]
+  journeyType JourneyType[] [not null]
+  travelStyle TravelStyle[] [not null]
+  perfectFor PerfectFor[] [not null]
+  pace Pace [not null]
+  comfortLevel ComfortLevel [not null]
+  status JourneyStatus [not null, default: 'DRAFT']
+  featured Boolean [not null, default: false]
+  metadata Json
+  data Json
+  locations JourneyLocation [not null]
+  itinerary JourneyItinerary [not null]
+  accommodations JourneyAccommodation [not null]
+  addOns JourneyAddOn [not null]
+  bookings Booking [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table JourneyLocation {
+  id String [pk]
+  journeyId String [not null]
+  journey Journey [not null]
+  locationId String [not null]
+  location Location [not null]
+  order Int [not null, default: 0]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+
+  indexes {
+    (journeyId, locationId) [unique]
+  }
+}
+
+Table JourneyItinerary {
+  id String [pk]
+  journeyId String [not null]
+  journey Journey [not null]
+  dayNumber Int [not null]
+  title String [not null]
+  slug String
+  description String
+  image String[] [not null]
+  locationId String
+  location Location
+  metadata Json
+  data Json
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+
+  indexes {
+    (journeyId, dayNumber) [unique]
+  }
+}
+
+Table JourneyAccommodation {
+  id String [pk]
+  journeyId String [not null]
+  journey Journey [not null]
+  locationId String
+  location Location
+  title String [not null]
+  slug String
+  description String
+  image String[] [not null]
+  order Int [not null, default: 0]
+  metadata Json
+  data Json
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table AddOn {
+  id String [pk]
+  title String [not null]
+  slug String [unique, not null]
+  description String
+  price Decimal [not null]
+  image String[] [not null]
+  metadata Json
+  journeys JourneyAddOn [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table JourneyAddOn {
+  id String [pk]
+  journeyId String [not null]
+  journey Journey [not null]
+  addOnId String [not null]
+  addOn AddOn [not null]
+  createdAt DateTime [default: `now()`, not null]
+
+  indexes {
+    (journeyId, addOnId) [unique]
+  }
+}
+
+Table Booking {
+  id String [pk]
+  journeyId String [not null]
+  journey Journey [not null]
+  travelerName String [not null]
+  travelerEmail String [not null]
+  travelerPhone String
+  travelerType String
+  travelDate DateTime
+  travelers Int [not null, default: 1]
+  addOnIds String[] [not null]
+  status BookingStatus [not null, default: 'PENDING']
+  notes String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
 Table Location {
   id String [pk]
   name String [not null]
@@ -97,6 +227,9 @@ Table Location {
   countryPage CountryPage [not null]
   regionPage RegionPage [not null]
   placePage PlacePage [not null]
+  journeyLocations JourneyLocation [not null]
+  journeyItinerary JourneyItinerary [not null]
+  journeyAccommodations JourneyAccommodation [not null]
 }
 
 Table Permission {
@@ -114,6 +247,7 @@ Table PlacePage {
   locationId String [unique, not null]
   location Location [not null]
   metadata Json
+  data Json
   sections PlacePageSection [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
@@ -141,6 +275,7 @@ Table RegionPage {
   locationId String [unique, not null]
   location Location [not null]
   metadata Json
+  data Json
   sections RegionPageSection [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
@@ -234,12 +369,76 @@ Enum Status {
   ARCHIVED
 }
 
+Enum JourneyType {
+  PRIVATE_JOURNEY
+  SELF_DRIVE_JOURNEY
+  SMALL_GROUP
+  LUXURY_ESCAPE
+  FAMILY_JOURNEY
+}
+
+Enum TravelStyle {
+  CULTURE_HERITAGE
+  NATURE
+  ADVENTURE
+  FOOD_WINE
+  COASTAL_ESCAPE
+  MOUNTAINS
+  SLOW_TRAVEL
+  LUXURY
+  PHOTOGRAPHY
+  WELLNESS
+}
+
+Enum PerfectFor {
+  COUPLES
+  FAMILIES
+  FRIENDS
+  FOOD_WINE
+  SOLO_TRAVELLERS
+  HONEYMOONERS
+  FIRST_TIME_VISITORS
+  RETURNING_VISITORS
+  NATURE_LOVERS
+  ADVENTURE_SEEKERS
+}
+
+Enum Pace {
+  RELAXED
+  BALANCED
+  ACTIVE
+}
+
+Enum ComfortLevel {
+  COMFORT
+  BOUTIQUE
+  PREMIUM_LUXURY
+}
+
+Enum JourneyStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+Enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
 Enum LocationType {
   CONTINENT
+  SUBCONTINENT
   REGION
   COUNTRY
-  SUB_REGION
+  ADMINISTRATIVE_AREA
+  CITY
+  TOWN
+  VILLAGE
+  DESTINATION
   PLACE
+  LANDMARK
 }
 
 Enum Action {
@@ -260,6 +459,24 @@ Ref: CmsPageSection.pageId > CmsPage.id [delete: Cascade]
 Ref: CountryPage.locationId > Location.id [delete: Cascade]
 
 Ref: CountryPageSection.pageId > CountryPage.id [delete: Cascade]
+
+Ref: JourneyLocation.journeyId > Journey.id [delete: Cascade]
+
+Ref: JourneyLocation.locationId > Location.id
+
+Ref: JourneyItinerary.journeyId > Journey.id [delete: Cascade]
+
+Ref: JourneyItinerary.locationId > Location.id
+
+Ref: JourneyAccommodation.journeyId > Journey.id [delete: Cascade]
+
+Ref: JourneyAccommodation.locationId > Location.id
+
+Ref: JourneyAddOn.journeyId > Journey.id [delete: Cascade]
+
+Ref: JourneyAddOn.addOnId > AddOn.id [delete: Cascade]
+
+Ref: Booking.journeyId > Journey.id
 
 Ref: Location.parentId - Location.id
 

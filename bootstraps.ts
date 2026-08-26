@@ -7,13 +7,21 @@ import cmsPageSectionsRoutes from "./src/modules/cms/cmspagesections/cmspagesect
 import locationRoutes from "./src/modules/location/location.routes.js";
 import countryPageRoutes from "./src/modules/country/countryPage/countryPage.routes.js";
 import countryPageSectionsRoutes from "./src/modules/country/countryPageSection/countryPageSection.routes.js";
+import regionPageRoutes from "./src/modules/region/regionPage/regionPage.routes.js";
+import regionPageSectionsRoutes from "./src/modules/region/regionPageSection/regionPageSection.routes.js";
+import placePageRoutes from "./src/modules/place/placePage/placePage.routes.js";
+import placePageSectionsRoutes from "./src/modules/place/placePageSection/placePageSection.routes.js";
 export const bootstraps = (app: any) => {
   mount(app, "/api/v1/auth", authRoutes);
   mount(app, "/api/v1/roles", rolesRoutes);
   mount(app, "/api/v1/permissions", permissionsRoutes);
-  mount(app, "/api/v1/cmspages", cmsPagesRoutes);
-  mount(app, "/api/v1/cmspagesections", cmsPageSectionsRoutes);
+  mount(app, "/api/v1/cms-pages", cmsPagesRoutes);
+  mount(app, "/api/v1/cms-pages-sections", cmsPageSectionsRoutes);
   mount(app, "/api/v1/locations", locationRoutes);
   mount(app, "/api/v1/country-pages", countryPageRoutes);
   mount(app, "/api/v1/country-pages-sections", countryPageSectionsRoutes);
+  mount(app, "/api/v1/region-pages", regionPageRoutes);
+  mount(app, "/api/v1/region-pages-sections", regionPageSectionsRoutes);
+  mount(app, "/api/v1/place-pages", placePageRoutes);
+  mount(app, "/api/v1/place-pages-sections", placePageSectionsRoutes);
 };

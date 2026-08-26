@@ -1,19 +1,22 @@
 model Location {
-    id          String        @id @default(cuid())
-    name        String
-    slug        String        @unique
-    type        LocationType
-    parentId    String?
-    parent      Location?     @relation("LocationHierarchy", fields: [parentId], references: [id])
-    children    Location[]    @relation("LocationHierarchy")
-    geoData     Json?
-    metadata    Json?
-    data        Json?
-    createdAt   DateTime      @default(now())
-    updatedAt   DateTime      @updatedAt
-    countryPage CountryPage[]
-    regionPage  RegionPage[]
-    placePage   PlacePage[]
+    id                    String                 @id @default(cuid())
+    name                  String
+    slug                  String                 @unique
+    type                  LocationType
+    parentId              String?
+    parent                Location?              @relation("LocationHierarchy", fields: [parentId], references: [id])
+    children              Location[]             @relation("LocationHierarchy")
+    geoData               Json?
+    metadata              Json?
+    data                  Json?
+    createdAt             DateTime               @default(now())
+    updatedAt             DateTime               @updatedAt
+    countryPage           CountryPage[]
+    regionPage            RegionPage[]
+    placePage             PlacePage[]
+    journeyLocations      JourneyLocation[]
+    journeyItinerary      JourneyItinerary[]
+    journeyAccommodations JourneyAccommodation[]
 
     @@index([parentId])
     @@index([type])
@@ -21,8 +24,14 @@ model Location {
 
 enum LocationType {
     CONTINENT
+    SUBCONTINENT
     REGION
     COUNTRY
-    SUB_REGION
+    ADMINISTRATIVE_AREA
+    CITY
+    TOWN
+    VILLAGE
+    DESTINATION
     PLACE
+    LANDMARK
 }

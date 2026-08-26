@@ -1,0 +1,203 @@
+enum JourneyType {
+  PRIVATE_JOURNEY
+  SELF_DRIVE_JOURNEY
+  SMALL_GROUP
+  LUXURY_ESCAPE
+  FAMILY_JOURNEY
+}
+
+enum TravelStyle {
+  CULTURE_HERITAGE
+  NATURE
+  ADVENTURE
+  FOOD_WINE
+  COASTAL_ESCAPE
+  MOUNTAINS
+  SLOW_TRAVEL
+  LUXURY
+  PHOTOGRAPHY
+  WELLNESS
+}
+
+enum PerfectFor {
+  COUPLES
+  FAMILIES
+  FRIENDS
+  FOOD_WINE
+  SOLO_TRAVELLERS
+  HONEYMOONERS
+  FIRST_TIME_VISITORS
+  RETURNING_VISITORS
+  NATURE_LOVERS
+  ADVENTURE_SEEKERS
+}
+
+enum Pace {
+  RELAXED
+  BALANCED
+  ACTIVE
+}
+
+enum ComfortLevel {
+  COMFORT
+  BOUTIQUE
+  PREMIUM_LUXURY
+}
+
+enum JourneyStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+model Journey {
+    id           String        @id @default(cuid())
+    slug         String        @unique
+    title        String
+    subtitle     String?
+    price        Decimal       @db.Decimal(10, 2)
+    currency     String        @default("EUR")
+    minDays      Int
+    maxDays      Int
+
+    heroImage    String[]
+    gallery      String[]
+    highlights   String[]
+    included     String[]
+    notIncluded  String[]
+
+    journeyType  JourneyType[]
+    travelStyle  TravelStyle[]
+    perfectFor   PerfectFor[]
+    pace         Pace
+    comfortLevel ComfortLevel
+
+    status       JourneyStatus @default(DRAFT)
+    featured     Boolean       @default(false)
+
+    metadata     Json?
+    data         Json?
+
+    locations      JourneyLocation[]
+    itinerary      JourneyItinerary[]
+    accommodations JourneyAccommodation[]
+    addOns         JourneyAddOn[]
+    bookings       Booking[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([status])
+    @@index([minDays, maxDays])
+}
+
+model JourneyLocation {
+    id         String   @id @default(cuid())
+    journeyId  String
+    journey    Journey  @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+    locationId String
+    location   Location @relation(fields: [locationId], references: [id])
+    order      Int      @default(0)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([journeyId, locationId])
+    @@index([journeyId])
+}
+
+model JourneyItinerary {
+    id          String    @id @default(cuid())
+    journeyId   String
+    journey     Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+    dayNumber   Int
+    title       String
+    slug        String?
+    description String?
+    image       String[]
+    locationId  String?
+    location    Location? @relation(fields: [locationId], references: [id])
+    metadata    Json?
+    data        Json?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([journeyId, dayNumber])
+    @@index([journeyId])
+}
+
+model JourneyAccommodation {
+    id          String    @id @default(cuid())
+    journeyId   String
+    journey     Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+    locationId  String?
+    location    Location? @relation(fields: [locationId], references: [id])
+    title       String
+    slug        String?
+    description String?
+    image       String[]
+    order       Int       @default(0)
+    metadata    Json?
+    data        Json?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([journeyId])
+}
+
+model AddOn {
+    id          String   @id @default(cuid())
+    title       String
+    slug        String   @unique
+    description String?
+    price       Decimal  @db.Decimal(10, 2)
+    image       String[]
+    metadata    Json?
+
+    journeys JourneyAddOn[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model JourneyAddOn {
+    id        String   @id @default(cuid())
+    journeyId String
+    journey   Journey  @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+    addOnId   String
+    addOn     AddOn    @relation(fields: [addOnId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+
+    @@unique([journeyId, addOnId])
+    @@index([journeyId])
+}
+
+model Booking {
+    id            String        @id @default(cuid())
+    journeyId     String
+    journey       Journey       @relation(fields: [journeyId], references: [id])
+    travelerName  String
+    travelerEmail String
+    travelerPhone String?
+    travelerType  String?
+    travelDate    DateTime?
+    travelers     Int           @default(1)
+    addOnIds      String[]
+    status        BookingStatus @default(PENDING)
+    notes         String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([journeyId])
+    @@index([status])
+}

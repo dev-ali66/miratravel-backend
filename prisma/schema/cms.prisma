@@ -3,6 +3,7 @@ model CmsPage {
   name      String
   slug      String           @unique
   metadata  Json?
+  data      Json?
   sections  CmsPageSection[]
   deletedAt DateTime?
   createdAt DateTime         @default(now())
@@ -30,4 +31,3 @@ model CmsPageSection {
   @@index([pageId, order])
   @@index([deletedAt])
 }
-

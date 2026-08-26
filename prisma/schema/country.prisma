@@ -3,6 +3,7 @@ model CountryPage {
     locationId String               @unique
     location   Location             @relation(fields: [locationId], references: [id], onDelete: Cascade)
     metadata   Json?
+    data       Json?
     sections   CountryPageSection[]
     createdAt  DateTime             @default(now())
     updatedAt  DateTime             @updatedAt
