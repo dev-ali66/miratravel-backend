@@ -73,7 +73,7 @@ jobs:
             npm run build
 
             # Restart application
-            pm2 restart ${{ secrets.PM2_APP_NAME }}
+            pm2 reload ecosystem.config.js --env development --update-env
 
             # Save PM2 process list
             pm2 save
