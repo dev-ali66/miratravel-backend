@@ -18,6 +18,7 @@ model Auth {
   roles                  Role[]            @relation("RoleToUser")
   userPersonalInfo       UserPersonalInfo?
   userSettings           UserSettings?
+  bookings               Booking[]
 }
 
 enum Status {

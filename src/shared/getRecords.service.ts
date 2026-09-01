@@ -16,8 +16,9 @@ export const getRecords = async ({
   orderBy = { createdAt: "desc" },
   customWhere = {},
   convertNumber = true,
-  singleRecordAsArray = false,
+  singleRecordAsArray = true,
   audit = true,
+  excludeFilterKeys = [],
 }: any) => {
   const redis = redisManager.getClient();
 
@@ -63,6 +64,8 @@ export const getRecords = async ({
   filter = autoParseJSON(filter, convertNumber);
 
   filter = Object.keys(filter).reduce((acc: any, key) => {
+    if (excludeFilterKeys.includes(key)) return acc;
+
     const value = filter[key];
     if (value === undefined || value === null) return acc;
     if (typeof value === "string" && value.trim() === "") return acc;

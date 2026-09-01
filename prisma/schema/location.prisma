@@ -14,9 +14,9 @@ model Location {
     countryPage           CountryPage[]
     regionPage            RegionPage[]
     placePage             PlacePage[]
-    journeyLocations      JourneyLocation[]
     journeyItinerary      JourneyItinerary[]
     journeyAccommodations JourneyAccommodation[]
+    journeyAddOns         JourneyAddOn[]
 
     @@index([parentId])
     @@index([type])

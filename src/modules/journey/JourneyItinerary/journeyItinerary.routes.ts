@@ -32,7 +32,7 @@ router.post(
   "/",
   protect,
   publicApiLimiter,
-  accessMiddleware("Journey"),
+  accessMiddleware("JourneyItinerary"),
   ...uploadFile(),
   validate(manageJourneyItineraryValidator),
   manageJourneyItineraryController,
@@ -44,7 +44,7 @@ router.delete(
   protect,
   publicApiLimiter,
   ...uploadFile(),
-  accessMiddleware("Journey"),
+  accessMiddleware("JourneyItinerary"),
   deleteJourneyItineraryController,
 );
 

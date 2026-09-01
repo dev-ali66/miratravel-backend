@@ -1,0 +1,1818 @@
+{
+  "info": {
+    "_postman_id": "135fb5de-1be1-4136-94a0-da46ad602142",
+    "name": "mira",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "40330009"
+  },
+  "item": [
+    {
+      "name": "/auth",
+      "item": [
+        {
+          "name": "/csrf-token",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "",
+                "value": "",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{base}}/auth/csrf-token",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "auth",
+                "csrf-token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "email",
+                  "value": "rimawom787@gzeos.com",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "aaliahammedpriom66@gmail.comM",
+                  "type": "text"
+                },
+                {
+                  "key": "firstName",
+                  "value": "A ALI AHAMMED",
+                  "type": "text"
+                },
+                {
+                  "key": "lastName",
+                  "value": "PRIOM",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base}}/auth/register",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "verify-email",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "email",
+                  "value": "rimawom787@gzeos.com",
+                  "type": "text"
+                },
+                {
+                  "key": "otp",
+                  "value": "925877",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base}}/auth/verify-email",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "auth",
+                "verify-email"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtbjV2ZGN1eDAwMDB0cXk0YXpoOXRidXkiLCJlbWFpbCI6ImFhbGlhaGFtbWVkcHJpb202NkBnbWFpbC5jb20iLCJvdHAiOiI1NTY4MzYiLCJvdHBFeHBpcmVzQXQiOiIyMDI2LTAzLTI1VDEwOjA3OjA2LjAwNloiLCJpYXQiOjE3NzQ0MzI2MjYsImV4cCI6MTc3NDUxOTAyNn0.-g_0RHFBKLjuywCcDACGZfF3GVvoxT0ke0dRHaX9d90",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "resend-verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "accesstoken",
+                "value": "{{vault:json-web-token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"aaliahammedpriom66@gmail.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base}}/auth/resend-verification",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "auth",
+                "resend-verification"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "csrf-token",
+                "value": "UVFQsCfY-Rihq0L_xLYxr1tUGo0dosm6RzwA",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "password",
+                  "value": "Pa$$w0rd.",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "admin@dev.com",
+                  "description": "admin",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "admin@dev.com1M",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "email",
+                  "value": "aaliahammedpriom66@gmail.com",
+                  "description": "user",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base}}/auth/login",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "refresh-token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "csrf-token",
+                "value": "AFBkip1W-XvNg5omzyxCnu3sl_Q1xhVweOfM",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"refreshToken\":\"frerfdsfvsdfsdafdsf\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base}}/auth/refresh-token",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "auth",
+                "refresh-token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "csrf-token",
+                "value": "Aq18MMpi-pa2LCG_L-KN9M-lUYIFpG32JwYM",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "allDevices",
+                  "value": "true",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base}}/auth/logout",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "invite",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "email",
+                  "value": "sibok57079@soco7.com",
+                  "type": "text"
+                },
+                {
+                  "key": "role",
+                  "value": "manager",
+                  "type": "text"
+                },
+                {
+                  "key": "name",
+                  "value": "Zawa",
+                  "type": "text"
+                },
+                {
+                  "key": "phone",
+                  "value": "01712345678",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base}}/auth/invite",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "auth",
+                "invite"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "forgot-password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"aaliahammedpriom66@gmail.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base}}/auth/forgot-password",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "verify-forgot-password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"aaliahammedpriom66@gmail.com\",\r\n    \"otp\": \"890428\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base}}/auth/verify-forgot-password",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "auth",
+                "verify-forgot-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "reset-password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"resetToken\": \"fa38616c3644286273598445984731eebfe22840bf699eb3cb14c76c77ff557e\",\r\n    \"newPassword\": \"aaliahammedpriom66@gmail.comM\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base}}/auth/reset-password",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "me",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{base}}/auth/me",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "change-password",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"currentPassword\": \"admin@dev.com1M\",\r\n    \"newPassword\": \"aaliahammedpriom66@gmail.comM\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base}}/auth/change-password",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "auth",
+                "change-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/me update profile info",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "photoUrl",
+                  "type": "file",
+                  "src": "/home/priom/Desktop/photo_2025-11-30_12-55-25.jpg"
+                },
+                {
+                  "key": "firstName",
+                  "value": "test",
+                  "description": "common field",
+                  "type": "text"
+                },
+                {
+                  "key": "lastName",
+                  "value": "test",
+                  "description": "common field",
+                  "type": "text"
+                },
+                {
+                  "key": "phone",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "country",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "state",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "city",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "zipCode",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "about",
+                  "value": "",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base}}/auth/me",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/user-info",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{base}}/auth/user-info",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "auth",
+                "user-info"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "locations",
+      "item": [
+        {
+          "name": "all locations",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "csrf-token",
+                "value": "UVFQsCfY-Rihq0L_xLYxr1tUGo0dosm6RzwA",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{base}}/locations/?limit=1",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "locations",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "1"
+                },
+                {
+                  "key": "page",
+                  "value": "2",
+                  "disabled": true
+                },
+                {
+                  "key": "id",
+                  "value": "cmt9597ng0003xb6oggyohv5e",
+                  "disabled": true
+                },
+                {
+                  "key": "name",
+                  "value": "Albanian",
+                  "disabled": true
+                },
+                {
+                  "key": "slug",
+                  "value": "albania",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "SUB_REGION",
+                  "disabled": true
+                },
+                {
+                  "key": "parentId",
+                  "value": "cmt73c5v9000a8xqslcad6jkr",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "COUNTRY",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "manage locations",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Dhërmi\",\r\n  \"type\": \"PLACE\",\r\n  \"parentId\": \"cmta97k8s0006xbtgrlxvqkux\",\r\n  \"geoData\": {\r\n    \"area\": {\r\n      \"unit\": \"km²\",\r\n      \"value\": 25\r\n    },\r\n    \"mapZoom\": 12,\r\n    \"latitude\": 40.1483,\r\n    \"timezone\": \"Europe/Tirane\",\r\n    \"longitude\": 19.6447\r\n  },\r\n  \"metadata\": {\r\n    \"seo\": {\r\n      \"title\": \"Dhërmi Travel Guide | Explore Albania's Riviera\",\r\n      \"keywords\": [\r\n        \"Dhërmi\",\r\n        \"Dhermi Albania\",\r\n        \"Dhërmi travel\",\r\n        \"Dhërmi beach\",\r\n        \"Albanian Riviera\",\r\n        \"Albania beaches\",\r\n        \"Dhërmi tourism\",\r\n        \"Ionian Coast Albania\"\r\n      ],\r\n      \"description\": \"Explore Dhërmi, one of Albania's most beautiful coastal destinations, known for turquoise beaches, mountain scenery, historic stone houses and spectacular sunsets.\",\r\n      \"canonicalUrl\": \"/destinations/albania/albanian-riviera/dhermi\"\r\n    }\r\n  },\r\n  \"data\": {\r\n    \"name\": \"Dhërmi\",\r\n    \"title\": \"Explore Dhërmi\",\r\n    \"subtitle\": \"Discover turquoise Ionian waters, historic stone houses, mountain landscapes and unforgettable Mediterranean sunsets.\",\r\n    \"description\": \"Dhërmi is a picturesque coastal village on Albania's Ionian coast, famous for its crystal-clear waters, pebble beaches, dramatic mountains and traditional stone architecture. The village combines a historic hilltop settlement with a lively coastline, making it an ideal destination for beach lovers, hikers, food enthusiasts and travelers looking for authentic Balkan culture.\",\r\n    \"shortDescription\": \"Dhërmi is a beautiful Albanian Riviera village known for crystal-clear beaches, dramatic mountains, historic architecture and vibrant summer atmosphere.\",\r\n    \"imageGalary\": [\r\n      {\r\n        \"alt\": \"Dhërmi village and Albanian Riviera coastline\",\r\n        \"url\": \"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80\"\r\n      }\r\n    ],\r\n    \"videoGalary\": {\r\n      \"alt\": \"Dhërmi travel video\",\r\n      \"url\": \"https://res.cloudinary.com/demo/video/upload/glide-over-coastal-beach.mp4\",\r\n      \"thumbnail\": \"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80\"\r\n    },\r\n    \"safety\": {\r\n      \"description\": \"Dhërmi is generally a safe destination for tourists. Visitors should take normal precautions and follow local guidance when swimming, hiking or driving on mountain roads.\",\r\n      \"emergencyNumber\": \"112\"\r\n    },\r\n    \"climate\": {\r\n      \"types\": [\r\n        \"Mediterranean\",\r\n        \"Coastal\"\r\n      ],\r\n      \"description\": \"Dhërmi has a Mediterranean climate with hot, dry summers and mild winters. Summer is the busiest season for beaches, restaurants and outdoor activities.\"\r\n    },\r\n    \"culture\": {\r\n      \"cuisine\": [\r\n        \"Albanian Cuisine\",\r\n        \"Mediterranean Cuisine\",\r\n        \"Seafood\",\r\n        \"Greek Influenced Cuisine\"\r\n      ],\r\n      \"description\": \"Dhërmi reflects the cultural character of southern Albania, combining traditional Albanian heritage, Mediterranean influences, coastal traditions and historic village life.\",\r\n      \"majorLanguages\": [\r\n        \"Albanian\",\r\n        \"Greek\"\r\n      ],\r\n      \"majorReligions\": [\r\n        \"Christianity\",\r\n        \"Islam\"\r\n      ],\r\n      \"famousFestivals\": [\r\n        \"Kala Festival\",\r\n        \"South Outdoor Festival\",\r\n        \"Local Summer Events\"\r\n      ]\r\n    },\r\n    \"geography\": {\r\n      \"highestPoint\": {\r\n        \"name\": \"Cika Mountain\",\r\n        \"unit\": \"m\",\r\n        \"elevation\": 2044\r\n      },\r\n      \"majorLandscapes\": [\r\n        \"Ionian Coast\",\r\n        \"Cika Mountains\",\r\n        \"Llogara Pass\",\r\n        \"Dhërmi Beach\",\r\n        \"Coastal Cliffs\"\r\n      ]\r\n    },\r\n    \"statistics\": {\r\n      \"area\": {\r\n        \"unit\": \"km²\",\r\n        \"value\": 25\r\n      },\r\n      \"population\": {\r\n        \"year\": 2026,\r\n        \"value\": 1500\r\n      }\r\n    },\r\n    \"travelInfo\": {\r\n      \"visa\": {\r\n        \"description\": \"Entry requirements depend on the traveler's nationality and Albania's current immigration rules.\"\r\n      },\r\n      \"currency\": {\r\n        \"description\": \"The Albanian lek is the official currency. Euros are also commonly accepted in tourist businesses.\",\r\n        \"majorCurrency\": \"ALL\"\r\n      },\r\n      \"bestTimeToVisit\": {\r\n        \"summer\": \"June to August\",\r\n        \"winter\": \"December to February\",\r\n        \"general\": \"May to October\"\r\n      },\r\n      \"popularTransportation\": [\r\n        \"Car\",\r\n        \"Bus\",\r\n        \"Taxi\",\r\n        \"Boat\"\r\n      ]\r\n    },\r\n    \"card\": {\r\n      \"title\": \"Dhërmi\",\r\n      \"subtitle\": \"Turquoise beaches, mountain views, and historic charm\",\r\n      \"button\": {\r\n        \"label\": \"EXPLORE\",\r\n        \"icon\": \"north_east\"\r\n      },\r\n      \"background_image\": \"dhermi_card.jpg\"\r\n    },\r\n    \"hero\": {\r\n      \"breadcrumb\": \"DESTINATIONS / ALBANIA / ALBANIAN RIVIERA / DHËRMI\",\r\n      \"title\": \"Discover Dhërmi\",\r\n      \"description\": \"Where the Cika Mountains meet the Ionian Sea. Explore turquoise beaches, a historic hilltop village, hidden coves, local restaurants and spectacular Mediterranean sunsets.\",\r\n      \"background_image\": \"dhermi_hero.jpg\",\r\n      \"button\": {\r\n        \"name\": \"Explore Journey\",\r\n        \"url\": \"/destinations/albania/albanian-riviera/dhermi/journey\"\r\n      }\r\n    },\r\n    \"essence\": {\r\n      \"sub_heading\": \"THE ESSENCE OF DHËRMI\",\r\n      \"title\": \"A mountain village overlooking an unforgettable sea\",\r\n      \"description_paragraphs\": [\r\n        \"Dhërmi is one of the most atmospheric destinations on the Albanian Riviera, where a historic hilltop village looks down toward a spectacular stretch of Ionian coastline. Traditional stone houses, narrow lanes and old churches give the village a distinctive character.\",\r\n        \"Below the historic village, the coastline unfolds into a series of beaches, coves and crystal-clear waters. The combination of mountains and sea makes Dhërmi particularly appealing to travelers who want both relaxation and outdoor adventure.\",\r\n        \"During summer, Dhërmi becomes one of the liveliest destinations on the Riviera, with beach clubs, restaurants, music events and boat trips. Outside the busiest months, the village offers a quieter experience and an opportunity to appreciate its natural beauty.\"\r\n      ],\r\n      \"quote\": \"Wake up above the Ionian Sea, spend the day exploring hidden coves, and watch the sun disappear behind the mountains.\",\r\n      \"side_image\": {\r\n        \"essence_image\": \"dhermi_mountains.jpg\",\r\n        \"alt\": \"Historic Dhërmi village surrounded by mountains overlooking the Ionian Sea.\"\r\n      }\r\n    },\r\n    \"info\": {\r\n      \"headline\": \"What kind of village lets you walk from ancient stone streets to turquoise Mediterranean water?\",\r\n      \"description\": \"Dhërmi combines a historic hilltop settlement, spectacular beaches, mountain scenery and a lively summer atmosphere in one of Albania's most memorable coastal destinations.\"\r\n    },\r\n    \"why\": {\r\n      \"subtitle\": \"WHY VISIT DHËRMI\",\r\n      \"title\": \"A destination where mountains meet the Ionian Sea\",\r\n      \"tags\": [\r\n        \"Beaches\",\r\n        \"Hiking\",\r\n        \"Boat Trips\",\r\n        \"Restaurants\",\r\n        \"Sunset\",\r\n        \"Historic Village\"\r\n      ],\r\n      \"description_paragraphs\": [\r\n        \"Dhërmi is an excellent base for exploring the Albanian Riviera. Its coastline offers clear water, pebble beaches and access to quieter coves that can be explored by boat or on foot.\",\r\n        \"The surrounding mountains provide opportunities for hiking and scenic drives, particularly around the Llogara Pass and Cika Mountain. The elevated landscapes create spectacular views over the Ionian Sea.\",\r\n        \"Dhërmi's restaurants and beachside venues serve fresh seafood, grilled meats, traditional Albanian dishes and Mediterranean-inspired cuisine, making the local food scene an important part of the experience.\"\r\n      ],\r\n      \"image\": \"dhermi_beach.jpg\"\r\n    },\r\n    \"experiences\": {\r\n      \"location\": \"DHËRMI, ALBANIA\",\r\n      \"title\": \"Experiences\",\r\n      \"description\": \"Discover six ways to experience the beaches, mountains, culture and coastal lifestyle of Dhërmi.\",\r\n      \"featured_experience\": {\r\n        \"category\": \"ADVENTURE\",\r\n        \"duration\": \"Half day\",\r\n        \"title\": \"Dhërmi Boat Trip\",\r\n        \"subtitle\": \"Explore hidden coves, sea caves and crystal-clear Ionian waters\",\r\n        \"action_text\": \"More info\",\r\n        \"image\": \"dhermi_boat_trip.jpg\"\r\n      },\r\n      \"cards\": [\r\n        {\r\n          \"id\": 1,\r\n          \"category\": \"BEACH\",\r\n          \"title\": \"Dhërmi Beach\",\r\n          \"subtitle\": \"Swim in crystal-clear Ionian waters\",\r\n          \"description\": \"Relax on the famous pebble beach, enjoy the clear water and experience the lively summer atmosphere of the Albanian Riviera.\",\r\n          \"price\": \"Varies\",\r\n          \"action_text\": \"Collapse\",\r\n          \"image\": \"dhermi_beach.jpg\"\r\n        },\r\n        {\r\n          \"id\": 2,\r\n          \"category\": \"ADVENTURE\",\r\n          \"title\": \"Gjipe Beach\",\r\n          \"subtitle\": \"Discover a secluded coastal paradise\",\r\n          \"description\": \"Travel to the dramatic Gjipe canyon and beach, surrounded by steep cliffs and spectacular natural scenery.\",\r\n          \"price\": \"Varies\",\r\n          \"action_text\": \"Collapse\",\r\n          \"image\": \"gjipe_beach.jpg\"\r\n        },\r\n        {\r\n          \"id\": 3,\r\n          \"category\": \"CULTURE\",\r\n          \"title\": \"Old Dhërmi Village\",\r\n          \"subtitle\": \"Walk through historic stone streets\",\r\n          \"description\": \"Explore traditional stone houses, narrow lanes, historic churches and panoramic viewpoints in the old village.\",\r\n          \"price\": \"Free\",\r\n          \"action_text\": \"Collapse\",\r\n          \"image\": \"old_dhermi_village.jpg\"\r\n        }\r\n      ],\r\n      \"load_more_button\": \"Load More\",\r\n      \"footer\": {\r\n        \"note\": \"The main season runs from May to October. July and August are the busiest months, while May, June and September offer a quieter experience.\",\r\n        \"region\": \"Dhërmi, Albanian Riviera\"\r\n      }\r\n    },\r\n    \"travel_insights\": {\r\n      \"sub_heading\": \"TRAVEL INSIGHTS\",\r\n      \"title\": \"Everything you need to know before you go\",\r\n      \"articles\": [\r\n        {\r\n          \"id\": \"01\",\r\n          \"category\": \"ACCOMMODATION\",\r\n          \"title\": \"Where to stay in Dhërmi: beach, village or hillside\",\r\n          \"thumbnail\": \"dhermi_accommodation_thumb.jpg\"\r\n        },\r\n        {\r\n          \"id\": \"02\",\r\n          \"category\": \"BEACHES\",\r\n          \"title\": \"The best beaches and hidden coves near Dhërmi\",\r\n          \"thumbnail\": \"dhermi_beaches_thumb.jpg\"\r\n        },\r\n        {\r\n          \"id\": \"03\",\r\n          \"category\": \"FOOD & DRINK\",\r\n          \"title\": \"Where to eat in Dhërmi: seafood, Albanian dishes and beach restaurants\",\r\n          \"thumbnail\": \"dhermi_food_thumb.jpg\"\r\n        },\r\n        {\r\n          \"id\": \"04\",\r\n          \"category\": \"DAY TRIPS\",\r\n          \"title\": \"Best day trips from Dhërmi\",\r\n          \"thumbnail\": \"dhermi_day_trips_thumb.jpg\"\r\n        }\r\n      ],\r\n      \"main_image\": \"dhermi_traveler.jpg\"\r\n    },\r\n    \"practical_information\": {\r\n      \"sub_heading\": \"PRACTICAL INFORMATION\",\r\n      \"title\": \"Before you travel\",\r\n      \"side_image\": \"dhermi_welcome_sign.jpg\",\r\n      \"accordion_items\": [\r\n        {\r\n          \"id\": \"getting_there\",\r\n          \"title\": \"Getting there\",\r\n          \"is_expanded\": true,\r\n          \"content\": \"Dhërmi is located along Albania's scenic SH8 coastal road. The village can be reached by car or bus from Himarë, Vlorë, Sarandë and other destinations along the Riviera. Driving is recommended for travelers who want flexibility to explore nearby beaches.\"\r\n        },\r\n        {\r\n          \"id\": \"best_time_to_visit\",\r\n          \"title\": \"Best time to visit\",\r\n          \"is_expanded\": false,\r\n          \"content\": \"June to September is ideal for beach activities. May and October offer milder weather and fewer visitors, while July and August are the busiest months.\"\r\n        },\r\n        {\r\n          \"id\": \"visas_and_entry\",\r\n          \"title\": \"Visas & entry\",\r\n          \"is_expanded\": false,\r\n          \"content\": \"Visa and entry requirements follow Albania's national immigration rules and depend on the traveler's nationality.\"\r\n        },\r\n        {\r\n          \"id\": \"language_and_currency\",\r\n          \"title\": \"Language & currency\",\r\n          \"is_expanded\": false,\r\n          \"content\": \"Albanian is the primary language. Greek is also spoken in parts of southern Albania. The official currency is the Albanian lek (ALL), while euros are commonly accepted in tourist areas.\"\r\n        },\r\n        {\r\n          \"id\": \"safety_and_health\",\r\n          \"title\": \"Safety & health\",\r\n          \"is_expanded\": false,\r\n          \"content\": \"Dhërmi is generally safe for visitors. Travelers should take normal precautions, stay hydrated during hot summer days and follow local guidance when swimming, hiking or driving.\"\r\n        }\r\n      ]\r\n    },\r\n    \"local_guide\": {\r\n      \"sub_heading\": \"LOCAL GUIDE ARTICLES\",\r\n      \"title\": \"Everything you need to know before you go\",\r\n      \"articles\": [\r\n        {\r\n          \"id\": \"01\",\r\n          \"category\": \"ACCOMMODATION\",\r\n          \"title\": \"The best areas to stay in Dhërmi\",\r\n          \"thumbnail\": \"dhermi_accommodation_thumb.jpg\"\r\n        },\r\n        {\r\n          \"id\": \"02\",\r\n          \"category\": \"BEACHES\",\r\n          \"title\": \"Dhërmi's best beaches and swimming spots\",\r\n          \"thumbnail\": \"dhermi_beaches_thumb.jpg\"\r\n        },\r\n        {\r\n          \"id\": \"03\",\r\n          \"category\": \"FOOD & DRINK\",\r\n          \"title\": \"A local food guide to Dhërmi\",\r\n          \"thumbnail\": \"dhermi_food_thumb.jpg\"\r\n        },\r\n        {\r\n          \"id\": \"04\",\r\n          \"category\": \"DAY TRIPS\",\r\n          \"title\": \"The best day trips from Dhërmi\",\r\n          \"thumbnail\": \"dhermi_day_trips_thumb.jpg\"\r\n        }\r\n      ],\r\n      \"main_image\": \"dhermi_local_guide.jpg\"\r\n    },\r\n    \"faq_section\": {\r\n      \"title\": \"Frequently Asked Questions\",\r\n      \"image\": \"dhermi_faq_side_image.jpg\",\r\n      \"questions\": [\r\n        {\r\n          \"id\": 1,\r\n          \"question\": \"What is Dhërmi known for?\",\r\n          \"answer\": \"Dhërmi is known for its beautiful Ionian beaches, crystal-clear water, historic hilltop village, dramatic mountain scenery and lively summer atmosphere.\"\r\n        },\r\n        {\r\n          \"id\": 2,\r\n          \"question\": \"What is the best time to visit Dhërmi?\",\r\n          \"answer\": \"June to September is the best period for beach holidays. May, June and September are especially good for travelers who prefer fewer crowds.\"\r\n        },\r\n        {\r\n          \"id\": 3,\r\n          \"question\": \"How do I get to Dhërmi?\",\r\n          \"answer\": \"Dhërmi is connected by the SH8 coastal road and can be reached by car or bus from Vlorë, Himarë, Sarandë and other Albanian Riviera destinations.\"\r\n        },\r\n        {\r\n          \"id\": 4,\r\n          \"question\": \"What are the best beaches near Dhërmi?\",\r\n          \"answer\": \"Dhërmi Beach, Drymades Beach, Gjipe Beach and nearby coastal coves are among the most popular places to swim and relax.\"\r\n        },\r\n        {\r\n          \"id\": 5,\r\n          \"question\": \"Is Dhërmi expensive?\",\r\n          \"answer\": \"Prices vary significantly by season. July and August are the most expensive months, while accommodation and restaurants can be more affordable outside the peak summer period.\"\r\n        },\r\n        {\r\n          \"id\": 6,\r\n          \"question\": \"What can I do in Dhërmi besides going to the beach?\",\r\n          \"answer\": \"Visitors can explore the old village, hike in the surrounding mountains, take boat trips, visit nearby beaches and historic sites, enjoy local cuisine and explore the Llogara area.\"\r\n        }\r\n      ]\r\n    }\r\n  }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base}}/locations/",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "locations",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete locations",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "id",
+                  "value": "cmoazkogf0005tqek9iuc6cfw",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base}}/locations/",
+              "host": [
+                "{{base}}"
+              ],
+              "path": [
+                "locations",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "cms",
+      "item": [
+        {
+          "name": "cms pages",
+          "item": [
+            {
+              "name": "all page",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "csrf-token",
+                    "value": "UVFQsCfY-Rihq0L_xLYxr1tUGo0dosm6RzwA",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": []
+                },
+                "url": {
+                  "raw": "{{base}}/cms-pages/",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "cms-pages",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "page",
+                      "value": "2",
+                      "disabled": true
+                    },
+                    {
+                      "key": "id",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "name",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "slug",
+                      "value": "home",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "manage page",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"name\": \"Navbar\",\r\n  \"slug\": \"navbar\",\r\n  \"metadata\": {\r\n    \"title\": \"MIRA | Extraordinary Journeys, Thoughtfully Designed\",\r\n    \"description\": \"Private, tailor-made journeys across the Balkans.\"\r\n  },\r\n  \"data\": {\r\n    \"page\": \"navbar\",\r\n    \"theme\": {\r\n      \"backgroundColor\": \"transparent\",\r\n      \"textColor\": \"#FFFFFF\",\r\n      \"activeColor\": \"#C97B4A\"\r\n    },\r\n    \"content\": {\r\n      \"brand\": {\r\n        \"name\": \"MIRA TRAVEL\",\r\n        \"logo\": \"/images/mira-logo.svg\",\r\n        \"alt\": \"Mira Travel Logo\",\r\n        \"url\": \"/\"\r\n      },\r\n      \"menuItems\": [\r\n        {\r\n          \"label\": \"Home\",\r\n          \"url\": \"/\",\r\n          \"active\": true\r\n        },\r\n        {\r\n          \"label\": \"Destinations\",\r\n          \"url\": \"/destinations\",\r\n          \"active\": false\r\n        },\r\n        {\r\n          \"label\": \"Journeys\",\r\n          \"url\": \"/journeys\",\r\n          \"active\": false\r\n        },\r\n        {\r\n          \"label\": \"Travel Inspiration\",\r\n          \"url\": \"#\",\r\n          \"active\": false,\r\n          \"hasDropdown\": true,\r\n          \"children\": [\r\n            {\r\n              \"label\": \"Travel Insights\",\r\n              \"url\": \"/insights\"\r\n            },\r\n            {\r\n              \"label\": \"Mira Stories\",\r\n              \"url\": \"/stories\"\r\n            }\r\n          ]\r\n        },\r\n        {\r\n          \"label\": \"About Mira\",\r\n          \"url\": \"/about\",\r\n          \"active\": false\r\n        },\r\n        {\r\n          \"label\": \"Contact Us\",\r\n          \"url\": \"/contact\",\r\n          \"active\": false\r\n        }\r\n      ],\r\n      \"actions\": [\r\n        {\r\n          \"type\": \"wishlist\",\r\n          \"icon\": \"heart\",\r\n          \"label\": \"Saved Journeys\",\r\n          \"url\": \"/wishlist\"\r\n        },\r\n        {\r\n          \"type\": \"search\",\r\n          \"icon\": \"search\",\r\n          \"label\": \"Search\",\r\n          \"url\": \"/search\"\r\n        }\r\n      ]\r\n    }\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base}}/cms-pages/",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "cms-pages",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete page",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "id",
+                      "value": "cmta9wf02000exbtgocui5vdt",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base}}/cms-pages/",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "cms-pages",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "cms pages sections",
+          "item": [
+            {
+              "name": "all pages Section",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "csrf-token",
+                    "value": "UVFQsCfY-Rihq0L_xLYxr1tUGo0dosm6RzwA",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": []
+                },
+                "url": {
+                  "raw": "{{base}}/cms-pages-sections",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "cms-pages-sections"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "page",
+                      "value": "2",
+                      "disabled": true
+                    },
+                    {
+                      "key": "id",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "pageId",
+                      "value": "cmt75zhi500008xcwy9ejr1yw",
+                      "disabled": true
+                    },
+                    {
+                      "key": "name",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "slug",
+                      "value": "",
+                      "disabled": true
+                    },
+                    {
+                      "key": "type",
+                      "value": "",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "manage pages section",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "pageId",
+                      "value": "cmt75zhi500008xcwy9ejr1yw",
+                      "type": "text"
+                    },
+                    {
+                      "key": "name",
+                      "value": "Plan Your Journey",
+                      "type": "text"
+                    },
+                    {
+                      "key": "slug",
+                      "value": "plan-your-journey",
+                      "type": "text"
+                    },
+                    {
+                      "key": "type",
+                      "value": "content-image",
+                      "type": "text"
+                    },
+                    {
+                      "key": "order",
+                      "value": "6",
+                      "type": "text"
+                    },
+                    {
+                      "key": "metadata",
+                      "value": "{\"title\":\"Your Albania Journey, Designed Around You\",\"description\":\"Tell us how you want to experience Albania and we will create a private journey shaped around your interests, pace and preferred level of comfort.\"}",
+                      "type": "text"
+                    },
+                    {
+                      "key": "data",
+                      "value": "{\"content\":{\"title\":{\"primary\":\"Your Albania Journey,\",\"highlight\":\"Designed Around You\"},\"description\":\"Tell us how you want to experience Albania and we will create a private journey shaped around your interests, pace and preferred level of comfort.\"},\"button\":{\"text\":\"Plan my journey\",\"href\":\"/plan-your-journey\"},\"image\":{\"src\":\"/images/albania-journey.jpg\",\"alt\":\"Scenic Albanian landscape for a personalized journey\"}}",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base}}/cms-pages-sections",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "cms-pages-sections"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete beach page",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "id",
+                      "value": "cmo9sb0bm0001tqootjc1216i",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base}}/cms-pages-sections",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "cms-pages-sections"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "country",
+      "item": [
+        {
+          "name": "countryPage",
+          "item": [
+            {
+              "name": "all countryPage",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "csrf-token",
+                    "value": "UVFQsCfY-Rihq0L_xLYxr1tUGo0dosm6RzwA",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": []
+                },
+                "url": {
+                  "raw": "{{base}}/country-pages/",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "country-pages",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "page",
+                      "value": "2",
+                      "disabled": true
+                    },
+                    {
+                      "key": "id",
+                      "value": "cmt73c5v9000a8xqslcad6jkr",
+                      "disabled": true
+                    },
+                    {
+                      "key": "locationId",
+                      "value": "Albania",
+                      "disabled": true
+                    },
+                    {
+                      "key": "name",
+                      "value": "albania",
+                      "disabled": true
+                    },
+                    {
+                      "key": "slug",
+                      "value": "albania",
+                      "disabled": true
+                    },
+                    {
+                      "key": "search",
+                      "value": "albania",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "manage countryPage",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"id\": \"cmta5ypk10003xb9cb4qb5425\",\r\n    \"locationId\": \"cmt9597ng0003xb6oggyohv5e\",\r\n    \"metadata\": {\r\n        \"seoTitle\": \"Discover Albania | Travel Guide & Destinations\",\r\n        \"seoDescription\": \"Discover Albania's dramatic mountains, Riviera beaches, ancient towns and unforgettable experiences.\",\r\n        \"canonicalUrl\": \"/destinations/albania\",\r\n        \"keywords\": [\r\n            \"Albania travel\",\r\n            \"Albania destinations\",\r\n            \"Albania travel guide\",\r\n            \"Albanian Riviera\",\r\n            \"Albania beaches\",\r\n            \"Berat\",\r\n            \"Gjirokaster\",\r\n            \"Tirana\"\r\n        ]\r\n    },\r\n    \"data\": {\r\n        \"sections\": [\r\n            {\r\n                \"key\": \"country_hero\",\r\n                \"type\": \"hero\",\r\n                \"order\": 1,\r\n                \"bgColor\": \"#0F2A2E\",\r\n                \"bgImages\": [\r\n                    {\r\n                        \"url\": \"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=2000&q=85\",\r\n                        \"alt\": \"Albanian coastal landscape\",\r\n                        \"device\": \"desktop\"\r\n                    },\r\n                    {\r\n                        \"url\": \"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1200&q=85\",\r\n                        \"alt\": \"Albanian coastal landscape\",\r\n                        \"device\": \"mobile\"\r\n                    }\r\n                ],\r\n                \"images\": [],\r\n                \"videos\": [],\r\n                \"bgVideos\": [],\r\n                \"buttons\": [\r\n                    {\r\n                        \"label\": \"Explore Albania\",\r\n                        \"href\": \"/destinations/albania\",\r\n                        \"variant\": \"primary\"\r\n                    },\r\n                    {\r\n                        \"label\": \"View Regions\",\r\n                        \"href\": \"#regions\",\r\n                        \"variant\": \"secondary\"\r\n                    }\r\n                ],\r\n                \"content\": {\r\n                    \"eyebrow\": \"DESTINATION / ALBANIA\",\r\n                    \"title\": \"Discover Albania\",\r\n                    \"description\": \"Where the Balkans meet the Mediterranean. A country of dramatic landscapes, centuries-old towns, crystal-clear beaches and a culture full of hospitality.\"\r\n                }\r\n            },\r\n            {\r\n                \"key\": \"country_story\",\r\n                \"type\": \"story\",\r\n                \"order\": 2,\r\n                \"images\": [\r\n                    {\r\n                        \"url\": \"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1200&q=85\",\r\n                        \"alt\": \"Albanian mountain landscape\",\r\n                        \"position\": \"right\"\r\n                    }\r\n                ],\r\n                \"buttons\": [\r\n                    {\r\n                        \"label\": \"Explore Albania\",\r\n                        \"href\": \"/destinations/albania\",\r\n                        \"variant\": \"text\"\r\n                    }\r\n                ],\r\n                \"content\": {\r\n                    \"eyebrow\": \"THE ESSENCE OF ALBANIA\",\r\n                    \"title\": \"A country that kept its secrets for fifty years\",\r\n                    \"paragraphs\": [\r\n                        \"Albania spent much of the twentieth century isolated from the rest of Europe. Today, that history has helped create a destination that feels refreshingly different.\",\r\n                        \"From rugged mountain villages and historic towns to the turquoise waters of the Albanian Riviera, Albania offers an extraordinary mix of nature, history and local life.\",\r\n                        \"Its landscapes range from dramatic northern peaks to quiet Mediterranean beaches, making it one of Europe's most rewarding destinations for curious travelers.\"\r\n                    ],\r\n                    \"quote\": \"The best way to understand Albania is to slow down and let its landscapes and people tell their story.\",\r\n                    \"stat\": {\r\n                        \"value\": \"2,373\",\r\n                        \"label\": \"km of coastline\"\r\n                    }\r\n                }\r\n            },\r\n            {\r\n                \"key\": \"interactive_map\",\r\n                \"type\": \"map\",\r\n                \"order\": 3,\r\n                \"buttons\": [\r\n                    {\r\n                        \"label\": \"Explore Map\",\r\n                        \"href\": \"/map?country=albania\",\r\n                        \"variant\": \"primary\"\r\n                    }\r\n                ],\r\n                \"content\": {\r\n                    \"eyebrow\": \"EXPLORE\",\r\n                    \"title\": \"Explore Albania\",\r\n                    \"description\": \"Discover Albania's regions, beaches, cities, mountains and hidden places.\"\r\n                }\r\n            },\r\n            {\r\n                \"key\": \"regions\",\r\n                \"type\": \"cards\",\r\n                \"order\": 4,\r\n                \"buttons\": [\r\n                    {\r\n                        \"label\": \"Explore All Regions\",\r\n                        \"href\": \"/destinations/albania/regions\",\r\n                        \"variant\": \"secondary\"\r\n                    }\r\n                ],\r\n                \"content\": {\r\n                    \"eyebrow\": \"REGIONS\",\r\n                    \"title\": \"Explore Albania by Region\",\r\n                    \"description\": \"From the Albanian Alps to the Ionian coast, each region offers a different side of the country.\"\r\n                }\r\n            },\r\n            {\r\n                \"key\": \"regional_experiences\",\r\n                \"type\": \"splitContent\",\r\n                \"order\": 5,\r\n                \"images\": [\r\n                    {\r\n                        \"url\": \"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1200&q=85\",\r\n                        \"alt\": \"Albanian lake and mountain landscape\"\r\n                    }\r\n                ],\r\n                \"buttons\": [\r\n                    {\r\n                        \"label\": \"Discover Experiences\",\r\n                        \"href\": \"/experiences/albania\",\r\n                        \"variant\": \"primary\"\r\n                    }\r\n                ],\r\n                \"content\": {\r\n                    \"eyebrow\": \"EXPERIENCES\",\r\n                    \"title\": \"Four regions. Endless ways to explore.\",\r\n                    \"description\": \"Combine Mediterranean beaches, mountain adventures, historic towns, local cuisine and authentic Balkan culture.\"\r\n                }\r\n            },\r\n            {\r\n                \"key\": \"local_guides\",\r\n                \"type\": \"articles\",\r\n                \"order\": 6,\r\n                \"images\": [\r\n                    {\r\n                        \"url\": \"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1200&q=85\",\r\n                        \"alt\": \"Traveler exploring Albania\"\r\n                    }\r\n                ],\r\n                \"buttons\": [\r\n                    {\r\n                        \"label\": \"View All Guides\",\r\n                        \"href\": \"/guides/albania\",\r\n                        \"variant\": \"light\"\r\n                    }\r\n                ],\r\n                \"content\": {\r\n                    \"eyebrow\": \"LOCAL GUIDE ARTICLES\",\r\n                    \"title\": \"Everything you need to know before you go\",\r\n                    \"items\": [\r\n                        {\r\n                            \"category\": \"ACCOMMODATION\",\r\n                            \"title\": \"Where to stay in Albania\",\r\n                            \"href\": \"/guides/albania/where-to-stay\"\r\n                        },\r\n                        {\r\n                            \"category\": \"FOOD\",\r\n                            \"title\": \"The best food to try in Albania\",\r\n                            \"href\": \"/guides/albania/food\"\r\n                        },\r\n                        {\r\n                            \"category\": \"LOCAL\",\r\n                            \"title\": \"Local customs every traveler should know\",\r\n                            \"href\": \"/guides/albania/local-customs\"\r\n                        },\r\n                        {\r\n                            \"category\": \"DAY TRIPS\",\r\n                            \"title\": \"Best day trips from Tirana and beyond\",\r\n                            \"href\": \"/guides/albania/day-trips\"\r\n                        }\r\n                    ]\r\n                }\r\n            },\r\n            {\r\n                \"key\": \"signature_experiences\",\r\n                \"type\": \"numberedList\",\r\n                \"order\": 7,\r\n                \"buttons\": [\r\n                    {\r\n                        \"label\": \"Explore Experiences\",\r\n                        \"href\": \"/experiences/albania\",\r\n                        \"variant\": \"primary\"\r\n                    }\r\n                ],\r\n                \"content\": {\r\n                    \"eyebrow\": \"SIGNATURE EXPERIENCES\",\r\n                    \"title\": \"Five ways to experience Albania\",\r\n                    \"description\": \"Discover the experiences that make Albania unforgettable.\"\r\n                }\r\n            },\r\n            {\r\n                \"key\": \"faq\",\r\n                \"type\": \"faq\",\r\n                \"order\": 8,\r\n                \"images\": [\r\n                    {\r\n                        \"url\": \"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1000&q=85\",\r\n                        \"alt\": \"Traveler visiting Albania\"\r\n                    }\r\n                ],\r\n                \"content\": {\r\n                    \"title\": \"Frequently Asked Questions\",\r\n                    \"items\": [\r\n                        {\r\n                            \"question\": \"What are the best places to visit in Albania?\",\r\n                            \"answer\": \"Tirana, Berat, Gjirokaster, Shkoder, Sarande and the Albanian Riviera are excellent starting points.\"\r\n                        },\r\n                        {\r\n                            \"question\": \"What is the best time to visit Albania?\",\r\n                            \"answer\": \"May through October is generally the best period, while summer is especially popular for exploring the Riviera.\"\r\n                        },\r\n                        {\r\n                            \"question\": \"How many days should I spend in Albania?\",\r\n                            \"answer\": \"Seven to fourteen days gives you enough time to combine cities, mountains, historic towns and the coast.\"\r\n                        },\r\n                        {\r\n                            \"question\": \"Do I need a visa to visit Albania?\",\r\n                            \"answer\": \"Visa requirements depend on your nationality. Check the latest official Albanian entry requirements before travelling.\"\r\n                        },\r\n                        {\r\n                            \"question\": \"How much does it cost to travel in Albania?\",\r\n                            \"answer\": \"Albania is generally more affordable than many Western European destinations, although popular coastal areas can be more expensive during summer.\"\r\n                        }\r\n                    ]\r\n                }\r\n            },\r\n            {\r\n                \"key\": \"country_cta\",\r\n                \"type\": \"cta\",\r\n                \"order\": 9,\r\n                \"buttons\": [\r\n                    {\r\n                        \"label\": \"Find a Tailor-Made Journey\",\r\n                        \"href\": \"/contact?country=albania\",\r\n                        \"variant\": \"primary\"\r\n                    }\r\n                ],\r\n                \"content\": {\r\n                    \"eyebrow\": \"PLAN YOUR JOURNEY\",\r\n                    \"title\": \"Ready to discover Albania?\",\r\n                    \"description\": \"Tell us what inspires you and create a journey around Albania's mountains, beaches, history, cuisine and culture.\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base}}/country-pages/",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "country-pages",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete countryPage",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "id",
+                      "value": "cmoazkogf0005tqek9iuc6cfw",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base}}/country-pages/",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "country-pages",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "countryPageSections",
+          "item": [
+            {
+              "name": "all countryPageSections",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "csrf-token",
+                    "value": "UVFQsCfY-Rihq0L_xLYxr1tUGo0dosm6RzwA",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": []
+                },
+                "url": {
+                  "raw": "{{base}}/country-pages-sections/?pageId=cmt7gs3aj00038xxwjm5rewpu",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "country-pages-sections",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "page",
+                      "value": "2",
+                      "disabled": true
+                    },
+                    {
+                      "key": "id",
+                      "value": "cmt73c5v9000a8xqslcad6jkr",
+                      "disabled": true
+                    },
+                    {
+                      "key": "pageId",
+                      "value": "cmt7gs3aj00038xxwjm5rewpu"
+                    },
+                    {
+                      "key": "name",
+                      "value": "albania",
+                      "disabled": true
+                    },
+                    {
+                      "key": "slug",
+                      "value": "albania",
+                      "disabled": true
+                    },
+                    {
+                      "key": "search",
+                      "value": "albania",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "manage countryPageSections",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "pageId",
+                      "value": "cmt7gs3aj00038xxwjm5rewpu",
+                      "type": "text"
+                    },
+                    {
+                      "key": "name",
+                      "value": "Tailor Made Journey",
+                      "type": "text"
+                    },
+                    {
+                      "key": "order",
+                      "value": "9",
+                      "type": "text"
+                    },
+                    {
+                      "key": "metadata",
+                      "value": "{\"title\":\"Didn't find your perfect journey?\",\"description\":\"Our collection is carefully designed but every travel is different. If you'd like something more personal, we'd love to create it together.\"}",
+                      "type": "text"
+                    },
+                    {
+                      "key": "data",
+                      "value": "{\"image\":\"[https://placehold.co/947x978\",\"buttonText\":\"Plan](https://placehold.co/947x978%22,%22buttonText%22:%22Plan) a tailor-made journey\",\"buttonLink\":\"/contact\"}",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base}}/country-pages-sections/",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "country-pages-sections",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete countryPageSections",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "id",
+                      "value": "cmoazkogf0005tqek9iuc6cfw",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base}}/country-pages-sections/",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "country-pages-sections",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "region",
+      "item": [
+        {
+          "name": "regionPage",
+          "item": [
+            {
+              "name": "all regionPage",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "csrf-token",
+                    "value": "UVFQsCfY-Rihq0L_xLYxr1tUGo0dosm6RzwA",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": []
+                },
+                "url": {
+                  "raw": "{{base}}/region-pages/",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "region-pages",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "page",
+                      "value": "2",
+                      "disabled": true
+                    },
+                    {
+                      "key": "id",
+                      "value": "cmt73c5v9000a8xqslcad6jkr",
+                      "disabled": true
+                    },
+                    {
+                      "key": "locationId",
+                      "value": "Albania",
+                      "disabled": true
+                    },
+                    {
+                      "key": "name",
+                      "value": "albania",
+                      "disabled": true
+                    },
+                    {
+                      "key": "slug",
+                      "value": "albania",
+                      "disabled": true
+                    },
+                    {
+                      "key": "search",
+                      "value": "albania",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "manage regionPage",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"locationId\": \"cmt9597ng0003xb6oggyohv5e\",\r\n  \"metadata\": {\r\n    \"seoTitle\": \"Discover Albania | Travel Guide & Destinations\",\r\n    \"seoDescription\": \"Discover Albania's dramatic mountains, Riviera beaches, ancient towns and unforgettable experiences.\",\r\n    \"canonicalUrl\": \"/destinations/albania\",\r\n    \"keywords\": [\r\n      \"Albania travel\",\r\n      \"Albania destinations\",\r\n      \"Albania travel guide\",\r\n      \"Albanian Riviera\",\r\n      \"Berat\",\r\n      \"Gjirokaster\",\r\n      \"Tirana\"\r\n    ]\r\n  },\r\n  \"data\": {\r\n    \"country\": {\r\n      \"name\": \"Albania\",\r\n      \"slug\": \"albania\",\r\n      \"intro\": \"A country of dramatic mountains, turquoise coastlines, ancient towns and a culture that rewards curious travelers.\"\r\n    },\r\n    \"sections\": [\r\n      {\r\n        \"key\": \"country_hero\",\r\n        \"type\": \"hero\",\r\n        \"order\": 1,\r\n        \"bgColor\": \"#0F2A2E\",\r\n        \"bgImages\": [\r\n          {\r\n            \"url\": \"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=2000&q=85\",\r\n            \"alt\": \"Albanian coastal landscape\",\r\n            \"device\": \"desktop\"\r\n          },\r\n          {\r\n            \"url\": \"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1200&q=85\",\r\n            \"alt\": \"Albanian coastal landscape\",\r\n            \"device\": \"mobile\"\r\n          }\r\n        ],\r\n        \"images\": [],\r\n        \"videos\": [],\r\n        \"bgVideos\": [],\r\n        \"buttons\": [\r\n          {\r\n            \"label\": \"Explore Albania\",\r\n            \"href\": \"/destinations/albania\",\r\n            \"variant\": \"primary\"\r\n          },\r\n          {\r\n            \"label\": \"View Regions\",\r\n            \"href\": \"#regions\",\r\n            \"variant\": \"secondary\"\r\n          }\r\n        ],\r\n        \"content\": {\r\n          \"eyebrow\": \"DESTINATION / ALBANIA\",\r\n          \"title\": \"Discover Albania\",\r\n          \"description\": \"Where the Balkans meet the Mediterranean. A country of dramatic landscapes, centuries-old towns, crystal-clear beaches and a culture full of hospitality.\"\r\n        }\r\n      },\r\n      {\r\n        \"key\": \"country_story\",\r\n        \"type\": \"story\",\r\n        \"order\": 2,\r\n        \"bgColor\": \"#FBF8F2\",\r\n        \"bgImages\": [],\r\n        \"images\": [\r\n          {\r\n            \"url\": \"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1200&q=85\",\r\n            \"alt\": \"Albanian mountain landscape\",\r\n            \"position\": \"right\"\r\n          }\r\n        ],\r\n        \"videos\": [],\r\n        \"bgVideos\": [],\r\n        \"buttons\": [\r\n          {\r\n            \"label\": \"Explore Albania\",\r\n            \"href\": \"/destinations/albania\",\r\n            \"variant\": \"text\"\r\n          }\r\n        ],\r\n        \"content\": {\r\n          \"eyebrow\": \"THE ESSENCE OF ALBANIA\",\r\n          \"title\": \"A country that kept its secrets for fifty years\",\r\n          \"paragraphs\": [\r\n            \"Albania spent much of the twentieth century isolated from the rest of Europe. Today that history has left behind a country that feels refreshingly different.\",\r\n            \"From rugged mountain villages and Ottoman-era towns to the turquoise waters of the Albanian Riviera, Albania offers an extraordinary mix of nature, history and authentic local life.\",\r\n            \"Its landscapes range from dramatic northern peaks to quiet Mediterranean beaches, making it one of Europe's most rewarding emerging destinations.\"\r\n          ],\r\n          \"quote\": \"The best way to understand Albania is to slow down and let its landscapes and people tell their story.\",\r\n          \"stat\": {\r\n            \"value\": \"2,373\",\r\n            \"label\": \"km of coastline and mountain landscapes\"\r\n          }\r\n        }\r\n      },\r\n      {\r\n        \"key\": \"interactive_map\",\r\n        \"type\": \"map\",\r\n        \"order\": 3,\r\n        \"bgColor\": \"#F5F0E7\",\r\n        \"bgImages\": [],\r\n        \"images\": [],\r\n        \"videos\": [],\r\n        \"bgVideos\": [],\r\n        \"buttons\": [\r\n          {\r\n            \"label\": \"Explore Map\",\r\n            \"href\": \"/map?country=albania\",\r\n            \"variant\": \"primary\"\r\n          }\r\n        ],\r\n        \"content\": {\r\n          \"eyebrow\": \"EXPLORE\",\r\n          \"title\": \"Interactive Map\",\r\n          \"description\": \"Discover Albania's regions, beaches, cities and hidden places.\"\r\n        }\r\n      },\r\n      {\r\n        \"key\": \"regions\",\r\n        \"type\": \"cards\",\r\n        \"order\": 4,\r\n        \"bgColor\": \"#F3EFE6\",\r\n        \"bgImages\": [],\r\n        \"images\": [],\r\n        \"videos\": [],\r\n        \"bgVideos\": [],\r\n        \"buttons\": [\r\n          {\r\n            \"label\": \"Explore All Regions\",\r\n            \"href\": \"/destinations/albania/regions\",\r\n            \"variant\": \"secondary\"\r\n          }\r\n        ],\r\n        \"content\": {\r\n          \"eyebrow\": \"SEASONAL HIGHLIGHTS\",\r\n          \"title\": \"Regions of Albania\",\r\n          \"description\": \"A collection of destinations worth exploring, each with its own character.\"\r\n        }\r\n      },\r\n      {\r\n        \"key\": \"regional_experiences\",\r\n        \"type\": \"splitContent\",\r\n        \"order\": 5,\r\n        \"bgColor\": \"#FFFDF8\",\r\n        \"bgImages\": [],\r\n        \"images\": [\r\n          {\r\n            \"url\": \"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1200&q=85\",\r\n            \"alt\": \"Albanian lake and mountain landscape\"\r\n          }\r\n        ],\r\n        \"videos\": [],\r\n        \"bgVideos\": [],\r\n        \"buttons\": [\r\n          {\r\n            \"label\": \"Discover Regions\",\r\n            \"href\": \"/destinations/albania/regions\",\r\n            \"variant\": \"primary\"\r\n          }\r\n        ],\r\n        \"content\": {\r\n          \"eyebrow\": \"EXPLORE ALBANIA\",\r\n          \"title\": \"Four Regions. Four Different Experiences.\"\r\n        }\r\n      },\r\n      {\r\n        \"key\": \"local_guides\",\r\n        \"type\": \"articles\",\r\n        \"order\": 6,\r\n        \"bgColor\": \"#143305\",\r\n        \"bgImages\": [],\r\n        \"images\": [\r\n          {\r\n            \"url\": \"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1200&q=85\",\r\n            \"alt\": \"Traveler exploring Albania\"\r\n          }\r\n        ],\r\n        \"videos\": [],\r\n        \"bgVideos\": [],\r\n        \"buttons\": [\r\n          {\r\n            \"label\": \"View All Guides\",\r\n            \"href\": \"/guides/albania\",\r\n            \"variant\": \"light\"\r\n          }\r\n        ],\r\n        \"content\": {\r\n          \"eyebrow\": \"LOCAL GUIDE ARTICLES\",\r\n          \"title\": \"Everything you need to know before you go\",\r\n          \"items\": [\r\n            {\r\n              \"category\": \"ACCOMMODATION\",\r\n              \"title\": \"Where to stay in Albania\",\r\n              \"href\": \"/guides/albania/where-to-stay\"\r\n            },\r\n            {\r\n              \"category\": \"FOOD\",\r\n              \"title\": \"The best food to try in Albania\",\r\n              \"href\": \"/guides/albania/food\"\r\n            },\r\n            {\r\n              \"category\": \"LOCAL\",\r\n              \"title\": \"Local customs every traveler should know\",\r\n              \"href\": \"/guides/albania/local-customs\"\r\n            },\r\n            {\r\n              \"category\": \"DAY TRIPS\",\r\n              \"title\": \"Day trips from Tirana and beyond\",\r\n              \"href\": \"/guides/albania/day-trips\"\r\n            }\r\n          ]\r\n        }\r\n      },\r\n      {\r\n        \"key\": \"signature_experiences\",\r\n        \"type\": \"numberedList\",\r\n        \"order\": 7,\r\n        \"bgColor\": \"#FFFDF8\",\r\n        \"bgImages\": [],\r\n        \"images\": [],\r\n        \"videos\": [],\r\n        \"bgVideos\": [],\r\n        \"buttons\": [\r\n          {\r\n            \"label\": \"Explore Experiences\",\r\n            \"href\": \"/experiences/albania\",\r\n            \"variant\": \"primary\"\r\n          }\r\n        ],\r\n        \"content\": {\r\n          \"eyebrow\": \"SIGNATURE EXPERIENCES\",\r\n          \"title\": \"Five ways to fall in love with Albania\",\r\n          \"description\": \"Discover the experiences that make Albania unforgettable.\"\r\n        }\r\n      },\r\n      {\r\n        \"key\": \"faq\",\r\n        \"type\": \"faq\",\r\n        \"order\": 8,\r\n        \"bgColor\": \"#F5F0E7\",\r\n        \"bgImages\": [],\r\n        \"images\": [\r\n          {\r\n            \"url\": \"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1000&q=85\",\r\n            \"alt\": \"Traveler visiting Albania\"\r\n          }\r\n        ],\r\n        \"videos\": [],\r\n        \"bgVideos\": [],\r\n        \"buttons\": [],\r\n        \"content\": {\r\n          \"title\": \"Frequently Asked Questions\",\r\n          \"items\": [\r\n            {\r\n              \"question\": \"What are the best places to visit in Albania?\",\r\n              \"answer\": \"Tirana, Berat, Gjirokaster, Shkoder, Sarande and the Albanian Riviera are excellent starting points.\"\r\n            },\r\n            {\r\n              \"question\": \"What is the best time to visit Albania?\",\r\n              \"answer\": \"Late spring through early autumn is ideal, with summer being especially popular for the Riviera.\"\r\n            },\r\n            {\r\n              \"question\": \"How many days should I spend in Albania?\",\r\n              \"answer\": \"Seven to fourteen days gives you enough time to combine cities, mountains and the coast.\"\r\n            },\r\n            {\r\n              \"question\": \"Do I need a visa to visit Albania?\",\r\n              \"answer\": \"Visa requirements depend on your nationality. Check the latest official requirements before travelling.\"\r\n            },\r\n            {\r\n              \"question\": \"How much does Albania cost to visit?\",\r\n              \"answer\": \"Albania is generally more affordable than many Western European destinations, although coastal areas can be more expensive in summer.\"\r\n            }\r\n          ]\r\n        }\r\n      },\r\n      {\r\n        \"key\": \"country_cta\",\r\n        \"type\": \"cta\",\r\n        \"order\": 9,\r\n        \"bgColor\": \"#EEE7DB\",\r\n        \"bgImages\": [],\r\n        \"images\": [],\r\n        \"videos\": [],\r\n        \"bgVideos\": [],\r\n        \"buttons\": [\r\n          {\r\n            \"label\": \"Find a tailor-made journey\",\r\n            \"href\": \"/contact?country=albania\",\r\n            \"variant\": \"primary\"\r\n          }\r\n        ],\r\n        \"content\": {\r\n          \"eyebrow\": \"PLAN YOUR JOURNEY\",\r\n          \"title\": \"Didn't find your perfect journey?\",\r\n          \"description\": \"Our collection is carefully designed but every traveler is different. Tell us what inspires you and we'll help create a journey around it.\"\r\n        }\r\n      }\r\n    ]\r\n  }\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base}}/region-pages/",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "region-pages",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete regionPage",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "id",
+                      "value": "cmoazkogf0005tqek9iuc6cfw",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base}}/region-pages/",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "region-pages",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "regionPageSections",
+          "item": [
+            {
+              "name": "all regionPageSections",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "csrf-token",
+                    "value": "UVFQsCfY-Rihq0L_xLYxr1tUGo0dosm6RzwA",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": []
+                },
+                "url": {
+                  "raw": "{{base}}/region-pages-sections/?pageId=cmt7gs3aj00038xxwjm5rewpu",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "region-pages-sections",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "page",
+                      "value": "2",
+                      "disabled": true
+                    },
+                    {
+                      "key": "id",
+                      "value": "cmt73c5v9000a8xqslcad6jkr",
+                      "disabled": true
+                    },
+                    {
+                      "key": "pageId",
+                      "value": "cmt7gs3aj00038xxwjm5rewpu"
+                    },
+                    {
+                      "key": "name",
+                      "value": "albania",
+                      "disabled": true
+                    },
+                    {
+                      "key": "slug",
+                      "value": "albania",
+                      "disabled": true
+                    },
+                    {
+                      "key": "search",
+                      "value": "albania",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "manage regionPageSections",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "pageId",
+                      "value": "cmt7gs3aj00038xxwjm5rewpu",
+                      "type": "text"
+                    },
+                    {
+                      "key": "name",
+                      "value": "Tailor Made Journey",
+                      "type": "text"
+                    },
+                    {
+                      "key": "order",
+                      "value": "9",
+                      "type": "text"
+                    },
+                    {
+                      "key": "metadata",
+                      "value": "{\"title\":\"Didn't find your perfect journey?\",\"description\":\"Our collection is carefully designed but every travel is different. If you'd like something more personal, we'd love to create it together.\"}",
+                      "type": "text"
+                    },
+                    {
+                      "key": "data",
+                      "value": "{\"image\":\"[https://placehold.co/947x978\",\"buttonText\":\"Plan](https://placehold.co/947x978%22,%22buttonText%22:%22Plan) a tailor-made journey\",\"buttonLink\":\"/contact\"}",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base}}/region-pages-sections/",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "region-pages-sections",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete regionPageSections",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "id",
+                      "value": "cmoazkogf0005tqek9iuc6cfw",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base}}/region-pages-sections/",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "region-pages-sections",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "place",
+      "item": [
+        {
+          "name": "placePage",
+          "item": [
+            {
+              "name": "all regionPage",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "csrf-token",
+                    "value": "UVFQsCfY-Rihq0L_xLYxr1tUGo0dosm6RzwA",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": []
+                },
+                "url": {
+                  "raw": "{{base}}/place-pages/",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "place-pages",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "page",
+                      "value": "2",
+                      "disabled": true
+                    },
+                    {
+                      "key": "id",
+                      "value": "cmt73c5v9000a8xqslcad6jkr",
+                      "disabled": true
+                    },
+                    {
+                      "key": "locationId",
+                      "value": "Albania",
+                      "disabled": true
+                    },
+                    {
+                      "key": "name",
+                      "value": "albania",
+                      "disabled": true
+                    },
+                    {
+                      "key": "slug",
+                      "value": "albania",
+                      "disabled": true
+                    },
+                    {
+                      "key": "search",
+                      "value": "albania",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "manage regionPage",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "id",
+                      "value": "cmt7gs3aj00038xxwjm5rewpu",
+                      "type": "text"
+                    },
+                    {
+                      "key": "locationId",
+                      "value": "cmt73c5v9000a8xqslcad6jkr",
+                      "type": "text"
+                    },
+                    {
+                      "key": "metadata",
+                      "value": "{\"title\": \"Discover Albania\",\"description\": \"Where the Balkans meet theMediterranean.A country of dramatic alps, UNESCO-listed towns, sun-drenched rivers, and a culture of hospitality unlike anything else in Europe.\"}",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base}}/place-pages/",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "place-pages",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete regionPage",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "id",
+                      "value": "cmoazkogf0005tqek9iuc6cfw",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base}}/place-pages/",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "place-pages",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "placePageSections",
+          "item": [
+            {
+              "name": "all regionPageSections",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "csrf-token",
+                    "value": "UVFQsCfY-Rihq0L_xLYxr1tUGo0dosm6RzwA",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": []
+                },
+                "url": {
+                  "raw": "{{base}}/place-pages-sections/?pageId=cmt7gs3aj00038xxwjm5rewpu",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "place-pages-sections",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "1",
+                      "disabled": true
+                    },
+                    {
+                      "key": "page",
+                      "value": "2",
+                      "disabled": true
+                    },
+                    {
+                      "key": "id",
+                      "value": "cmt73c5v9000a8xqslcad6jkr",
+                      "disabled": true
+                    },
+                    {
+                      "key": "pageId",
+                      "value": "cmt7gs3aj00038xxwjm5rewpu"
+                    },
+                    {
+                      "key": "name",
+                      "value": "albania",
+                      "disabled": true
+                    },
+                    {
+                      "key": "slug",
+                      "value": "albania",
+                      "disabled": true
+                    },
+                    {
+                      "key": "search",
+                      "value": "albania",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "manage regionPageSections",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "pageId",
+                      "value": "cmt7gs3aj00038xxwjm5rewpu",
+                      "type": "text"
+                    },
+                    {
+                      "key": "name",
+                      "value": "Tailor Made Journey",
+                      "type": "text"
+                    },
+                    {
+                      "key": "order",
+                      "value": "9",
+                      "type": "text"
+                    },
+                    {
+                      "key": "metadata",
+                      "value": "{\"title\":\"Didn't find your perfect journey?\",\"description\":\"Our collection is carefully designed but every travel is different. If you'd like something more personal, we'd love to create it together.\"}",
+                      "type": "text"
+                    },
+                    {
+                      "key": "data",
+                      "value": "{\"image\":\"[https://placehold.co/947x978\",\"buttonText\":\"Plan](https://placehold.co/947x978%22,%22buttonText%22:%22Plan) a tailor-made journey\",\"buttonLink\":\"/contact\"}",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base}}/place-pages-sections/",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "place-pages-sections",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete regionPageSections",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "id",
+                      "value": "cmoazkogf0005tqek9iuc6cfw",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base}}/place-pages-sections/",
+                  "host": [
+                    "{{base}}"
+                  ],
+                  "path": [
+                    "place-pages-sections",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2351 @@
+{
+  "info": {
+    "name": "Mira API \u2014 Complete Bootstrap Routes (2026)",
+    "description": "Generated directly from every mount in bootstraps.ts. Every non-auth mounted module has GET, POST create, POST update (id), DELETE. Auth contains every declared route. Full payload source: postman/mira-crud-sample-data.json. Required images for journey/add-on resources must be sent via multipart/form-data; raw JSON requests show their non-file fields.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5010/api/v1"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "inviteToken",
+      "value": ""
+    },
+    {
+      "key": "emailVerificationToken",
+      "value": ""
+    },
+    {
+      "key": "passwordVerificationToken",
+      "value": ""
+    },
+    {
+      "key": "resetToken",
+      "value": ""
+    },
+    {
+      "key": "roleId",
+      "value": ""
+    },
+    {
+      "key": "permissionId",
+      "value": ""
+    },
+    {
+      "key": "locationId",
+      "value": ""
+    },
+    {
+      "key": "countryLocationId",
+      "value": ""
+    },
+    {
+      "key": "regionLocationId",
+      "value": ""
+    },
+    {
+      "key": "placeLocationId",
+      "value": ""
+    },
+    {
+      "key": "cmsPageId",
+      "value": ""
+    },
+    {
+      "key": "cmsPageSectionId",
+      "value": ""
+    },
+    {
+      "key": "countryPageId",
+      "value": ""
+    },
+    {
+      "key": "countryPageSectionId",
+      "value": ""
+    },
+    {
+      "key": "regionPageId",
+      "value": ""
+    },
+    {
+      "key": "regionPageSectionId",
+      "value": ""
+    },
+    {
+      "key": "placePageId",
+      "value": ""
+    },
+    {
+      "key": "placePageSectionId",
+      "value": ""
+    },
+    {
+      "key": "journeyId",
+      "value": ""
+    },
+    {
+      "key": "journeyChildLocationId",
+      "value": ""
+    },
+    {
+      "key": "journeyLocationId",
+      "value": ""
+    },
+    {
+      "key": "journeyItineraryId",
+      "value": ""
+    },
+    {
+      "key": "journeyAccommodationId",
+      "value": ""
+    },
+    {
+      "key": "addOnId",
+      "value": ""
+    },
+    {
+      "key": "journeyAddOnId",
+      "value": ""
+    },
+    {
+      "key": "bookingId",
+      "value": ""
+    },
+    {
+      "key": "scheduleItemId",
+      "value": ""
+    },
+    {
+      "key": "paymentRecordId",
+      "value": ""
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "00 \u2014 Auth (all routes)",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"new-user@example.com\",\n  \"password\": \"StrongPass!2026\",\n  \"firstName\": \"Mira\",\n  \"lastName\": \"Traveller\",\n  \"roles\": [\n    \"TRAVELLER\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/auth/register"
+          }
+        },
+        {
+          "name": "Register instructor info",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"StrongPass!2026\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/auth/register/instructorInfo/{{inviteToken}}"
+          }
+        },
+        {
+          "name": "Register user info",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"StrongPass!2026\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/auth/register/userInfo/{{inviteToken}}"
+          }
+        },
+        {
+          "name": "Verify email via OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"new-user@example.com\",\n  \"otp\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/auth/verify-email"
+          }
+        },
+        {
+          "name": "Verify email via link",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/auth/verify-email/{{emailVerificationToken}}"
+          }
+        },
+        {
+          "name": "Resend verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"new-user@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/auth/resend-verification"
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"StrongPass!2026\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Refresh token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/auth/refresh-token"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"allDevices\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/auth/logout"
+          }
+        },
+        {
+          "name": "Forgot password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"new-user@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/auth/forgot-password"
+          }
+        },
+        {
+          "name": "Verify forgot password (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/auth/verify-forgot-password?token={{passwordVerificationToken}}"
+          }
+        },
+        {
+          "name": "Verify forgot password (OTP)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"new-user@example.com\",\n  \"otp\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/auth/verify-forgot-password"
+          }
+        },
+        {
+          "name": "Reset password (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/auth/reset-password?resetToken={{resetToken}}"
+          }
+        },
+        {
+          "name": "Reset password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resetToken\": \"{{resetToken}}\",\n  \"newPassword\": \"NewStrongPass!2026\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/auth/reset-password"
+          }
+        },
+        {
+          "name": "Current user",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/auth/me"
+          }
+        },
+        {
+          "name": "User info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/auth/user-info"
+          }
+        },
+        {
+          "name": "Change password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"StrongPass!2026\",\n  \"newPassword\": \"NewStrongPass!2026\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/auth/change-password"
+          }
+        },
+        {
+          "name": "Update profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Mira\",\n  \"lastName\": \"Traveller\",\n  \"about\": \"Thoughtful travel, at a balanced pace.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "roles",
+      "item": [
+        {
+          "name": "Read / list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/roles?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"CONTENT_MANAGER\",\n  \"permissionIds\": [\n    \"{{permissionId}}\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/roles"
+          }
+        },
+        {
+          "name": "Update (POST with id)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{roleId}}\",\n  \"name\": \"SENIOR_CONTENT_MANAGER\",\n  \"permissionIds\": [\n    \"{{permissionId}}\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/roles"
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{roleId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/roles"
+          }
+        }
+      ]
+    },
+    {
+      "name": "permissions",
+      "item": [
+        {
+          "name": "Read / list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/permissions?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"CREATE\",\n  \"resource\": \"Journey\",\n  \"scope\": \"ANY\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/permissions"
+          }
+        },
+        {
+          "name": "Update (POST with id)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{permissionId}}\",\n  \"action\": \"UPDATE\",\n  \"resource\": \"Journey\",\n  \"scope\": \"ANY\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/permissions"
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{permissionId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/permissions"
+          }
+        }
+      ]
+    },
+    {
+      "name": "file-upload",
+      "item": [
+        {
+          "name": "Upload files",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "gallery",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "fileRemove",
+                  "type": "text",
+                  "value": "[]",
+                  "description": "JSON array of old Cloudinary URLs to delete before upload"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/file-upload"
+          }
+        }
+      ]
+    },
+    {
+      "name": "locations",
+      "item": [
+        {
+          "name": "Read / list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/locations?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Albania\",\n  \"type\": \"COUNTRY\",\n  \"geoData\": {\n    \"latitude\": 41.1533,\n    \"longitude\": 20.1683\n  },\n  \"data\": {\n    \"countryStamp\": {\n      \"accentColor\": \"#A35E3D\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/locations"
+          }
+        },
+        {
+          "name": "Update (POST with id)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{locationId}}\",\n  \"name\": \"Albania\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/locations"
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{locationId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/locations"
+          }
+        }
+      ]
+    },
+    {
+      "name": "cms-pages",
+      "item": [
+        {
+          "name": "Read / list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/cms-pages?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"About Mira\",\n  \"slug\": \"about-mira\",\n  \"data\": {\n    \"hero\": {\n      \"title\": \"Travel with meaning\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/cms-pages"
+          }
+        },
+        {
+          "name": "Update (POST with id)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{cmsPageId}}\",\n  \"name\": \"About Mira Travel\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/cms-pages"
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{cmsPageId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/cms-pages"
+          }
+        }
+      ]
+    },
+    {
+      "name": "cms-pages-sections",
+      "item": [
+        {
+          "name": "Read / list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/cms-pages-sections?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pageId\": \"{{cmsPageId}}\",\n  \"name\": \"Mira Difference\",\n  \"slug\": \"mira-difference\",\n  \"type\": \"numbered-list\",\n  \"order\": 1,\n  \"data\": {\n    \"title\": \"The Mira Difference\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/cms-pages-sections"
+          }
+        },
+        {
+          "name": "Update (POST with id)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{cmsPageSectionId}}\",\n  \"order\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/cms-pages-sections"
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{cmsPageSectionId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/cms-pages-sections"
+          }
+        }
+      ]
+    },
+    {
+      "name": "country-pages",
+      "item": [
+        {
+          "name": "Read / list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/country-pages?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"locationId\": \"{{countryLocationId}}\",\n  \"metadata\": {\n    \"brandExpression\": {\n      \"countryStamp\": \"albania\",\n      \"accentColor\": \"#A35E3D\"\n    }\n  },\n  \"data\": {\n    \"hero\": {\n      \"title\": \"Albania, revealed slowly\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/country-pages"
+          }
+        },
+        {
+          "name": "Update (POST with id)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{countryPageId}}\",\n  \"data\": {\n    \"hero\": {\n      \"title\": \"Albania, at Mira pace\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/country-pages"
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{countryPageId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/country-pages"
+          }
+        }
+      ]
+    },
+    {
+      "name": "country-pages-sections",
+      "item": [
+        {
+          "name": "Read / list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/country-pages-sections?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pageId\": \"{{countryPageId}}\",\n  \"name\": \"Mira Note\",\n  \"slug\": \"mira-note\",\n  \"order\": 1,\n  \"metadata\": {\n    \"expression\": \"Mira Note\"\n  },\n  \"data\": {\n    \"text\": \"Spring and autumn are beautifully balanced.\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/country-pages-sections"
+          }
+        },
+        {
+          "name": "Update (POST with id)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{countryPageSectionId}}\",\n  \"order\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/country-pages-sections"
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{countryPageSectionId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/country-pages-sections"
+          }
+        }
+      ]
+    },
+    {
+      "name": "region-pages",
+      "item": [
+        {
+          "name": "Read / list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/region-pages?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"locationId\": \"{{regionLocationId}}\",\n  \"data\": {\n    \"hero\": {\n      \"title\": \"The Albanian Riviera\"\n    },\n    \"inheritsCountryExpression\": true\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/region-pages"
+          }
+        },
+        {
+          "name": "Update (POST with id)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{regionPageId}}\",\n  \"data\": {\n    \"hero\": {\n      \"title\": \"A quieter kind of coast\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/region-pages"
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{regionPageId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/region-pages"
+          }
+        }
+      ]
+    },
+    {
+      "name": "region-pages-sections",
+      "item": [
+        {
+          "name": "Read / list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/region-pages-sections?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pageId\": \"{{regionPageId}}\",\n  \"name\": \"Coastal rhythm\",\n  \"slug\": \"coastal-rhythm\",\n  \"order\": 1,\n  \"data\": {\n    \"title\": \"Coastal rhythm\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/region-pages-sections"
+          }
+        },
+        {
+          "name": "Update (POST with id)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{regionPageSectionId}}\",\n  \"order\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/region-pages-sections"
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{regionPageSectionId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/region-pages-sections"
+          }
+        }
+      ]
+    },
+    {
+      "name": "place-pages",
+      "item": [
+        {
+          "name": "Read / list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/place-pages?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"locationId\": \"{{placeLocationId}}\",\n  \"data\": {\n    \"hero\": {\n      \"title\": \"Gjirokaster\"\n    },\n    \"inheritsCountryExpression\": true\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/place-pages"
+          }
+        },
+        {
+          "name": "Update (POST with id)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{placePageId}}\",\n  \"data\": {\n    \"hero\": {\n      \"title\": \"Stone, stories and mountain air\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/place-pages"
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{placePageId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/place-pages"
+          }
+        }
+      ]
+    },
+    {
+      "name": "place-pages-sections",
+      "item": [
+        {
+          "name": "Read / list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/place-pages-sections?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pageId\": \"{{placePageId}}\",\n  \"name\": \"Mira Recommends\",\n  \"slug\": \"mira-recommends\",\n  \"order\": 1,\n  \"data\": {\n    \"text\": \"Stay long enough to see the old town change from afternoon to evening.\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/place-pages-sections"
+          }
+        },
+        {
+          "name": "Update (POST with id)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{placePageSectionId}}\",\n  \"order\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/place-pages-sections"
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{placePageSectionId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/place-pages-sections"
+          }
+        }
+      ]
+    },
+    {
+      "name": "journeys",
+      "item": [
+        {
+          "name": "Read / list",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/journeys?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Albania: Mountains to the Riviera\",\n  \"slug\": \"albania-mountains-to-riviera\",\n  \"price\": 2850,\n  \"minDays\": 10,\n  \"maxDays\": 10,\n  \"journeyType\": [\n    \"PRIVATE_JOURNEY\"\n  ],\n  \"travelStyle\": [\n    \"CULTURE_HERITAGE\",\n    \"NATURE\"\n  ],\n  \"perfectFor\": [\n    \"COUPLES\"\n  ],\n  \"pace\": \"BALANCED\",\n  \"comfortLevel\": \"BOUTIQUE\",\n  \"metadata\": {\n    \"brand\": {\n      \"signatureJourney\": true,\n      \"primaryPersonality\": \"Culture & Heritage\",\n      \"travelStyleLabel\": \"Private Driver\"\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/journeys"
+          }
+        },
+        {
+          "name": "Update (POST with id)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{journeyId}}\",\n  \"status\": \"PUBLISHED\",\n  \"featured\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/journeys"
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{journeyId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/journeys"
+          }
+        }
+      ]
+    },
+    {
+      "name": "journey-locations",
+      "item": [
+        {
+          "name": "Read / list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/journey-locations?journeyId={{journeyId}}&includeChildren=true&page=1&limit=100"
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"journeyId\": \"{{journeyId}}\",\n  \"locationId\": \"{{placeLocationId}}\",\n  \"order\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/journey-locations"
+          }
+        },
+        {
+          "name": "Update (POST with id)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{journeyLocationId}}\",\n  \"order\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/journey-locations"
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{journeyLocationId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/journey-locations"
+          }
+        }
+      ]
+    },
+    {
+      "name": "journey-itinerary",
+      "item": [
+        {
+          "name": "Read / list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/journey-itinerary?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"journeyId\": \"{{journeyId}}\",\n  \"dayNumber\": 1,\n  \"title\": \"Arrival in Tirana\",\n  \"locationId\": \"{{placeLocationId}}\",\n  \"metadata\": {\n    \"chapter\": \"First impressions\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/journey-itinerary"
+          }
+        },
+        {
+          "name": "Update (POST with id)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{journeyItineraryId}}\",\n  \"title\": \"Arrival and first impressions\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/journey-itinerary"
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{journeyItineraryId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/journey-itinerary"
+          }
+        }
+      ]
+    },
+    {
+      "name": "journey-accommodations",
+      "item": [
+        {
+          "name": "Read / list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/journey-accommodations?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"journeyId\": \"{{journeyId}}\",\n  \"locationId\": \"{{placeLocationId}}\",\n  \"title\": \"Historic boutique stay\",\n  \"order\": 1,\n  \"metadata\": {\n    \"approvedByMira\": true\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/journey-accommodations"
+          }
+        },
+        {
+          "name": "Update (POST with id)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{journeyAccommodationId}}\",\n  \"order\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/journey-accommodations"
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{journeyAccommodationId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/journey-accommodations"
+          }
+        }
+      ]
+    },
+    {
+      "name": "addons",
+      "item": [
+        {
+          "name": "Read / list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/addons?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Private wine-country day\",\n  \"slug\": \"private-wine-country-day\",\n  \"price\": 240,\n  \"metadata\": {\n    \"miraRecommends\": true\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/addons"
+          }
+        },
+        {
+          "name": "Update (POST with id)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{addOnId}}\",\n  \"price\": 260\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/addons"
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{addOnId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/addons"
+          }
+        }
+      ]
+    },
+    {
+      "name": "journey-addons",
+      "item": [
+        {
+          "name": "Read / list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/journey-addons?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"journeyId\": \"{{journeyId}}\",\n  \"addOnId\": \"{{addOnId}}\",\n  \"locationId\": \"{{journeyChildLocationId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/journey-addons"
+          }
+        },
+        {
+          "name": "Update (POST with id)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{journeyAddOnId}}\",\n  \"addOnId\": \"{{addOnId}}\",\n  \"locationId\": \"{{journeyChildLocationId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/journey-addons"
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{journeyAddOnId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/journey-addons"
+          }
+        }
+      ]
+    },
+    {
+      "name": "bookings",
+      "item": [
+        {
+          "name": "Bookings",
+          "item": [
+            {
+              "name": "List / filter bookings (admin)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/bookings?page=1&limit=10&bookingStatus=UNDER_REVIEW"
+              }
+            },
+            {
+              "name": "Create booking request (customer, no payment)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"journeyId\": \"{{journeyId}}\",\n  \"travelerFirstName\": \"Sample\",\n  \"travelerLastName\": \"Traveller\",\n  \"travelerEmail\": \"traveller@example.com\",\n  \"travelerPhone\": \"+31600000000\",\n  \"travelerNationality\": \"Dutch\",\n  \"travelArrivalDate\": \"2026-12-01T00:00:00.000Z\",\n  \"travelDepartureDate\": \"2026-12-10T00:00:00.000Z\",\n  \"addOnIds\": [],\n  \"travelerMessage\": \"Interested in a relaxed pace.\",\n  \"travelerType\": \"COUPLE\",\n  \"adults\": 2,\n  \"children\": 0,\n  \"childrenAges\": [],\n  \"currency\": \"EUR\",\n  \"agreedToTerms\": true,\n  \"agreedToPrivacyPolicy\": true,\n  \"acknowledgedRequestOnly\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/bookings"
+              }
+            },
+            {
+              "name": "Update booking details (admin, pre-approval)",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"bookingStatus\": \"UNDER_REVIEW\",\n  \"travelerMessage\": \"Checking availability with local partner.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/bookings/{{bookingId}}"
+              }
+            },
+            {
+              "name": "Approve booking (auto-generate schedule, >60 days -> 30/70)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"confirmedTotal\": 2000,\n  \"currency\": \"EUR\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/bookings/{{bookingId}}/approve"
+              }
+            },
+            {
+              "name": "Approve booking with admin schedule override",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"confirmedTotal\": 3000,\n  \"currency\": \"EUR\",\n  \"scheduleOverride\": {\n    \"overrideReason\": \"B2B 3-installment contract\",\n    \"items\": [\n      {\n        \"label\": \"First installment\",\n        \"calculationType\": \"PERCENTAGE\",\n        \"ruleValue\": 40,\n        \"dueRule\": \"IMMEDIATE_AFTER_APPROVAL\"\n      },\n      {\n        \"label\": \"Second installment\",\n        \"calculationType\": \"PERCENTAGE\",\n        \"ruleValue\": 30,\n        \"dueRule\": \"DAYS_BEFORE_DEPARTURE\",\n        \"dueValue\": 90\n      },\n      {\n        \"label\": \"Final balance\",\n        \"calculationType\": \"REMAINDER\",\n        \"dueRule\": \"DAYS_BEFORE_DEPARTURE\",\n        \"dueValue\": 60\n      }\n    ]\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/bookings/{{bookingId}}/approve"
+              }
+            },
+            {
+              "name": "Reject booking",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"Requested dates are fully booked.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/bookings/{{bookingId}}/reject"
+              }
+            },
+            {
+              "name": "Cancel booking",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"Customer requested cancellation.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/bookings/{{bookingId}}/cancel"
+              }
+            },
+            {
+              "name": "Revise confirmed total (after partial payment)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"newConfirmedTotal\": 2200,\n  \"reason\": \"Added a private transfer upgrade.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/bookings/{{bookingId}}/revise-total"
+              }
+            },
+            {
+              "name": "Delete booking (only if unpaid)",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"{{bookingId}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/bookings"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Payment Schedules",
+          "item": [
+            {
+              "name": "List / filter payment schedules",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/payment-schedules?bookingId={{bookingId}}"
+              }
+            },
+            {
+              "name": "Due / overdue schedule items overview",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/payment-schedules/due-overview?withinDays=7"
+              }
+            },
+            {
+              "name": "Override active schedule (installment plan)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"overrideReason\": \"Group booking \\u2014 3-stage plan agreed with client\",\n  \"items\": [\n    {\n      \"label\": \"Deposit\",\n      \"calculationType\": \"PERCENTAGE\",\n      \"ruleValue\": 25,\n      \"dueRule\": \"IMMEDIATE_AFTER_APPROVAL\"\n    },\n    {\n      \"label\": \"Second installment\",\n      \"calculationType\": \"PERCENTAGE\",\n      \"ruleValue\": 25,\n      \"dueRule\": \"DAYS_BEFORE_DEPARTURE\",\n      \"dueValue\": 90\n    },\n    {\n      \"label\": \"Final balance\",\n      \"calculationType\": \"REMAINDER\",\n      \"dueRule\": \"DAYS_BEFORE_DEPARTURE\",\n      \"dueValue\": 60\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/payment-schedules/override"
+              }
+            },
+            {
+              "name": "Waive a schedule item",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"Goodwill gesture \\u2014 service delay compensation.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/payment-schedules/{{scheduleItemId}}/waive"
+              }
+            },
+            {
+              "name": "Send / re-send payment request (next due item)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"bookingId\": \"{{bookingId}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/payment-schedules/send-request"
+              }
+            },
+            {
+              "name": "Send payment request for a specific item",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"scheduleItemId\": \"{{scheduleItemId}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/payment-schedules/send-request"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Payment Records",
+          "item": [
+            {
+              "name": "List / filter payment records",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/payment-records?bookingId={{bookingId}}"
+              }
+            },
+            {
+              "name": "Record manual payment (bank transfer, cash, etc.)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"amount\": 600,\n  \"currency\": \"EUR\",\n  \"method\": \"manual\",\n  \"status\": \"SUCCEEDED\",\n  \"adminNotes\": \"Received via bank transfer, confirmed by finance team.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/payment-records"
+              }
+            },
+            {
+              "name": "Record PSP transaction (e.g. Mollie webhook result)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"scheduleItemId\": \"{{scheduleItemId}}\",\n  \"amount\": 600,\n  \"currency\": \"EUR\",\n  \"method\": \"mollie\",\n  \"pspTransactionRef\": \"tr_WDqYK6vllg\",\n  \"status\": \"SUCCEEDED\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/payment-records"
+              }
+            },
+            {
+              "name": "Record a failed payment attempt",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"scheduleItemId\": \"{{scheduleItemId}}\",\n  \"amount\": 600,\n  \"currency\": \"EUR\",\n  \"method\": \"mollie\",\n  \"status\": \"FAILED\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/payment-records"
+              }
+            },
+            {
+              "name": "Refund a payment (full or partial)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refundAmount\": 200,\n  \"adminNotes\": \"Partial refund per goodwill policy.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/payment-records/{{paymentRecordId}}/refund"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Payment Config",
+          "item": [
+            {
+              "name": "Get global payment config",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/payment-config?scope=global"
+              }
+            },
+            {
+              "name": "Get journey-specific override",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/payment-config?scope=journey:{{journeyId}}"
+              }
+            },
+            {
+              "name": "Update global config",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"scope\": \"global\",\n  \"depositEnabled\": true,\n  \"depositType\": \"PERCENTAGE\",\n  \"depositValue\": 30,\n  \"finalPaymentDueDaysBeforeDeparture\": 60,\n  \"fullPaymentRequiredIfWithinDays\": 60,\n  \"allowAdminOverride\": true,\n  \"reservationWithoutPayment\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/payment-config"
+              }
+            },
+            {
+              "name": "Create per-journey override (fixed deposit)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"scope\": \"journey:{{journeyId}}\",\n  \"depositEnabled\": true,\n  \"depositType\": \"FIXED\",\n  \"depositValue\": 500\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/payment-config"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

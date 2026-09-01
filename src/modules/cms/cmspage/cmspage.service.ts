@@ -8,14 +8,15 @@ export const getCmsPageService = async (req: any) => {
     req,
     model: prisma.cmsPage,
     modelName: "cmsPage",
-    select:{
-      id:true,
-      name:true,
-      slug:true
-    }
-    // include: {
-    //   sections: true
+    singleRecordAsArray: false,
+    // select:{
+    //   id:true,
+    //   name:true,
+    //   slug:true
     // }
+    include: {
+      // sections: true
+    }
   });
 
   return result;

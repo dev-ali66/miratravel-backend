@@ -1,0 +1,128 @@
+{
+  "_comment": "Mira brand brief aligned sample payloads. Replace {{...Id}} placeholders with actual database IDs. POST with id performs an update; DELETE takes { id }.",
+  "_fileUploadsRequired": {
+    "journeys": ["heroImage", "gallery"],
+    "journeyItinerary": ["image"],
+    "journeyAccommodations": ["image"],
+    "addons": ["image"],
+    "note": "These fields are required Prisma String[] fields but are accepted by the API through multipart/form-data uploads, not raw JSON. In Postman change the body to form-data, add the listed file fields, and add the JSON fields as text values (arrays/objects JSON-stringified)."
+  },
+  "auth": {
+    "register": { "email": "new-user@example.com", "password": "StrongPass!2026", "firstName": "Mira", "lastName": "Traveller", "roles": ["TRAVELLER"] },
+    "verifyEmailOtp": { "email": "new-user@example.com", "otp": "123456" },
+    "resendVerification": { "email": "new-user@example.com" },
+    "login": { "email": "admin@example.com", "password": "StrongPass!2026" },
+    "logout": { "allDevices": false },
+    "forgotPassword": { "email": "new-user@example.com" },
+    "verifyForgotPasswordOtp": { "email": "new-user@example.com", "otp": "123456" },
+    "resetPassword": { "resetToken": "{{resetToken}}", "newPassword": "NewStrongPass!2026" },
+    "changePassword": { "currentPassword": "StrongPass!2026", "newPassword": "NewStrongPass!2026" },
+    "updateProfile": { "firstName": "Mira", "lastName": "Traveller", "about": "Thoughtful travel, at a balanced pace." }
+  },
+  "roles": {
+    "create": { "name": "CONTENT_MANAGER", "permissionIds": ["{{permissionId}}"] },
+    "update": { "id": "{{roleId}}", "name": "SENIOR_CONTENT_MANAGER", "permissionIds": ["{{permissionId}}"] },
+    "delete": { "id": "{{roleId}}" }
+  },
+  "permissions": {
+    "create": { "action": "CREATE", "resource": "Journey", "scope": "ANY" },
+    "update": { "id": "{{permissionId}}", "action": "UPDATE", "resource": "Journey", "scope": "ANY" },
+    "delete": { "id": "{{permissionId}}" }
+  },
+  "locations": {
+    "create": {
+      "name": "Albania", "type": "COUNTRY",
+      "geoData": { "latitude": 41.1533, "longitude": 20.1683, "timezone": "Europe/Tirane" },
+      "metadata": { "seo": { "title": "Albania Travel | Mira", "description": "A Mira Travel destination." } },
+      "data": { "countryStamp": { "name": "Albania", "accentColor": "#A35E3D", "editorialTint": "#F4E6DD" }, "brandExpression": { "motif": "woven-mountain-lines", "pattern": "albania-heritage-pattern", "illustration": "albania-master-line-art" } }
+    },
+    "update": { "id": "{{countryLocationId}}", "name": "Albania", "metadata": { "seo": { "title": "Discover Albania with Mira" } } },
+    "delete": { "id": "{{countryLocationId}}" }
+  },
+  "cmsPages": {
+    "create": { "name": "About Mira", "slug": "about-mira", "metadata": { "seo": { "title": "About Mira Travel" } }, "data": { "hero": { "eyebrow": "MIRA TRAVEL", "title": "Travel with meaning" } } },
+    "update": { "id": "{{cmsPageId}}", "data": { "hero": { "title": "Thoughtfully designed travel" } } },
+    "delete": { "id": "{{cmsPageId}}" }
+  },
+  "cmsPageSections": {
+    "create": { "pageId": "{{cmsPageId}}", "name": "Mira Difference", "slug": "mira-difference", "type": "numbered-list", "order": 1, "metadata": { "expression": "Mira Difference" }, "data": { "title": "The Mira Difference", "items": ["Thoughtful pacing", "Local knowledge", "Meaningful stays"] } },
+    "update": { "id": "{{cmsPageSectionId}}", "order": 2, "data": { "title": "The Mira Difference, refined" } },
+    "delete": { "id": "{{cmsPageSectionId}}" }
+  },
+  "countryPages": {
+    "create": { "locationId": "{{countryLocationId}}", "metadata": { "seo": { "title": "Albania Travel Guide | Mira" }, "brandExpression": { "accentColor": "#A35E3D", "editorialTint": "#F4E6DD", "countryStamp": "albania" } }, "data": { "hero": { "title": "Albania, revealed slowly", "subtitle": "Mountains, coast and generous hospitality." }, "photographyDirection": ["natural", "warm", "observational"] } },
+    "update": { "id": "{{countryPageId}}", "data": { "hero": { "title": "Albania, at Mira pace" } } },
+    "delete": { "id": "{{countryPageId}}" }
+  },
+  "countryPageSections": {
+    "create": { "pageId": "{{countryPageId}}", "name": "Mira Note", "slug": "mira-note", "order": 1, "metadata": { "expression": "Mira Note", "star": true }, "data": { "title": "A Mira Note", "text": "Spring and early autumn offer the most balanced rhythm for Albania." } },
+    "update": { "id": "{{countryPageSectionId}}", "order": 2 },
+    "delete": { "id": "{{countryPageSectionId}}" }
+  },
+  "regionPages": {
+    "create": { "locationId": "{{regionLocationId}}", "metadata": { "seo": { "title": "Albanian Riviera | Mira" } }, "data": { "hero": { "title": "The Albanian Riviera" }, "inheritsCountryExpression": true } },
+    "update": { "id": "{{regionPageId}}", "data": { "hero": { "subtitle": "A quieter kind of coast" } } },
+    "delete": { "id": "{{regionPageId}}" }
+  },
+  "regionPageSections": {
+    "create": { "pageId": "{{regionPageId}}", "name": "Coastal rhythm", "slug": "coastal-rhythm", "order": 1, "metadata": { "expression": "editorial" }, "data": { "title": "Coastal rhythm", "description": "Specific photography; inherited country cues." } },
+    "update": { "id": "{{regionPageSectionId}}", "order": 2 },
+    "delete": { "id": "{{regionPageSectionId}}" }
+  },
+  "placePages": {
+    "create": { "locationId": "{{placeLocationId}}", "metadata": { "seo": { "title": "Gjirokaster | Mira" } }, "data": { "hero": { "title": "Gjirokaster" }, "inheritsCountryExpression": true } },
+    "update": { "id": "{{placePageId}}", "data": { "hero": { "subtitle": "Stone, stories and mountain air" } } },
+    "delete": { "id": "{{placePageId}}" }
+  },
+  "placePageSections": {
+    "create": { "pageId": "{{placePageId}}", "name": "Mira Recommends", "slug": "mira-recommends", "order": 1, "metadata": { "expression": "Mira Recommends" }, "data": { "title": "Mira Recommends", "text": "Stay long enough to see the old town change from afternoon to evening." } },
+    "update": { "id": "{{placePageSectionId}}", "order": 2 },
+    "delete": { "id": "{{placePageSectionId}}" }
+  },
+  "journeys": {
+    "create": {
+      "title": "Albania: Mountains to the Riviera", "slug": "albania-mountains-to-riviera", "subtitle": "A balanced journey through Albania's most distinctive landscapes.", "price": 2850, "currency": "EUR", "minDays": 10, "maxDays": 10,
+      "highlights": ["UNESCO towns", "Alpine landscapes", "Ionian coast"], "included": ["Handpicked stays", "Private transfers", "Selected local experiences"], "notIncluded": ["International flights", "Travel insurance"],
+      "journeyType": ["PRIVATE_JOURNEY"], "travelStyle": ["CULTURE_HERITAGE", "NATURE", "COASTAL_ESCAPE"], "perfectFor": ["COUPLES", "FIRST_TIME_VISITORS"], "pace": "BALANCED", "comfortLevel": "BOUTIQUE", "status": "DRAFT", "featured": false,
+      "metadata": { "brand": { "signatureJourney": true, "primaryPersonality": "Culture & Heritage", "secondaryPersonalities": ["Nature & Landscapes", "Local Life"], "setting": ["Mountains", "Coast & Islands"], "travelStyleLabel": "Private Driver" }, "seo": { "title": "Albania: Mountains to the Riviera | Mira" } },
+      "data": { "whyWeCreatedThisJourney": "To connect Albania's historic towns, highlands and coast at a considered pace.", "miraDifference": ["Fewer hotel changes", "Time for local life", "A calm transition from mountains to sea"] }
+    },
+    "update": { "id": "{{journeyId}}", "status": "PUBLISHED", "featured": true, "price": 2950 },
+    "delete": { "id": "{{journeyId}}" }
+  },
+  "journeyLocations": {
+    "create": { "journeyId": "{{journeyId}}", "locationId": "{{placeLocationId}}", "order": 1 },
+    "update": { "id": "{{journeyLocationId}}", "order": 2 },
+    "delete": { "id": "{{journeyLocationId}}" },
+    "adminChildLocationQuery": {
+      "method": "GET",
+      "url": "/api/v1/journey-locations?journeyId={{journeyId}}&includeChildren=true",
+      "use": "Use availableLocations[].id as itinerary/accommodation/JourneyAddOn.locationId"
+    }
+  },
+  "journeyItinerary": {
+    "create": { "journeyId": "{{journeyId}}", "dayNumber": 1, "title": "Arrival in Tirana", "slug": "arrival-in-tirana", "description": "Settle in and begin with a gentle introduction to the city.", "locationId": "{{placeLocationId}}", "metadata": { "chapter": "First impressions", "overnight": true }, "data": { "miraNote": "Keep the first evening unhurried." } },
+    "update": { "id": "{{journeyItineraryId}}", "title": "Arrival and first impressions in Tirana" },
+    "delete": { "id": "{{journeyItineraryId}}" }
+  },
+  "journeyAccommodations": {
+    "create": { "journeyId": "{{journeyId}}", "locationId": "{{placeLocationId}}", "title": "Historic boutique stay", "slug": "historic-boutique-stay", "description": "A characterful stay selected for place, warmth and location.", "order": 1, "metadata": { "approvedByMira": true }, "data": { "why": "A thoughtful base for exploring on foot." } },
+    "update": { "id": "{{journeyAccommodationId}}", "order": 2 },
+    "delete": { "id": "{{journeyAccommodationId}}" }
+  },
+  "addons": {
+    "create": { "title": "Private wine-country day", "slug": "private-wine-country-day", "description": "A relaxed day with a private driver, local producer visit and lunch.", "price": 240, "metadata": { "category": "experience", "miraRecommends": true } },
+    "update": { "id": "{{addOnId}}", "price": 260 },
+    "delete": { "id": "{{addOnId}}" }
+  },
+  "journeyAddons": {
+    "create": { "journeyId": "{{journeyId}}", "addOnId": "{{addOnId}}", "locationId": "{{journeyChildLocationId}}" },
+    "update": { "id": "{{journeyAddOnId}}", "addOnId": "{{addOnId}}", "locationId": "{{journeyChildLocationId}}" },
+    "delete": { "id": "{{journeyAddOnId}}" }
+  },
+  "bookings": {
+    "create": { "journeyId": "{{journeyId}}", "travelerName": "Sample Traveller", "travelerEmail": "traveller@example.com", "travelerPhone": "+8801700000000", "travelerType": "Couple", "travelDate": "2026-06-15T00:00:00.000Z", "travelers": 2, "addOnIds": ["{{addOnId}}"], "notes": "Interested in a relaxed pace and boutique stays." },
+    "update": { "id": "{{bookingId}}", "status": "CONFIRMED", "notes": "Confirmed after consultation." },
+    "delete": { "id": "{{bookingId}}" }
+  }
+}

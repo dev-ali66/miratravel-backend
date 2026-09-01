@@ -1,7 +1,7 @@
-export const extractDomains = (input:any) => {
-  const result = new Set(); // using Set to automatically remove duplicates
+export const extractDomains = (input: unknown): string[] => {
+  const result = new Set<string>(); // using Set to automatically remove duplicates
 
-  const flatten = (item:any) => {
+  const flatten = (item: unknown) => {
     if (Array.isArray(item)) {
       item.forEach(flatten);
     } else if (item && typeof item === "object") {

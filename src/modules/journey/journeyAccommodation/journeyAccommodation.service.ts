@@ -15,9 +15,9 @@ export const getjourneyAccommodationService = async (req: any) => {
     req,
     model: prisma.journeyAccommodation,
     customWhere,
-    modelName: "journeyAccommodation",
+    modelName: "JourneyAccommodation",
     include: { location: true },
-    orderBy: { dayNumber: "asc" },
+    orderBy: { order: "asc" },
   });
 };
 

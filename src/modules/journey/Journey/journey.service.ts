@@ -6,10 +6,6 @@ import { manageRecordWithFiles } from "../../../shared/manageRecordWithFiles.ser
 
 
 const journeyInclude = {
-  locations: {
-    include: { location: true },
-    orderBy: { order: "asc" as const },
-  },
   itinerary: {
     include: { location: true },
     orderBy: { dayNumber: "asc" as const },
@@ -48,7 +44,7 @@ export const getJourneyService = async (req: any) => {
     locationId,
     locationSlug,
     search,
-  } = req.query;
+  } = req.validated.query;
 
   const customWhere: any = {};
 
@@ -128,6 +124,7 @@ export const getJourneyService = async (req: any) => {
     customWhere,
     modelName: "Journey",
     include: journeyInclude,
+    excludeFilterKeys: ["page", "limit", "id", "slug", "status", "featured", "journeyType", "travelStyle", "perfectFor", "pace", "comfortLevel", "minPrice", "maxPrice", "minDays", "maxDays", "locationId", "locationSlug", "search"],
   });
 
   return result;

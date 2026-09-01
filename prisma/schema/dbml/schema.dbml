@@ -22,6 +22,116 @@ Table Auth {
   roles Role [not null]
   userPersonalInfo UserPersonalInfo
   userSettings UserSettings
+  bookings Booking [not null]
+}
+
+Table Booking {
+  id String [pk]
+  bookingNumber String [unique, not null]
+  journeyId String [not null]
+  journey Journey [not null]
+  createdBy String [not null]
+  travelerFirstName String [not null]
+  travelerLastName String [not null]
+  travelerEmail String [not null]
+  travelerPhone String
+  travelerNationality String
+  travelerBirthDate DateTime
+  travelArrivalDate DateTime [not null]
+  travelDepartureDate DateTime [not null]
+  addOnIds String[] [not null]
+  travelerMessage String
+  travelerType TravelerType [not null, default: 'SOLO']
+  adults Int [not null, default: 0]
+  children Int [not null, default: 0]
+  childrenAges Int[] [not null]
+  confirmedTotal Decimal
+  currency String [not null, default: 'EUR']
+  approvalDate DateTime
+  paidAmount Decimal [not null, default: 0]
+  outstandingAmount Decimal [not null, default: 0]
+  agreedToTerms Boolean [not null, default: false]
+  agreedToPrivacyPolicy Boolean [not null, default: false]
+  acknowledgedRequestOnly Boolean [not null, default: false]
+  consentTimestamp DateTime
+  bookingStatus BookingStatus [not null, default: 'REQUEST_SUBMITTED']
+  paymentStatus PaymentStatus [not null, default: 'UNPAID']
+  selectedPaymentScheduleId String
+  auth Auth [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  selectedPaymentSchedule PaymentSchedule
+  paymentRecords PaymentRecord [not null]
+  paymentSchedules PaymentSchedule [not null]
+}
+
+Table PaymentSchedule {
+  id String [pk]
+  bookingId String [not null]
+  templateType DepositTemplateType [not null, default: 'STANDARD_30_70']
+  totalScheduledAmount Decimal [not null]
+  status PaymentScheduleStatus [not null, default: 'ACTIVE']
+  overrideReason String
+  createdAt DateTime [default: `now()`, not null]
+  createdBy String
+  items PaymentScheduleItem [not null]
+  booking Booking [not null]
+  selectedByBooking Booking [not null]
+}
+
+Table PaymentScheduleItem {
+  id String [pk]
+  scheduleId String [not null]
+  schedule PaymentSchedule [not null]
+  sequence Int [not null]
+  label String [not null]
+  calculationType ScheduleItemCalcType [not null]
+  ruleValue Decimal
+  dueRule ScheduleItemDueRule [not null]
+  dueValue Int
+  dueDate DateTime
+  calculatedAmount Decimal [not null]
+  paidAmount Decimal [not null, default: 0]
+  status ScheduleItemStatus [not null, default: 'SCHEDULED']
+  paymentRecords PaymentRecord [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+
+  indexes {
+    (scheduleId, sequence) [unique]
+  }
+}
+
+Table PaymentRecord {
+  id String [pk]
+  bookingId String [not null]
+  scheduleItemId String
+  paymentDate DateTime [default: `now()`, not null]
+  amount Decimal [not null]
+  currency String [not null]
+  method String
+  pspTransactionRef String
+  status PaymentRecordStatus [not null, default: 'PENDING']
+  refundAmount Decimal [not null, default: 0]
+  adminNotes String
+  recordedBy String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  booking Booking [not null]
+  scheduleItem PaymentScheduleItem
+}
+
+Table PaymentConfig {
+  id String [pk]
+  scope String [unique, not null, default: 'global']
+  depositEnabled Boolean [not null, default: true]
+  depositType DepositType [not null, default: 'PERCENTAGE']
+  depositValue Decimal [not null, default: 30]
+  finalPaymentDueDaysBeforeDeparture Int [not null, default: 60]
+  fullPaymentRequiredIfWithinDays Int [not null, default: 60]
+  allowAdminOverride Boolean [not null, default: true]
+  reservationWithoutPayment Boolean [not null, default: false]
+  updatedAt DateTime [not null]
 }
 
 Table CmsPage {
@@ -92,8 +202,8 @@ Table Journey {
   currency String [not null, default: 'EUR']
   minDays Int [not null]
   maxDays Int [not null]
-  heroImage String[] [not null]
-  gallery String[] [not null]
+  journeyHeroImage String[] [not null]
+  journeyGallery String[] [not null]
   highlights String[] [not null]
   included String[] [not null]
   notIncluded String[] [not null]
@@ -106,28 +216,12 @@ Table Journey {
   featured Boolean [not null, default: false]
   metadata Json
   data Json
-  locations JourneyLocation [not null]
   itinerary JourneyItinerary [not null]
-  accommodations JourneyAccommodation [not null]
+  accommodations JourneyAccommodation
   addOns JourneyAddOn [not null]
   bookings Booking [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
-}
-
-Table JourneyLocation {
-  id String [pk]
-  journeyId String [not null]
-  journey Journey [not null]
-  locationId String [not null]
-  location Location [not null]
-  order Int [not null, default: 0]
-  createdAt DateTime [default: `now()`, not null]
-  updatedAt DateTime [not null]
-
-  indexes {
-    (journeyId, locationId) [unique]
-  }
 }
 
 Table JourneyItinerary {
@@ -136,9 +230,9 @@ Table JourneyItinerary {
   journey Journey [not null]
   dayNumber Int [not null]
   title String [not null]
-  slug String
+  slug String [not null]
   description String
-  image String[] [not null]
+  journeyItineraryImage String[] [not null]
   locationId String
   location Location
   metadata Json
@@ -153,30 +247,17 @@ Table JourneyItinerary {
 
 Table JourneyAccommodation {
   id String [pk]
-  journeyId String [not null]
+  journeyId String [unique, not null]
   journey Journey [not null]
   locationId String
   location Location
   title String [not null]
-  slug String
+  slug String [not null]
   description String
-  image String[] [not null]
+  journeyAccommodationImage String[] [not null]
   order Int [not null, default: 0]
   metadata Json
   data Json
-  createdAt DateTime [default: `now()`, not null]
-  updatedAt DateTime [not null]
-}
-
-Table AddOn {
-  id String [pk]
-  title String [not null]
-  slug String [unique, not null]
-  description String
-  price Decimal [not null]
-  image String[] [not null]
-  metadata Json
-  journeys JourneyAddOn [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
 }
@@ -185,30 +266,22 @@ Table JourneyAddOn {
   id String [pk]
   journeyId String [not null]
   journey Journey [not null]
-  addOnId String [not null]
-  addOn AddOn [not null]
-  createdAt DateTime [default: `now()`, not null]
-
-  indexes {
-    (journeyId, addOnId) [unique]
-  }
-}
-
-Table Booking {
-  id String [pk]
-  journeyId String [not null]
-  journey Journey [not null]
-  travelerName String [not null]
-  travelerEmail String [not null]
-  travelerPhone String
-  travelerType String
-  travelDate DateTime
-  travelers Int [not null, default: 1]
-  addOnIds String[] [not null]
-  status BookingStatus [not null, default: 'PENDING']
-  notes String
+  dayNumber Int [not null]
+  title String [not null]
+  slug String [not null]
+  price Decimal [not null]
+  description String
+  journeyItineraryImage String[] [not null]
+  locationId String
+  location Location
+  metadata Json
+  data Json
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
+
+  indexes {
+    (journeyId, dayNumber) [unique]
+  }
 }
 
 Table Location {
@@ -227,9 +300,9 @@ Table Location {
   countryPage CountryPage [not null]
   regionPage RegionPage [not null]
   placePage PlacePage [not null]
-  journeyLocations JourneyLocation [not null]
   journeyItinerary JourneyItinerary [not null]
   journeyAccommodations JourneyAccommodation [not null]
+  journeyAddOns JourneyAddOn [not null]
 }
 
 Table Permission {
@@ -369,6 +442,87 @@ Enum Status {
   ARCHIVED
 }
 
+Enum BookingStatus {
+  REQUEST_SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  AWAITING_DEPOSIT
+  DEPOSIT_PAID_TENTATIVE
+  AWAITING_FINAL_PAYMENT
+  FULLY_PAID
+  CONFIRMED
+  CANCELLED
+  REJECTED
+}
+
+Enum PaymentStatus {
+  UNPAID
+  PARTIALLY_PAID
+  DEPOSIT_PAID
+  BALANCE_DUE
+  FULLY_PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+Enum DepositType {
+  PERCENTAGE
+  FIXED
+}
+
+Enum ScheduleItemCalcType {
+  PERCENTAGE
+  FIXED
+  REMAINDER
+}
+
+Enum ScheduleItemDueRule {
+  IMMEDIATE_AFTER_APPROVAL
+  DAYS_BEFORE_DEPARTURE
+  FIXED_DATE
+  MANUAL
+}
+
+Enum ScheduleItemStatus {
+  SCHEDULED
+  DUE
+  PENDING
+  PAID
+  FAILED
+  WAIVED
+  REFUNDED
+}
+
+Enum PaymentRecordStatus {
+  SUCCEEDED
+  FAILED
+  PENDING
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+Enum TravelerType {
+  COUPLE
+  SOLO
+  FAMILY
+  FRIENDS
+  GROUP
+}
+
+Enum PaymentScheduleStatus {
+  ACTIVE
+  SUPERSEDED
+  CANCELLED
+}
+
+Enum DepositTemplateType {
+  STANDARD_30_70
+  FULL_PAYMENT
+  FIXED_DEPOSIT
+  INSTALLMENT_PLAN
+}
+
 Enum JourneyType {
   PRIVATE_JOURNEY
   SELF_DRIVE_JOURNEY
@@ -421,12 +575,6 @@ Enum JourneyStatus {
   ARCHIVED
 }
 
-Enum BookingStatus {
-  PENDING
-  CONFIRMED
-  CANCELLED
-}
-
 Enum LocationType {
   CONTINENT
   SUBCONTINENT
@@ -454,29 +602,37 @@ Enum Scope {
   OTHER
 }
 
+Ref: Booking.journeyId > Journey.id
+
+Ref: Booking.createdBy > Auth.id
+
+Ref: Booking.selectedPaymentScheduleId - PaymentSchedule.id
+
+Ref: PaymentSchedule.bookingId - Booking.id
+
+Ref: PaymentScheduleItem.scheduleId > PaymentSchedule.id [delete: Cascade]
+
+Ref: PaymentRecord.bookingId > Booking.id
+
+Ref: PaymentRecord.scheduleItemId > PaymentScheduleItem.id
+
 Ref: CmsPageSection.pageId > CmsPage.id [delete: Cascade]
 
 Ref: CountryPage.locationId > Location.id [delete: Cascade]
 
 Ref: CountryPageSection.pageId > CountryPage.id [delete: Cascade]
 
-Ref: JourneyLocation.journeyId > Journey.id [delete: Cascade]
-
-Ref: JourneyLocation.locationId > Location.id
-
 Ref: JourneyItinerary.journeyId > Journey.id [delete: Cascade]
 
 Ref: JourneyItinerary.locationId > Location.id
 
-Ref: JourneyAccommodation.journeyId > Journey.id [delete: Cascade]
+Ref: JourneyAccommodation.journeyId - Journey.id [delete: Cascade]
 
 Ref: JourneyAccommodation.locationId > Location.id
 
 Ref: JourneyAddOn.journeyId > Journey.id [delete: Cascade]
 
-Ref: JourneyAddOn.addOnId > AddOn.id [delete: Cascade]
-
-Ref: Booking.journeyId > Journey.id
+Ref: JourneyAddOn.locationId > Location.id
 
 Ref: Location.parentId - Location.id
 

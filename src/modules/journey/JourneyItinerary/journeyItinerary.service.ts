@@ -24,10 +24,8 @@ export const getJourneyItineraryService = async (req: any) => {
 export const manageJourneyItineraryService = async (req: any, res: any) => {
   const { journeyId } = req.validated.body;
 
-  if (journeyId) {
-    const journey = await prisma.journey.findUnique({ where: { id: journeyId } });
-    if (!journey) throw new Error("Journey not found");
-  }
+  const journey = await prisma.journey.findUnique({ where: { id: journeyId } });
+  if (!journey) throw new Error("Journey not found");
 
   return manageRecordWithFiles({
     req,

@@ -37,11 +37,30 @@ const PerfectForEnum = z.enum([
 const PaceEnum = z.enum(["RELAXED", "BALANCED", "ACTIVE"]);
 const ComfortLevelEnum = z.enum(["COMFORT", "BOUTIQUE", "PREMIUM_LUXURY"]);
 const JourneyStatusEnum = z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]);
+const multiEnumQuery = (item: z.ZodTypeAny) =>
+  z.preprocess(
+    (value) =>
+      Array.isArray(value)
+        ? value
+        : typeof value === "string"
+          ? value.split(",").map((item) => item.trim()).filter(Boolean)
+          : value,
+    z.array(item).min(1),
+  ).optional();
 
 export const getJourneyValidator = z.object({
   query: z.object({
-    // Sob filtering req.query theke manually service e hocche (see journey.service.ts)
-    // tai eikhane kichu declare kora hocche na - CountryPageSection er pattern onujayi
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().max(100).optional(),
+    id: z.string().trim().optional(), slug: z.string().trim().optional(),
+    status: JourneyStatusEnum.optional(), featured: z.enum(["true", "false"]).optional(),
+    journeyType: multiEnumQuery(JourneyTypeEnum),
+    travelStyle: multiEnumQuery(TravelStyleEnum),
+    perfectFor: multiEnumQuery(PerfectForEnum),
+    pace: PaceEnum.optional(), comfortLevel: ComfortLevelEnum.optional(),
+    minPrice: z.coerce.number().nonnegative().optional(), maxPrice: z.coerce.number().nonnegative().optional(),
+    minDays: z.coerce.number().int().positive().optional(), maxDays: z.coerce.number().int().positive().optional(),
+    locationId: z.string().trim().optional(), locationSlug: z.string().trim().optional(), search: z.string().trim().min(1).optional(),
   }),
 });
 
@@ -59,6 +78,8 @@ export const manageJourneyValidator = z.object({
       minDays: z.coerce.number().int().positive().optional(),
       maxDays: z.coerce.number().int().positive().optional(),
 
+      journeyHeroImage: z.array(z.string()).optional(),
+      journeyGallery: z.array(z.string()).optional(),
       highlights: z.array(z.string()).optional(),
       included: z.array(z.string()).optional(),
       notIncluded: z.array(z.string()).optional(),
@@ -75,10 +96,11 @@ export const manageJourneyValidator = z.object({
       metadata: z.any().optional(),
       data: z.any().optional(),
 
-      fileRemove: z.any().optional(),
+      
     })
     .transform((data) => {
-      if (data.title && !data.slug) {
+      // Name থেকে slug generate
+      if (data.title) {
         data.slug = data.title
           .trim()
           .toLowerCase()
@@ -87,6 +109,7 @@ export const manageJourneyValidator = z.object({
           .replace(/-+/g, "-")
           .replace(/^-|-$/g, "");
       }
+
       return data;
     })
     .superRefine((data, ctx) => {
