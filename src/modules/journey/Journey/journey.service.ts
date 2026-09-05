@@ -8,14 +8,14 @@ import { manageRecordWithFiles } from "../../../shared/manageRecordWithFiles.ser
 const journeyInclude = {
   itinerary: {
     include: { location: true },
-    orderBy: { dayNumber: "asc" as const },
+    // orderBy: { dayNumber: "asc" as const },
   },
   accommodations: {
     include: { location: true },
-    orderBy: { order: "asc" as const },
+    // orderBy: { order: "asc" as const },
   },
   addOns: {
-    include: { addOn: true },
+    // include: { addOn: true },
   },
 };
 
