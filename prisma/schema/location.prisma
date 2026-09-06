@@ -16,12 +16,11 @@ model Location {
     regionPage            RegionPage[]
     placePage             PlacePage[]
     journeyItinerary      JourneyItinerary[]
-    journeyAccommodations JourneyAccommodation[]
     journeyAddOns         JourneyAddOn[]
 
+    @@unique([deletedAt, slug])
     @@index([parentId])
     @@index([type])
-    @@unique([deletedAt, slug])
 }
 
 enum LocationType {

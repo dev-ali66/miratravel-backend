@@ -14,7 +14,6 @@ import placePageRoutes from "./src/modules/place/placePage/placePage.routes.js";
 import placePageSectionsRoutes from "./src/modules/place/placePageSection/placePageSection.routes.js";
 import journeyRoutes from "./src/modules/journey/Journey/journey.routes.js";
 import journeyItineraryRoutes from "./src/modules/journey/JourneyItinerary/journeyItinerary.routes.js";
-import journeyAccommodationRoutes from "./src/modules/journey/journeyAccommodation/journeyAccommodation.routes.js";
 import journeyAddOnRoutes from "./src/modules/journey/journeyAddOn/journeyAddOn.routes.js";
 import bookingRoutes from "./src/modules/booking/booking/booking.routes.js";
 import paymentScheduleRoutes from "./src/modules/booking/paymentSchedule/paymentSchedule.routes.js";
@@ -36,7 +35,6 @@ export const bootstraps = (app: any) => {
   mount(app, "/api/v1/place-pages-sections", placePageSectionsRoutes);
   mount(app, "/api/v1/journeys", journeyRoutes);
   mount(app, "/api/v1/journey-itinerary", journeyItineraryRoutes);
-  mount(app, "/api/v1/journey-accommodations", journeyAccommodationRoutes);
   mount(app, "/api/v1/journey-addons", journeyAddOnRoutes);
   mount(app, "/api/v1/bookings", bookingRoutes);
   mount(app, "/api/v1/payment-schedules", paymentScheduleRoutes);

@@ -50,7 +50,6 @@ enum JourneyStatus {
   ARCHIVED
 }
 
-
 model Journey {
   id       String  @id @default(cuid())
   slug     String
@@ -72,25 +71,24 @@ model Journey {
   perfectFor   PerfectFor[]
   pace         Pace
   comfortLevel ComfortLevel
-
-  status   JourneyStatus @default(DRAFT)
-  featured Boolean       @default(false)
+  status       JourneyStatus @default(DRAFT)
+  featured     Boolean       @default(false)
 
   metadata Json?
   data     Json?
 
   itinerary      JourneyItinerary[]
-  accommodations JourneyAccommodation?
+  accommodations Json?
   addOns         JourneyAddOn[]
   bookings       Booking[]
 
   deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
+  @@unique([deletedAt, slug])
   @@index([status])
   @@index([minDays, maxDays])
-  @@unique([deletedAt, slug])
 }
 
 model JourneyItinerary {
@@ -108,35 +106,15 @@ model JourneyItinerary {
   data                  Json?
 
   deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@unique([journeyId, dayNumber])
-  @@index([journeyId])
   @@unique([deletedAt, slug])
+  @@index([journeyId])
 }
 
-model JourneyAccommodation {
-  id                        String    @id @default(cuid())
-  journeyId                 String    @unique
-  journey                   Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
-  locationId                String?
-  location                  Location? @relation(fields: [locationId], references: [id])
-  title                     String
-  slug                      String
-  description               String?
-  journeyAccommodationImage String[]
-  order                     Int       @default(0)
-  metadata                  Json?
-  data                      Json?
 
-  deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([journeyId])
-  @@unique([deletedAt, slug])
-}
 
 model JourneyAddOn {
   id                    String    @id @default(cuid())
@@ -154,11 +132,10 @@ model JourneyAddOn {
   data                  Json?
 
   deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@unique([journeyId, dayNumber])
-  @@index([journeyId])
   @@unique([deletedAt, slug])
+  @@index([journeyId])
 }
-

@@ -107,6 +107,7 @@ export const manageJourneyValidator = z.object({
 
       metadata: z.any().optional(),
       data: z.any().optional(),
+      accommodations: z.any().optional(),
     })
     .transform((data) => {
       // Name থেকে slug generate

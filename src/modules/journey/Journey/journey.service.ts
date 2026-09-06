@@ -8,10 +8,6 @@ const journeyInclude = {
     include: { location: true },
     // orderBy: { dayNumber: "asc" as const },
   },
-  accommodations: {
-    include: { location: true },
-    // orderBy: { order: "asc" as const },
-  },
   addOns: {
     // include: { addOn: true },
   },
