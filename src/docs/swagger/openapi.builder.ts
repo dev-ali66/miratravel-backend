@@ -18,15 +18,14 @@ export const buildOpenAPI = () => {
     // -----------------------------
     // 🔥 QUERY PARAMS (FIX)
     // -----------------------------
-    const queryParams =
-      r.schema?.shape?.query?.shape
-        ? Object.keys(r.schema.shape.query.shape).map((key) => ({
+    const queryParams = r.schema?.shape?.query?.shape
+      ? Object.keys(r.schema.shape.query.shape).map((key) => ({
           name: key,
           in: "query",
           required: !r.schema.shape.query.shape[key].isOptional?.(),
           schema: { type: "string" },
         }))
-        : [];
+      : [];
 
     paths[r.path][method] = {
       tags: [r.tag],
@@ -34,27 +33,22 @@ export const buildOpenAPI = () => {
       // -----------------------------
       // PATH + QUERY PARAMS
       // -----------------------------
-      parameters: [
-        ...(r.params || []),
-        ...queryParams,
-      ],
+      parameters: [...(r.params || []), ...queryParams],
 
       // -----------------------------
       // BODY ONLY FOR POST/PUT/PATCH
       // -----------------------------
       ...(isBodyAllowed && openApiSchema
         ? {
-          requestBody: {
-            required: true,
-            content: {
-              [r.isFormData
-                ? "multipart/form-data"
-                : "application/json"]: {
-                schema: openApiSchema,
+            requestBody: {
+              required: true,
+              content: {
+                [r.isFormData ? "multipart/form-data" : "application/json"]: {
+                  schema: openApiSchema,
+                },
               },
             },
-          },
-        }
+          }
         : {}),
 
       responses: {

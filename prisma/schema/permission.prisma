@@ -4,6 +4,7 @@ model Permission {
   resource  String?
   scope     Scope
   roles     Role[]   @relation("PermissionToRole")
+  deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

@@ -20,10 +20,7 @@ export const getRegionPageSectionController = catchAsync(
 export const manageRegionPageSectionController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const result =
-      await RegionPageSectionService.manageRegionPageSectionService(
-        req,
-        res,
-      );
+      await RegionPageSectionService.manageRegionPageSectionService(req, res);
 
     return successResponse({
       res,
@@ -35,10 +32,7 @@ export const manageRegionPageSectionController = catchAsync(
 export const deleteRegionPageSectionController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const result =
-      await RegionPageSectionService.deleteRegionPageSectionService(
-        req,
-        res,
-      );
+      await RegionPageSectionService.deleteRegionPageSectionService(req, res);
 
     return successResponse({
       res,

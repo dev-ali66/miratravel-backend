@@ -53,7 +53,7 @@ enum JourneyStatus {
 
 model Journey {
   id       String  @id @default(cuid())
-  slug     String  @unique
+  slug     String
   title    String
   subtitle String?
   price    Decimal @db.Decimal(10, 2)
@@ -84,11 +84,13 @@ model Journey {
   addOns         JourneyAddOn[]
   bookings       Booking[]
 
+  deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([status])
   @@index([minDays, maxDays])
+  @@unique([deletedAt, slug])
 }
 
 model JourneyItinerary {
@@ -105,11 +107,13 @@ model JourneyItinerary {
   metadata              Json?
   data                  Json?
 
+  deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([journeyId, dayNumber])
   @@index([journeyId])
+  @@unique([deletedAt, slug])
 }
 
 model JourneyAccommodation {
@@ -126,10 +130,12 @@ model JourneyAccommodation {
   metadata                  Json?
   data                      Json?
 
+  deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([journeyId])
+  @@unique([deletedAt, slug])
 }
 
 model JourneyAddOn {
@@ -147,10 +153,12 @@ model JourneyAddOn {
   metadata              Json?
   data                  Json?
 
+  deletedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([journeyId, dayNumber])
   @@index([journeyId])
+  @@unique([deletedAt, slug])
 }
 

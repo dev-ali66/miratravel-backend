@@ -4,42 +4,42 @@ Base URL: `/api/v1`. A protected request uses `Authorization: Bearer <accessToke
 
 ## Common conventions
 
-| Operation | Method | Body |
-| --- | --- | --- |
-| List/read | `GET /resource` | query parameters |
-| Create | `POST /resource` | resource fields |
-| Update | `POST /resource` | same fields plus `id` |
-| Delete | `DELETE /resource` | `{ "id": "recordId" }` |
+| Operation | Method             | Body                   |
+| --------- | ------------------ | ---------------------- |
+| List/read | `GET /resource`    | query parameters       |
+| Create    | `POST /resource`   | resource fields        |
+| Update    | `POST /resource`   | same fields plus `id`  |
+| Delete    | `DELETE /resource` | `{ "id": "recordId" }` |
 
 The API uses `POST` for update, not `PATCH`/`PUT`. Generic list responses contain `code`, `success`, `message`, `meta` (`total`, `page`, `limit`, `totalPages`), and `data`.
 
 ## Mounted route groups
 
-| Prefix | Read access | Write access | Purpose |
-| --- | --- | --- | --- |
-| `/auth` | mixed | mixed | account lifecycle and session APIs |
-| `/roles` | protected | protected | role CRUD |
-| `/permissions` | protected | protected | permission CRUD |
-| `/file-upload` | protected | protected | generic multi-file upload to Cloudinary (returns URLs to embed in other resources) |
-| `/cms-pages` | public GET | protected | generic CMS pages |
-| `/cms-pages-sections` | public GET | protected | generic CMS sections |
-| `/locations` | public GET | protected | hierarchical geography |
-| `/country-pages` | public GET | protected | page attached to a COUNTRY location |
-| `/country-pages-sections` | public GET | protected | country-page content sections |
-| `/region-pages` | public GET | protected | page attached to a REGION location |
-| `/region-pages-sections` | public GET | protected | region-page content sections |
-| `/place-pages` | public GET | protected | page attached to a PLACE location |
-| `/place-pages-sections` | public GET | protected | place-page content sections |
-| `/journeys` | public GET | protected | Journey CRUD/discovery |
-| `/journey-locations` | public GET | protected | Journey roots and optional selectable descendants |
-| `/journey-itinerary` | public GET | protected | day-by-day Journey items |
-| `/journey-accommodations` | public GET | protected | Journey stays |
-| `/addons` | public GET | protected | reusable add-ons |
-| `/journey-addons` | public GET | protected | add-on attached to a Journey and location |
-| `/bookings` | protected GET | mixed — see below | traveler booking requests + admin workflow actions |
-| `/payment-schedules` | protected | protected | generated/overridden payment schedules per booking |
-| `/payment-records` | protected | protected (append-only; refunds instead of edits/deletes) | individual payment transactions |
-| `/payment-config` | protected | protected | configurable deposit/full-payment rules (global or per-journey) |
+| Prefix                    | Read access   | Write access                                              | Purpose                                                                            |
+| ------------------------- | ------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `/auth`                   | mixed         | mixed                                                     | account lifecycle and session APIs                                                 |
+| `/roles`                  | protected     | protected                                                 | role CRUD                                                                          |
+| `/permissions`            | protected     | protected                                                 | permission CRUD                                                                    |
+| `/file-upload`            | protected     | protected                                                 | generic multi-file upload to Cloudinary (returns URLs to embed in other resources) |
+| `/cms-pages`              | public GET    | protected                                                 | generic CMS pages                                                                  |
+| `/cms-pages-sections`     | public GET    | protected                                                 | generic CMS sections                                                               |
+| `/locations`              | public GET    | protected                                                 | hierarchical geography                                                             |
+| `/country-pages`          | public GET    | protected                                                 | page attached to a COUNTRY location                                                |
+| `/country-pages-sections` | public GET    | protected                                                 | country-page content sections                                                      |
+| `/region-pages`           | public GET    | protected                                                 | page attached to a REGION location                                                 |
+| `/region-pages-sections`  | public GET    | protected                                                 | region-page content sections                                                       |
+| `/place-pages`            | public GET    | protected                                                 | page attached to a PLACE location                                                  |
+| `/place-pages-sections`   | public GET    | protected                                                 | place-page content sections                                                        |
+| `/journeys`               | public GET    | protected                                                 | Journey CRUD/discovery                                                             |
+| `/journey-locations`      | public GET    | protected                                                 | Journey roots and optional selectable descendants                                  |
+| `/journey-itinerary`      | public GET    | protected                                                 | day-by-day Journey items                                                           |
+| `/journey-accommodations` | public GET    | protected                                                 | Journey stays                                                                      |
+| `/addons`                 | public GET    | protected                                                 | reusable add-ons                                                                   |
+| `/journey-addons`         | public GET    | protected                                                 | add-on attached to a Journey and location                                          |
+| `/bookings`               | protected GET | mixed — see below                                         | traveler booking requests + admin workflow actions                                 |
+| `/payment-schedules`      | protected     | protected                                                 | generated/overridden payment schedules per booking                                 |
+| `/payment-records`        | protected     | protected (append-only; refunds instead of edits/deletes) | individual payment transactions                                                    |
+| `/payment-config`         | protected     | protected                                                 | configurable deposit/full-payment rules (global or per-journey)                    |
 
 ## Auth endpoints
 
@@ -131,7 +131,10 @@ fileRemove: ["https://res.cloudinary.com/.../old-image.jpg"]   // optional, JSON
   "message": "Image Upload Successful",
   "data": {
     "image": ["https://res.cloudinary.com/.../image.jpg"],
-    "gallery": ["https://res.cloudinary.com/.../g1.jpg", "https://res.cloudinary.com/.../g2.jpg"]
+    "gallery": [
+      "https://res.cloudinary.com/.../g1.jpg",
+      "https://res.cloudinary.com/.../g2.jpg"
+    ]
   }
 }
 ```
@@ -142,11 +145,11 @@ Most writes may use `multipart/form-data` directly on the resource's own endpoin
 `/file-upload` first. Fields containing arrays/objects should be JSON strings in form data. Required media
 fields are uploaded by their field name:
 
-| Resource | Required file field(s) |
-| --- | --- |
-| Journey | `heroImage`, `gallery` |
-| Journey itinerary | `image` |
-| Journey accommodation | `image` |
-| AddOn | `image` |
+| Resource              | Required file field(s) |
+| --------------------- | ---------------------- |
+| Journey               | `heroImage`, `gallery` |
+| Journey itinerary     | `image`                |
+| Journey accommodation | `image`                |
+| AddOn                 | `image`                |
 
 Use `fileRemove` to request old external URLs be removed during an update.

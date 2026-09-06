@@ -13,11 +13,7 @@ export const manageCmsPageValidator = z.object({
     .object({
       id: z.string().optional(),
 
-      name: z
-        .string()
-        .trim()
-        .min(1, "Name cannot be empty")
-        .optional(),
+      name: z.string().trim().min(1, "Name cannot be empty").optional(),
 
       slug: z.string().optional(),
 

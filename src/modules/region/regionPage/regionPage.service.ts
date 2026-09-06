@@ -154,6 +154,7 @@ export const deleteRegionPageService = async (req: any, res: any) => {
     prisma,
     model: prisma.regionPage,
     modelName: "regionPage",
+    softDelete: true,
     rawIds: req.body.id,
     externalDomain: ["res.cloudinary.com"],
     maxLimit: 10,

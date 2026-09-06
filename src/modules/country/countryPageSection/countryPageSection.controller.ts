@@ -20,10 +20,7 @@ export const getCountryPageSectionController = catchAsync(
 export const manageCountryPageSectionController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const result =
-      await CountryPageSectionService.manageCountryPageSectionService(
-        req,
-        res,
-      );
+      await CountryPageSectionService.manageCountryPageSectionService(req, res);
 
     return successResponse({
       res,
@@ -35,10 +32,7 @@ export const manageCountryPageSectionController = catchAsync(
 export const deleteCountryPageSectionController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const result =
-      await CountryPageSectionService.deleteCountryPageSectionService(
-        req,
-        res,
-      );
+      await CountryPageSectionService.deleteCountryPageSectionService(req, res);
 
     return successResponse({
       res,

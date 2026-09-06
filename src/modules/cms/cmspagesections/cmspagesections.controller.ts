@@ -14,7 +14,10 @@ export const getCmsPageSectionsController = catchAsync(
 
 export const manageCmsPageSectionsController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const result = await CmsPageSectionsService.manageCmsPageSectionsService(req, res);
+    const result = await CmsPageSectionsService.manageCmsPageSectionsService(
+      req,
+      res,
+    );
     return successResponse({
       res,
       ...result,
@@ -24,7 +27,10 @@ export const manageCmsPageSectionsController = catchAsync(
 
 export const deleteCmsPageSectionsController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const result = await CmsPageSectionsService.deleteCmsPageSectionsService(req, res);
+    const result = await CmsPageSectionsService.deleteCmsPageSectionsService(
+      req,
+      res,
+    );
     return successResponse({
       res,
       ...result,

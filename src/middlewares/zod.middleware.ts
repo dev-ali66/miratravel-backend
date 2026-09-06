@@ -13,8 +13,9 @@ declare global {
 export const validate = (schema: any) => {
   const middleware = (req: Request, _res: Response, next: NextFunction) => {
     try {
-      const isFormData =
-        req.headers["content-type"]?.includes("multipart/form-data");
+      const isFormData = req.headers["content-type"]?.includes(
+        "multipart/form-data",
+      );
 
       (middleware as any).__isFormData = isFormData;
 

@@ -7,19 +7,19 @@ export const getPermissionsService = async (req: any) => {
   let result = await getRecords({
     req,
     model: prisma.permission,
-    modelName: "Permissions",
+    modelName: "permission",
     include: {
-      roles: true
-    }
+      roles: true,
+    },
   });
 
   return result;
 };
 
 export const managePermissionsService = async (req: any, res: any) => {
-
-  const roles = (req.validated?.body?.roles || [])
-    .filter((id: string) => id?.trim());
+  const roles = (req.validated?.body?.roles || []).filter((id: string) =>
+    id?.trim(),
+  );
 
   if (req.validated?.body?.id) {
     // UPDATE
@@ -43,7 +43,7 @@ export const managePermissionsService = async (req: any, res: any) => {
     prisma,
     model: prisma.permission,
     include: {
-      roles: true
+      roles: true,
     },
     modelName: "Permissions",
     externalDomain: ["res.cloudinary.com"],
@@ -59,6 +59,7 @@ export const deletePermissionsService = async (req: any, res: any) => {
     prisma,
     model: prisma.permission,
     modelName: "Permissions",
+    softDelete: true,
     rawIds: req.body.id,
     externalDomain: ["res.cloudinary.com"],
     maxLimit: 10,

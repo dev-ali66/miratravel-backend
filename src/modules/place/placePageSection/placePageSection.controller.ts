@@ -19,11 +19,10 @@ export const getPlacePageSectionController = catchAsync(
 
 export const managePlacePageSectionController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const result =
-      await PlacePageSectionService.managePlacePageSectionService(
-        req,
-        res,
-      );
+    const result = await PlacePageSectionService.managePlacePageSectionService(
+      req,
+      res,
+    );
 
     return successResponse({
       res,
@@ -34,11 +33,10 @@ export const managePlacePageSectionController = catchAsync(
 
 export const deletePlacePageSectionController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const result =
-      await PlacePageSectionService.deletePlacePageSectionService(
-        req,
-        res,
-      );
+    const result = await PlacePageSectionService.deletePlacePageSectionService(
+      req,
+      res,
+    );
 
     return successResponse({
       res,

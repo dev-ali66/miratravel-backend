@@ -1,7 +1,7 @@
 // utils/extractExternalUrlsDeep.js
 
 export const extractExternalUrlsDeep = (
-  input :any,
+  input: any,
   urls = new Set(),
   domains = ["res.cloudinary.com"],
 ) => {
@@ -9,7 +9,7 @@ export const extractExternalUrlsDeep = (
 
   const domainList = Array.isArray(domains) ? domains : [domains];
 
-  const safeParse = (value:any) => {
+  const safeParse = (value: any) => {
     if (typeof value !== "string") return value;
 
     const trimmed = value.trim();
@@ -29,7 +29,7 @@ export const extractExternalUrlsDeep = (
     return value;
   };
 
-  const traverse = (value:any) => {
+  const traverse = (value: any) => {
     value = safeParse(value);
 
     // Array

@@ -14,20 +14,20 @@ page=1&limit=10
 
 `GET /journeys` supports:
 
-| Query | Meaning |
-| --- | --- |
-| `id`, `slug` | exact record lookup |
-| `status` | `DRAFT`, `PUBLISHED`, `ARCHIVED` |
-| `featured` | `true` or `false` |
-| `journeyType` | one/many JourneyType values |
-| `travelStyle` | one/many TravelStyle values |
-| `perfectFor` | one/many PerfectFor values |
-| `pace` | `RELAXED`, `BALANCED`, `ACTIVE` |
-| `comfortLevel` | `COMFORT`, `BOUTIQUE`, `PREMIUM_LUXURY` |
-| `minPrice`, `maxPrice` | inclusive price range |
-| `minDays`, `maxDays` | Journey duration overlap range |
-| `locationId`, `locationSlug` | Journey root location |
-| `search` | title, subtitle, and slug text search |
+| Query                        | Meaning                                 |
+| ---------------------------- | --------------------------------------- |
+| `id`, `slug`                 | exact record lookup                     |
+| `status`                     | `DRAFT`, `PUBLISHED`, `ARCHIVED`        |
+| `featured`                   | `true` or `false`                       |
+| `journeyType`                | one/many JourneyType values             |
+| `travelStyle`                | one/many TravelStyle values             |
+| `perfectFor`                 | one/many PerfectFor values              |
+| `pace`                       | `RELAXED`, `BALANCED`, `ACTIVE`         |
+| `comfortLevel`               | `COMFORT`, `BOUTIQUE`, `PREMIUM_LUXURY` |
+| `minPrice`, `maxPrice`       | inclusive price range                   |
+| `minDays`, `maxDays`         | Journey duration overlap range          |
+| `locationId`, `locationSlug` | Journey root location                   |
+| `search`                     | title, subtitle, and slug text search   |
 
 Use either comma-separated or repeated multi-select keys:
 
@@ -84,4 +84,3 @@ GET /payment-schedules/due-overview?dueBefore=<date>          -- overdue as of t
 GET /payment-schedules/due-overview?withinDays=7              -- due within the next N days
 GET /payment-records?bookingId=...&scheduleItemId=...&status=SUCCEEDED|FAILED|PENDING|REFUNDED|PARTIALLY_REFUNDED
 ```
-

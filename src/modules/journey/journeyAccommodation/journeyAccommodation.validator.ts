@@ -1,6 +1,8 @@
 import { z } from "zod";
 
-export const getjourneyAccommodationValidator = z.object({ query: z.object({}) });
+export const getjourneyAccommodationValidator = z.object({
+  query: z.object({}),
+});
 
 export const managejourneyAccommodationValidator = z.object({
   body: z
@@ -13,7 +15,6 @@ export const managejourneyAccommodationValidator = z.object({
       locationId: z.string().trim().optional(),
       metadata: z.any().optional(),
       data: z.any().optional(),
-      
     })
     .transform((data) => {
       if (data.title) {
@@ -29,8 +30,18 @@ export const managejourneyAccommodationValidator = z.object({
     })
     .superRefine((data, ctx) => {
       if (!data.id) {
-        if (!data.journeyId) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["journeyId"], message: "journeyId is required" });
-        if (!data.title) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["title"], message: "title is required" });
+        if (!data.journeyId)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["journeyId"],
+            message: "journeyId is required",
+          });
+        if (!data.title)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["title"],
+            message: "title is required",
+          });
       }
     }),
 });

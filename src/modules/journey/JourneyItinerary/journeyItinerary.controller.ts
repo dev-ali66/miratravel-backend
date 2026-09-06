@@ -19,11 +19,10 @@ export const getJourneyItineraryController = catchAsync(
 
 export const manageJourneyItineraryController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const result =
-      await JourneyItineraryService.manageJourneyItineraryService(
-        req,
-        res,
-      );
+    const result = await JourneyItineraryService.manageJourneyItineraryService(
+      req,
+      res,
+    );
 
     return successResponse({
       res,
@@ -34,11 +33,10 @@ export const manageJourneyItineraryController = catchAsync(
 
 export const deleteJourneyItineraryController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const result =
-      await JourneyItineraryService.deleteJourneyItineraryService(
-        req,
-        res,
-      );
+    const result = await JourneyItineraryService.deleteJourneyItineraryService(
+      req,
+      res,
+    );
 
     return successResponse({
       res,

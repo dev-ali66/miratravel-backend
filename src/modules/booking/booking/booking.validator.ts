@@ -24,7 +24,13 @@ export const PaymentStatusEnum = z.enum([
   "PARTIALLY_REFUNDED",
 ]);
 
-const TravelerTypeEnum = z.enum(["COUPLE", "SOLO", "FAMILY", "FRIENDS", "GROUP"]);
+const TravelerTypeEnum = z.enum([
+  "COUPLE",
+  "SOLO",
+  "FAMILY",
+  "FRIENDS",
+  "GROUP",
+]);
 
 // ---------- list / filter ----------
 export const getBookingValidator = z.object({
@@ -46,8 +52,16 @@ export const getBookingValidator = z.object({
       dueBefore: z.coerce.date().optional(), // bookings with a next-due schedule item before this date
     })
     .superRefine((query, ctx) => {
-      if (query.departureFrom && query.departureTo && query.departureFrom > query.departureTo) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["departureTo"], message: "departureTo must be on or after departureFrom" });
+      if (
+        query.departureFrom &&
+        query.departureTo &&
+        query.departureFrom > query.departureTo
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["departureTo"],
+          message: "departureTo must be on or after departureFrom",
+        });
       }
     }),
 });
@@ -78,15 +92,30 @@ export const createBookingRequestValidator = z.object({
     })
     .superRefine((data, ctx) => {
       if (data.travelDepartureDate < data.travelArrivalDate) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["travelDepartureDate"], message: "travelDepartureDate must be on or after travelArrivalDate" });
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["travelDepartureDate"],
+          message: "travelDepartureDate must be on or after travelArrivalDate",
+        });
       }
-      if (!data.agreedToTerms) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["agreedToTerms"], message: "Terms must be accepted" });
-      if (!data.agreedToPrivacyPolicy) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["agreedToPrivacyPolicy"], message: "Privacy policy must be accepted" });
+      if (!data.agreedToTerms)
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["agreedToTerms"],
+          message: "Terms must be accepted",
+        });
+      if (!data.agreedToPrivacyPolicy)
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["agreedToPrivacyPolicy"],
+          message: "Privacy policy must be accepted",
+        });
       if (!data.acknowledgedRequestOnly)
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["acknowledgedRequestOnly"],
-          message: "Customer must acknowledge this is a request only — no payment is taken now (spec §11)",
+          message:
+            "Customer must acknowledge this is a request only — no payment is taken now (spec §11)",
         });
     }),
 });
@@ -118,7 +147,12 @@ const manualScheduleItemValidator = z.object({
   label: z.string().trim().min(1),
   calculationType: z.enum(["PERCENTAGE", "FIXED", "REMAINDER"]),
   ruleValue: z.coerce.number().nonnegative().optional(), // % or fixed currency amount; omit for REMAINDER
-  dueRule: z.enum(["IMMEDIATE_AFTER_APPROVAL", "DAYS_BEFORE_DEPARTURE", "FIXED_DATE", "MANUAL"]),
+  dueRule: z.enum([
+    "IMMEDIATE_AFTER_APPROVAL",
+    "DAYS_BEFORE_DEPARTURE",
+    "FIXED_DATE",
+    "MANUAL",
+  ]),
   dueValue: z.coerce.number().int().nonnegative().optional(), // days-before-departure value
   fixedDate: z.coerce.date().optional(),
 });

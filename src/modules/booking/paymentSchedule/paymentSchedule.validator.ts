@@ -14,7 +14,12 @@ const manualScheduleItemValidator = z.object({
   label: z.string().trim().min(1),
   calculationType: z.enum(["PERCENTAGE", "FIXED", "REMAINDER"]),
   ruleValue: z.coerce.number().nonnegative().optional(),
-  dueRule: z.enum(["IMMEDIATE_AFTER_APPROVAL", "DAYS_BEFORE_DEPARTURE", "FIXED_DATE", "MANUAL"]),
+  dueRule: z.enum([
+    "IMMEDIATE_AFTER_APPROVAL",
+    "DAYS_BEFORE_DEPARTURE",
+    "FIXED_DATE",
+    "MANUAL",
+  ]),
   dueValue: z.coerce.number().int().nonnegative().optional(),
   fixedDate: z.coerce.date().optional(),
 });

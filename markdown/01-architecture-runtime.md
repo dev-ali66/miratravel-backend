@@ -31,15 +31,15 @@ Socket.IO accepts an access JWT from `handshake.auth.token` or the `Authorizatio
 route -> middleware -> controller -> service -> shared service -> Prisma -> response
 ```
 
-| Layer | Responsibility |
-| --- | --- |
-| `*.routes.ts` | HTTP method/path and middleware order |
-| `*.validator.ts` | Zod request shape and business-required fields |
-| `*.controller.ts` | Calls a service and emits the standardized response |
-| `*.service.ts` | Resource-specific query, relation, and business rules |
-| `src/shared/` | Generic read/manage/delete, uploads, cache, email |
+| Layer              | Responsibility                                                |
+| ------------------ | ------------------------------------------------------------- |
+| `*.routes.ts`      | HTTP method/path and middleware order                         |
+| `*.validator.ts`   | Zod request shape and business-required fields                |
+| `*.controller.ts`  | Calls a service and emits the standardized response           |
+| `*.service.ts`     | Resource-specific query, relation, and business rules         |
+| `src/shared/`      | Generic read/manage/delete, uploads, cache, email             |
 | `src/middlewares/` | authentication, permission checks, validation, upload, errors |
-| `prisma/schema/` | PostgreSQL models, relations, enum values, migrations |
+| `prisma/schema/`   | PostgreSQL models, relations, enum values, migrations         |
 
 ## Shared services
 

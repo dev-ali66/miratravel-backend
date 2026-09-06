@@ -38,29 +38,41 @@ const PaceEnum = z.enum(["RELAXED", "BALANCED", "ACTIVE"]);
 const ComfortLevelEnum = z.enum(["COMFORT", "BOUTIQUE", "PREMIUM_LUXURY"]);
 const JourneyStatusEnum = z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]);
 const multiEnumQuery = (item: z.ZodTypeAny) =>
-  z.preprocess(
-    (value) =>
-      Array.isArray(value)
-        ? value
-        : typeof value === "string"
-          ? value.split(",").map((item) => item.trim()).filter(Boolean)
-          : value,
-    z.array(item).min(1),
-  ).optional();
+  z
+    .preprocess(
+      (value) =>
+        Array.isArray(value)
+          ? value
+          : typeof value === "string"
+            ? value
+                .split(",")
+                .map((item) => item.trim())
+                .filter(Boolean)
+            : value,
+      z.array(item).min(1),
+    )
+    .optional();
 
 export const getJourneyValidator = z.object({
   query: z.object({
     page: z.coerce.number().int().positive().optional(),
     limit: z.coerce.number().int().positive().max(100).optional(),
-    id: z.string().trim().optional(), slug: z.string().trim().optional(),
-    status: JourneyStatusEnum.optional(), featured: z.enum(["true", "false"]).optional(),
+    id: z.string().trim().optional(),
+    slug: z.string().trim().optional(),
+    status: JourneyStatusEnum.optional(),
+    featured: z.enum(["true", "false"]).optional(),
     journeyType: multiEnumQuery(JourneyTypeEnum),
     travelStyle: multiEnumQuery(TravelStyleEnum),
     perfectFor: multiEnumQuery(PerfectForEnum),
-    pace: PaceEnum.optional(), comfortLevel: ComfortLevelEnum.optional(),
-    minPrice: z.coerce.number().nonnegative().optional(), maxPrice: z.coerce.number().nonnegative().optional(),
-    minDays: z.coerce.number().int().positive().optional(), maxDays: z.coerce.number().int().positive().optional(),
-    locationId: z.string().trim().optional(), locationSlug: z.string().trim().optional(), search: z.string().trim().min(1).optional(),
+    pace: PaceEnum.optional(),
+    comfortLevel: ComfortLevelEnum.optional(),
+    minPrice: z.coerce.number().nonnegative().optional(),
+    maxPrice: z.coerce.number().nonnegative().optional(),
+    minDays: z.coerce.number().int().positive().optional(),
+    maxDays: z.coerce.number().int().positive().optional(),
+    locationId: z.string().trim().optional(),
+    locationSlug: z.string().trim().optional(),
+    search: z.string().trim().min(1).optional(),
   }),
 });
 
@@ -95,8 +107,6 @@ export const manageJourneyValidator = z.object({
 
       metadata: z.any().optional(),
       data: z.any().optional(),
-
-      
     })
     .transform((data) => {
       // Name থেকে slug generate

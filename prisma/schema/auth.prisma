@@ -12,6 +12,7 @@ model Auth {
   failedLoginAttempts    Int               @default(0)
   lockUntil              DateTime?
   isDeleted              Boolean           @default(false)
+  deletedAt              DateTime?
   createdAt              DateTime          @default(now())
   updatedAt              DateTime          @updatedAt
   sessions               Session[]

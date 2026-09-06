@@ -5,7 +5,6 @@ import { retryOperation } from "../../utils/retryOperation.js";
 import { uploadFilesToCloudinary } from "../../shared/upload_cloudinary.service.js";
 import { deleteFromCloudinary } from "../../shared/delete_cloudinary.service.js";
 
-
 interface UploadRequest extends Express.Request {
   files: Express.Multer.File[];
   body: {

@@ -10,8 +10,8 @@ export const getRolesService = async (req: any) => {
     model: prisma.role,
     modelName: "roles",
     include: {
-      permissions: true
-    }
+      permissions: true,
+    },
   });
 
   return result;
@@ -22,9 +22,7 @@ export const manageRolesService = async (req: any, res: any) => {
 
   if (permissions !== undefined) {
     const permissionIds = (
-      Array.isArray(permissions)
-        ? permissions
-        : JSON.parse(permissions)
+      Array.isArray(permissions) ? permissions : JSON.parse(permissions)
     )
       .map((id: string) => id.trim())
       .filter(Boolean);
@@ -51,7 +49,7 @@ export const manageRolesService = async (req: any, res: any) => {
     prisma,
     model: prisma.role,
     include: {
-      permissions: true
+      permissions: true,
     },
     modelName: "roles",
     externalDomain: ["res.cloudinary.com"],
@@ -67,6 +65,7 @@ export const deleteRolesService = async (req: any, res: any) => {
     prisma,
     model: prisma.role,
     modelName: "role",
+    softDelete: true,
     rawIds: req.body.id,
     externalDomain: ["res.cloudinary.com"],
     maxLimit: 10,

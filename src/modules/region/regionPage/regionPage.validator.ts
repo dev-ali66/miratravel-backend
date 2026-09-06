@@ -15,10 +15,7 @@ export const manageRegionPageValidator = z.object({
     .object({
       id: z.string().optional(),
 
-      locationId: z
-        .string()
-        .trim()
-        .optional(),
+      locationId: z.string().trim().optional(),
 
       metadata: z.any().optional(),
     })

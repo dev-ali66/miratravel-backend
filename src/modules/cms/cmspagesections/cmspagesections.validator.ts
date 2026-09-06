@@ -15,25 +15,13 @@ export const manageCmsPageSectionsValidator = z.object({
     .object({
       id: z.string().trim().optional(),
 
-      pageId: z
-        .string()
-        .trim()
-        .min(1, "Page ID cannot be empty")
-        .optional(),
+      pageId: z.string().trim().min(1, "Page ID cannot be empty").optional(),
 
-      name: z
-        .string()
-        .trim()
-        .min(1, "Name cannot be empty")
-        .optional(),
+      name: z.string().trim().min(1, "Name cannot be empty").optional(),
 
       slug: z.string().optional(),
 
-      type: z
-        .string()
-        .trim()
-        .min(1, "Type cannot be empty")
-        .optional(),
+      type: z.string().trim().min(1, "Type cannot be empty").optional(),
 
       order: z.preprocess(
         (value) => {
@@ -53,7 +41,7 @@ export const manageCmsPageSectionsValidator = z.object({
           })
           .int("Order must be an integer")
           .min(0, "Order cannot be negative")
-          .optional()
+          .optional(),
       ),
 
       metadata: z.any().optional(),

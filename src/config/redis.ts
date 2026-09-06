@@ -92,8 +92,6 @@ class RedisManager {
 
 export const redisManager = new RedisManager();
 
-
-
 // import Redis from "ioredis";
 // import config from "./index.js";
 // import { redisLogger } from "../logger/redis.logger.js";
@@ -174,4 +172,3 @@ export const redisManager = new RedisManager();
 // }
 
 // export const redisManager = new RedisManager();
-

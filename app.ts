@@ -1,4 +1,3 @@
-
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -11,7 +10,10 @@ import os from "os";
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import { globalLimiter } from "./src/middlewares/limiter.middleware.js";
-import {globalErrorHandler,notFoundMiddleware,} from "./src/middlewares/error.middleware.js";
+import {
+  globalErrorHandler,
+  notFoundMiddleware,
+} from "./src/middlewares/error.middleware.js";
 import jwt from "jsonwebtoken";
 import config from "./src/config/index.js";
 import { requestProfilerMiddleware } from "./src/utils/perfomance.tester.js";

@@ -31,9 +31,7 @@ export const getLocationService = async (req: any) => {
     const allowedTypes = Object.values(LocationType);
 
     if (!allowedTypes.includes(type as LocationType)) {
-      throw new Error(
-        `Invalid type: allowed only ${allowedTypes.join("/  ")}`
-      );
+      throw new Error(`Invalid type: allowed only ${allowedTypes.join("/  ")}`);
     }
 
     customWhere.type = type;
@@ -156,6 +154,7 @@ export const deleteLocationService = async (req: any, res: any) => {
     prisma,
     model: prisma.location,
     modelName: "location",
+    softDelete: true,
     rawIds: req.body.id,
     externalDomain: ["res.cloudinary.com"],
     maxLimit: 10,

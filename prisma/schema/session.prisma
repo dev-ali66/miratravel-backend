@@ -11,6 +11,7 @@ model Session {
   revokeReason     String?
   expiresAt        DateTime
   lastUsedAt       DateTime?
+  deletedAt        DateTime?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
   user             Auth      @relation(fields: [authId], references: [id], onDelete: Cascade)

@@ -43,7 +43,9 @@ export const manageJourneyAddOnService = async (req: any, res: any) => {
   const effectiveLocationId = locationId || existingRecord?.locationId;
 
   if (effectiveJourneyId) {
-    const journey = await prisma.journey.findUnique({ where: { id: effectiveJourneyId } });
+    const journey = await prisma.journey.findUnique({
+      where: { id: effectiveJourneyId },
+    });
     if (!journey) throw new ApiError("Journey not found", 404);
   }
 
@@ -74,6 +76,7 @@ export const deleteJourneyAddOnService = async (req: any, res: any) => {
     prisma,
     model: prisma.journeyAddOn,
     modelName: "journeyAddOn",
+    softDelete: true,
     rawIds: req.body.id,
     externalDomain: [],
     maxLimit: 20,

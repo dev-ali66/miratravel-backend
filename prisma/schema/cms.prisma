@@ -1,7 +1,7 @@
 model CmsPage {
   id        String           @id @default(cuid())
   name      String
-  slug      String           @unique
+  slug      String
   metadata  Json?
   data      Json?
   sections  CmsPageSection[]
@@ -10,6 +10,7 @@ model CmsPage {
   updatedAt DateTime         @updatedAt
 
   @@index([deletedAt])
+  @@unique([deletedAt, slug])
 }
 
 model CmsPageSection {
@@ -26,7 +27,7 @@ model CmsPageSection {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  @@unique([pageId, slug])
+  @@unique([deletedAt, slug])
   @@index([pageId])
   @@index([pageId, order])
   @@index([deletedAt])

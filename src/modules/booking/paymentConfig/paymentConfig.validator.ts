@@ -12,8 +12,16 @@ export const upsertPaymentConfigValidator = z.object({
     depositEnabled: z.coerce.boolean().optional(),
     depositType: z.enum(["PERCENTAGE", "FIXED"]).optional(),
     depositValue: z.coerce.number().nonnegative().optional(),
-    finalPaymentDueDaysBeforeDeparture: z.coerce.number().int().nonnegative().optional(),
-    fullPaymentRequiredIfWithinDays: z.coerce.number().int().nonnegative().optional(),
+    finalPaymentDueDaysBeforeDeparture: z.coerce
+      .number()
+      .int()
+      .nonnegative()
+      .optional(),
+    fullPaymentRequiredIfWithinDays: z.coerce
+      .number()
+      .int()
+      .nonnegative()
+      .optional(),
     allowAdminOverride: z.coerce.boolean().optional(),
     reservationWithoutPayment: z.coerce.boolean().optional(),
   }),

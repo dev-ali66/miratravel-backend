@@ -4,8 +4,6 @@ import { redisManager } from "./src/config/redis.js";
 import { logger } from "./src/logger/logger.logger.js";
 import prisma from "./src/config/prisma.js";
 
-
-
 const SHUTDOWN_TIMEOUT = 15000;
 const isDevelopment = config.NODE_ENV === "development";
 
@@ -88,7 +86,7 @@ const startServer = async () => {
 
     logger.success("Database connected successfully");
 
-    httpServer.listen(PORT,"127.0.0.1", () => {
+    httpServer.listen(PORT, "127.0.0.1", () => {
       logger.success("Server started successfully", {
         url: `http://localhost:${PORT}`,
         docs: `http://localhost:${PORT}/api/docs`,
@@ -143,9 +141,7 @@ process.on("unhandledRejection", (reason) => {
 
 const signals: ShutdownSignal[] = ["SIGINT", "SIGTERM", "SIGHUP"];
 
-signals.forEach((signal) =>
-  process.on(signal, () => gracefulShutdown(signal)),
-);
+signals.forEach((signal) => process.on(signal, () => gracefulShutdown(signal)));
 
 if (isDevelopment) {
   process.on("warning", (warning) => {

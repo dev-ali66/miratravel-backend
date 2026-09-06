@@ -18,6 +18,7 @@ export const getRecords = async ({
   convertNumber = true,
   singleRecordAsArray = true,
   audit = true,
+  softDelete = true,
   excludeFilterKeys = [],
 }: any) => {
   const redis = redisManager.getClient();
@@ -70,7 +71,14 @@ export const getRecords = async ({
     if (value === undefined || value === null) return acc;
     if (typeof value === "string" && value.trim() === "") return acc;
 
-    if (key === "id" || key === "user" || key === "status" || key === "parentId" || key === "locationId") acc[key] = value;
+    if (
+      key === "id" ||
+      key === "user" ||
+      key === "status" ||
+      key === "parentId" ||
+      key === "locationId"
+    )
+      acc[key] = value;
     else if (typeof value === "string") {
       acc[key] = { contains: value, mode: "insensitive" };
     } else {
@@ -85,7 +93,17 @@ export const getRecords = async ({
   // const route = req.originalUrl.split("?")[0];
   // const cacheKey = `cache:${modelName}:${route}:${page}:${limit}:${JSON.stringify(filter)}:${JSON.stringify(customWhere)}`;
 
-  const cacheKey = ["cache", modelName, req.method, req.baseUrl, req.path, page, limit, JSON.stringify(filter), JSON.stringify(customWhere),].join(":");
+  const cacheKey = [
+    "cache",
+    modelName,
+    req.method,
+    req.baseUrl,
+    req.path,
+    page,
+    limit,
+    JSON.stringify(filter),
+    JSON.stringify(customWhere),
+  ].join(":");
   const tagKey = `tag:${model.name}`;
 
   // 🔥 1. CHECK CACHE
@@ -124,6 +142,7 @@ export const getRecords = async ({
       where: {
         ...filter,
         ...customWhere,
+        ...(softDelete ? { deletedAt: null } : {}),
       },
       include,
       select,
@@ -135,6 +154,7 @@ export const getRecords = async ({
       where: {
         ...filter,
         ...customWhere,
+        ...(softDelete ? { deletedAt: null } : {}),
       },
     }),
   ]);
@@ -151,12 +171,11 @@ export const getRecords = async ({
       limit,
       totalPages: Math.ceil(total / limit),
     },
-    data:
-      !result?.length
-        ? null
-        : result.length === 1 && !singleRecordAsArray
-          ? result[0]
-          : result,
+    data: !result?.length
+      ? null
+      : result.length === 1 && !singleRecordAsArray
+        ? result[0]
+        : result,
   };
   if (audit) {
     await auditLogger({

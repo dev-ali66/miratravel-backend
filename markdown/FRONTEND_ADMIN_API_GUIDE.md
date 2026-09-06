@@ -106,7 +106,6 @@ GET /api/v1/journey-locations?journeyId={{journeyId}}&includeChildren=true
 
 `data` contains configured roots and `availableLocations` contains every direct/nested descendant that can be used as `locationId`.
 
-
 # Frontend/admin Journey location selector
 
 No new endpoint is required for the Journey AddOn or itinerary location dropdown. Reuse the existing JourneyLocation endpoint:
@@ -124,7 +123,13 @@ Example response shape:
   "success": true,
   "data": [{ "id": "root-1", "location": { "name": "Gulshan" } }],
   "availableLocations": [
-    { "id": "place-1", "name": "Gulshan 1", "slug": "gulshan-1", "type": "PLACE", "parentId": "root-1" }
+    {
+      "id": "place-1",
+      "name": "Gulshan 1",
+      "slug": "gulshan-1",
+      "type": "PLACE",
+      "parentId": "root-1"
+    }
   ]
 }
 ```

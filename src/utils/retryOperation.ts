@@ -1,4 +1,8 @@
-export const retryOperation: any = async (fn: any, retries = 3, delay = 500) => {
+export const retryOperation: any = async (
+  fn: any,
+  retries = 3,
+  delay = 500,
+) => {
   try {
     return await fn();
   } catch (err: any) {

@@ -3,6 +3,7 @@ model Role {
   name        String       @unique
   permissions Permission[] @relation("PermissionToRole")
   users       Auth[]       @relation("RoleToUser")
+  deletedAt   DateTime?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }

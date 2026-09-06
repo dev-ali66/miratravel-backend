@@ -7,7 +7,7 @@ export const getCmsPageSectionsService = async (req: any) => {
   let result = await getRecords({
     req,
     model: prisma.cmsPageSection,
-    modelName: "cmsPageSections",
+    modelName: "cmsPageSection",
   });
 
   return result;
@@ -33,6 +33,7 @@ export const deleteCmsPageSectionsService = async (req: any, res: any) => {
     prisma,
     model: prisma.cmsPageSection,
     modelName: "cmsPageSections",
+    softDelete: true,
     rawIds: req.body.id,
     externalDomain: ["res.cloudinary.com"],
     maxLimit: 10,

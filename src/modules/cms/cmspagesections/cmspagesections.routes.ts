@@ -9,7 +9,10 @@ import {
 import { accessMiddleware } from "../../../middlewares/accessControl.middleware.js";
 import { uploadFile } from "../../../middlewares/multer.middleware.js";
 import { validate } from "../../../middlewares/zod.middleware.js";
-import { getCmsPageSectionsValidator, manageCmsPageSectionsValidator } from "./cmspagesections.validator.js";
+import {
+  getCmsPageSectionsValidator,
+  manageCmsPageSectionsValidator,
+} from "./cmspagesections.validator.js";
 
 const router = Router();
 

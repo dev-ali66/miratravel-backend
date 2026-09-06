@@ -29,13 +29,8 @@
             },
             "url": {
               "raw": "{{base}}/auth/csrf-token",
-              "host": [
-                "{{base}}"
-              ],
-              "path": [
-                "auth",
-                "csrf-token"
-              ]
+              "host": ["{{base}}"],
+              "path": ["auth", "csrf-token"]
             }
           },
           "response": []
@@ -72,13 +67,8 @@
             },
             "url": {
               "raw": "{{base}}/auth/register",
-              "host": [
-                "{{base}}"
-              ],
-              "path": [
-                "auth",
-                "register"
-              ]
+              "host": ["{{base}}"],
+              "path": ["auth", "register"]
             }
           },
           "response": []
@@ -105,13 +95,8 @@
             },
             "url": {
               "raw": "{{base}}/auth/verify-email",
-              "host": [
-                "{{base}}"
-              ],
-              "path": [
-                "auth",
-                "verify-email"
-              ],
+              "host": ["{{base}}"],
+              "path": ["auth", "verify-email"],
               "query": [
                 {
                   "key": "token",
@@ -145,13 +130,8 @@
             },
             "url": {
               "raw": "{{base}}/auth/resend-verification",
-              "host": [
-                "{{base}}"
-              ],
-              "path": [
-                "auth",
-                "resend-verification"
-              ]
+              "host": ["{{base}}"],
+              "path": ["auth", "resend-verification"]
             }
           },
           "response": []
@@ -198,13 +178,8 @@
             },
             "url": {
               "raw": "{{base}}/auth/login",
-              "host": [
-                "{{base}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
+              "host": ["{{base}}"],
+              "path": ["auth", "login"]
             }
           },
           "response": []
@@ -231,13 +206,8 @@
             },
             "url": {
               "raw": "{{base}}/auth/refresh-token",
-              "host": [
-                "{{base}}"
-              ],
-              "path": [
-                "auth",
-                "refresh-token"
-              ]
+              "host": ["{{base}}"],
+              "path": ["auth", "refresh-token"]
             }
           },
           "response": []
@@ -265,13 +235,8 @@
             },
             "url": {
               "raw": "{{base}}/auth/logout",
-              "host": [
-                "{{base}}"
-              ],
-              "path": [
-                "auth",
-                "logout"
-              ]
+              "host": ["{{base}}"],
+              "path": ["auth", "logout"]
             }
           },
           "response": []
@@ -308,13 +273,8 @@
             },
             "url": {
               "raw": "{{base}}/auth/invite",
-              "host": [
-                "{{base}}"
-              ],
-              "path": [
-                "auth",
-                "invite"
-              ]
+              "host": ["{{base}}"],
+              "path": ["auth", "invite"]
             }
           },
           "response": []
@@ -335,13 +295,8 @@
             },
             "url": {
               "raw": "{{base}}/auth/forgot-password",
-              "host": [
-                "{{base}}"
-              ],
-              "path": [
-                "auth",
-                "forgot-password"
-              ]
+              "host": ["{{base}}"],
+              "path": ["auth", "forgot-password"]
             }
           },
           "response": []
@@ -362,13 +317,8 @@
             },
             "url": {
               "raw": "{{base}}/auth/verify-forgot-password",
-              "host": [
-                "{{base}}"
-              ],
-              "path": [
-                "auth",
-                "verify-forgot-password"
-              ]
+              "host": ["{{base}}"],
+              "path": ["auth", "verify-forgot-password"]
             }
           },
           "response": []
@@ -389,13 +339,8 @@
             },
             "url": {
               "raw": "{{base}}/auth/reset-password",
-              "host": [
-                "{{base}}"
-              ],
-              "path": [
-                "auth",
-                "reset-password"
-              ]
+              "host": ["{{base}}"],
+              "path": ["auth", "reset-password"]
             }
           },
           "response": []
@@ -414,13 +359,8 @@
             },
             "url": {
               "raw": "{{base}}/auth/me",
-              "host": [
-                "{{base}}"
-              ],
-              "path": [
-                "auth",
-                "me"
-              ]
+              "host": ["{{base}}"],
+              "path": ["auth", "me"]
             }
           },
           "response": []
@@ -441,13 +381,8 @@
             },
             "url": {
               "raw": "{{base}}/auth/change-password",
-              "host": [
-                "{{base}}"
-              ],
-              "path": [
-                "auth",
-                "change-password"
-              ]
+              "host": ["{{base}}"],
+              "path": ["auth", "change-password"]
             }
           },
           "response": []
@@ -511,13 +446,8 @@
             },
             "url": {
               "raw": "{{base}}/auth/me",
-              "host": [
-                "{{base}}"
-              ],
-              "path": [
-                "auth",
-                "me"
-              ]
+              "host": ["{{base}}"],
+              "path": ["auth", "me"]
             }
           },
           "response": []
@@ -536,13 +466,8 @@
             },
             "url": {
               "raw": "{{base}}/auth/user-info",
-              "host": [
-                "{{base}}"
-              ],
-              "path": [
-                "auth",
-                "user-info"
-              ]
+              "host": ["{{base}}"],
+              "path": ["auth", "user-info"]
             }
           },
           "response": []
@@ -572,13 +497,8 @@
             },
             "url": {
               "raw": "{{base}}/locations/?limit=1",
-              "host": [
-                "{{base}}"
-              ],
-              "path": [
-                "locations",
-                ""
-              ],
+              "host": ["{{base}}"],
+              "path": ["locations", ""],
               "query": [
                 {
                   "key": "limit",
@@ -640,13 +560,8 @@
             },
             "url": {
               "raw": "{{base}}/locations/",
-              "host": [
-                "{{base}}"
-              ],
-              "path": [
-                "locations",
-                ""
-              ]
+              "host": ["{{base}}"],
+              "path": ["locations", ""]
             }
           },
           "response": []
@@ -668,13 +583,8 @@
             },
             "url": {
               "raw": "{{base}}/locations/",
-              "host": [
-                "{{base}}"
-              ],
-              "path": [
-                "locations",
-                ""
-              ]
+              "host": ["{{base}}"],
+              "path": ["locations", ""]
             }
           },
           "response": []
@@ -707,13 +617,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/cms-pages/",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "cms-pages",
-                    ""
-                  ],
+                  "host": ["{{base}}"],
+                  "path": ["cms-pages", ""],
                   "query": [
                     {
                       "key": "limit",
@@ -761,13 +666,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/cms-pages/",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "cms-pages",
-                    ""
-                  ]
+                  "host": ["{{base}}"],
+                  "path": ["cms-pages", ""]
                 }
               },
               "response": []
@@ -789,13 +689,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/cms-pages/",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "cms-pages",
-                    ""
-                  ]
+                  "host": ["{{base}}"],
+                  "path": ["cms-pages", ""]
                 }
               },
               "response": []
@@ -825,12 +720,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/cms-pages-sections",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "cms-pages-sections"
-                  ],
+                  "host": ["{{base}}"],
+                  "path": ["cms-pages-sections"],
                   "query": [
                     {
                       "key": "limit",
@@ -919,12 +810,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/cms-pages-sections",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "cms-pages-sections"
-                  ]
+                  "host": ["{{base}}"],
+                  "path": ["cms-pages-sections"]
                 }
               },
               "response": []
@@ -946,12 +833,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/cms-pages-sections",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "cms-pages-sections"
-                  ]
+                  "host": ["{{base}}"],
+                  "path": ["cms-pages-sections"]
                 }
               },
               "response": []
@@ -986,13 +869,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/country-pages/",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "country-pages",
-                    ""
-                  ],
+                  "host": ["{{base}}"],
+                  "path": ["country-pages", ""],
                   "query": [
                     {
                       "key": "limit",
@@ -1050,13 +928,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/country-pages/",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "country-pages",
-                    ""
-                  ]
+                  "host": ["{{base}}"],
+                  "path": ["country-pages", ""]
                 }
               },
               "response": []
@@ -1078,13 +951,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/country-pages/",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "country-pages",
-                    ""
-                  ]
+                  "host": ["{{base}}"],
+                  "path": ["country-pages", ""]
                 }
               },
               "response": []
@@ -1114,13 +982,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/country-pages-sections/?pageId=cmt7gs3aj00038xxwjm5rewpu",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "country-pages-sections",
-                    ""
-                  ],
+                  "host": ["{{base}}"],
+                  "path": ["country-pages-sections", ""],
                   "query": [
                     {
                       "key": "limit",
@@ -1198,13 +1061,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/country-pages-sections/",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "country-pages-sections",
-                    ""
-                  ]
+                  "host": ["{{base}}"],
+                  "path": ["country-pages-sections", ""]
                 }
               },
               "response": []
@@ -1226,13 +1084,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/country-pages-sections/",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "country-pages-sections",
-                    ""
-                  ]
+                  "host": ["{{base}}"],
+                  "path": ["country-pages-sections", ""]
                 }
               },
               "response": []
@@ -1267,13 +1120,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/region-pages/",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "region-pages",
-                    ""
-                  ],
+                  "host": ["{{base}}"],
+                  "path": ["region-pages", ""],
                   "query": [
                     {
                       "key": "limit",
@@ -1331,13 +1179,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/region-pages/",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "region-pages",
-                    ""
-                  ]
+                  "host": ["{{base}}"],
+                  "path": ["region-pages", ""]
                 }
               },
               "response": []
@@ -1359,13 +1202,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/region-pages/",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "region-pages",
-                    ""
-                  ]
+                  "host": ["{{base}}"],
+                  "path": ["region-pages", ""]
                 }
               },
               "response": []
@@ -1395,13 +1233,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/region-pages-sections/?pageId=cmt7gs3aj00038xxwjm5rewpu",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "region-pages-sections",
-                    ""
-                  ],
+                  "host": ["{{base}}"],
+                  "path": ["region-pages-sections", ""],
                   "query": [
                     {
                       "key": "limit",
@@ -1479,13 +1312,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/region-pages-sections/",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "region-pages-sections",
-                    ""
-                  ]
+                  "host": ["{{base}}"],
+                  "path": ["region-pages-sections", ""]
                 }
               },
               "response": []
@@ -1507,13 +1335,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/region-pages-sections/",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "region-pages-sections",
-                    ""
-                  ]
+                  "host": ["{{base}}"],
+                  "path": ["region-pages-sections", ""]
                 }
               },
               "response": []
@@ -1548,13 +1371,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/place-pages/",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "place-pages",
-                    ""
-                  ],
+                  "host": ["{{base}}"],
+                  "path": ["place-pages", ""],
                   "query": [
                     {
                       "key": "limit",
@@ -1623,13 +1441,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/place-pages/",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "place-pages",
-                    ""
-                  ]
+                  "host": ["{{base}}"],
+                  "path": ["place-pages", ""]
                 }
               },
               "response": []
@@ -1651,13 +1464,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/place-pages/",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "place-pages",
-                    ""
-                  ]
+                  "host": ["{{base}}"],
+                  "path": ["place-pages", ""]
                 }
               },
               "response": []
@@ -1687,13 +1495,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/place-pages-sections/?pageId=cmt7gs3aj00038xxwjm5rewpu",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "place-pages-sections",
-                    ""
-                  ],
+                  "host": ["{{base}}"],
+                  "path": ["place-pages-sections", ""],
                   "query": [
                     {
                       "key": "limit",
@@ -1771,13 +1574,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/place-pages-sections/",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "place-pages-sections",
-                    ""
-                  ]
+                  "host": ["{{base}}"],
+                  "path": ["place-pages-sections", ""]
                 }
               },
               "response": []
@@ -1799,13 +1597,8 @@
                 },
                 "url": {
                   "raw": "{{base}}/place-pages-sections/",
-                  "host": [
-                    "{{base}}"
-                  ],
-                  "path": [
-                    "place-pages-sections",
-                    ""
-                  ]
+                  "host": ["{{base}}"],
+                  "path": ["place-pages-sections", ""]
                 }
               },
               "response": []

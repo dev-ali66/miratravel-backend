@@ -104,7 +104,6 @@ export const getCountryPageService = async (req: any) => {
   return result;
 };
 
-
 export const manageCountryPageService = async (req: any, res: any) => {
   const { locationId } = req.validated.body;
 
@@ -155,6 +154,7 @@ export const deleteCountryPageService = async (req: any, res: any) => {
     prisma,
     model: prisma.countryPage,
     modelName: "countryPage",
+    softDelete: true,
     rawIds: req.body.id,
     externalDomain: ["res.cloudinary.com"],
     maxLimit: 10,

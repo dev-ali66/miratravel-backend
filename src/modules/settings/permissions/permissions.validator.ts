@@ -1,17 +1,8 @@
 import { z } from "zod";
 
-const ActionEnum = z.enum([
-  "CREATE",
-  "READ",
-  "UPDATE",
-  "DELETE",
-]);
+const ActionEnum = z.enum(["CREATE", "READ", "UPDATE", "DELETE"]);
 
-const ScopeEnum = z.enum([
-  "OWN",
-  "OTHER",
-  "ANY",
-]);
+const ScopeEnum = z.enum(["OWN", "OTHER", "ANY"]);
 
 export const getPermissionsValidator = z.object({
   body: z.object({
@@ -34,10 +25,7 @@ export const managePermissionsValidator = z.object({
       scope: ScopeEnum.optional(),
 
       roles: z
-        .union([
-          z.array(z.string()),
-          z.string(),
-        ])
+        .union([z.array(z.string()), z.string()])
         .optional()
         .transform((value) => {
           if (!value) return;
@@ -57,7 +45,7 @@ export const managePermissionsValidator = z.object({
           } catch {
             return [value];
           }
-        })
+        }),
     })
     .superRefine((data, ctx) => {
       if (!data.id) {

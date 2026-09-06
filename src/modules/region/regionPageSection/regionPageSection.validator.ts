@@ -3,13 +3,9 @@ import { z } from "zod";
 export const getRegionPageSectionValidator = z.object({
   query: z.object({
     // id: z.string().optional(),
-
     // pageId: z.string().optional(),
-
     // name: z.string().optional(),
-
     // slug: z.string().optional(),
-
     // search: z.string().optional(),
   }),
 });
@@ -55,8 +51,7 @@ export const manageRegionPageSectionValidator = z.object({
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ["pageId"],
-            message:
-              "pageId is required when creating Region Page Section",
+            message: "pageId is required when creating Region Page Section",
           });
         }
 
@@ -64,8 +59,7 @@ export const manageRegionPageSectionValidator = z.object({
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ["name"],
-            message:
-              "name is required when creating Region Page Section",
+            message: "name is required when creating Region Page Section",
           });
         }
 
@@ -73,8 +67,7 @@ export const manageRegionPageSectionValidator = z.object({
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ["slug"],
-            message:
-              "slug is required when creating Region Page Section",
+            message: "slug is required when creating Region Page Section",
           });
         }
       }

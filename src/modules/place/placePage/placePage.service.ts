@@ -154,6 +154,7 @@ export const deletePlacePageService = async (req: any, res: any) => {
     prisma,
     model: prisma.placePage,
     modelName: "placePage",
+    softDelete: true,
     rawIds: req.body.id,
     externalDomain: ["res.cloudinary.com"],
     maxLimit: 10,

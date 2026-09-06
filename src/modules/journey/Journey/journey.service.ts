@@ -3,8 +3,6 @@ import { deleteRecordsSafely } from "../../../shared/delete.service.js";
 import { getRecords } from "../../../shared/getRecords.service.js";
 import { manageRecordWithFiles } from "../../../shared/manageRecordWithFiles.service.js";
 
-
-
 const journeyInclude = {
   itinerary: {
     include: { location: true },
@@ -64,10 +62,12 @@ export const getJourneyService = async (req: any) => {
   // -------------------------
 
   const journeyTypeArr = toArray(journeyType);
-  if (journeyTypeArr.length) customWhere.journeyType = { hasSome: journeyTypeArr };
+  if (journeyTypeArr.length)
+    customWhere.journeyType = { hasSome: journeyTypeArr };
 
   const travelStyleArr = toArray(travelStyle);
-  if (travelStyleArr.length) customWhere.travelStyle = { hasSome: travelStyleArr };
+  if (travelStyleArr.length)
+    customWhere.travelStyle = { hasSome: travelStyleArr };
 
   const perfectForArr = toArray(perfectFor);
   if (perfectForArr.length) customWhere.perfectFor = { hasSome: perfectForArr };
@@ -107,7 +107,9 @@ export const getJourneyService = async (req: any) => {
   // -------------------------
 
   if (search) {
-    const tokens: string[] = [...new Set((search as string).trim().split(/\s+/))];
+    const tokens: string[] = [
+      ...new Set((search as string).trim().split(/\s+/)),
+    ];
 
     customWhere.OR = tokens.map((token) => ({
       OR: [
@@ -124,7 +126,26 @@ export const getJourneyService = async (req: any) => {
     customWhere,
     modelName: "Journey",
     include: journeyInclude,
-    excludeFilterKeys: ["page", "limit", "id", "slug", "status", "featured", "journeyType", "travelStyle", "perfectFor", "pace", "comfortLevel", "minPrice", "maxPrice", "minDays", "maxDays", "locationId", "locationSlug", "search"],
+    excludeFilterKeys: [
+      "page",
+      "limit",
+      "id",
+      "slug",
+      "status",
+      "featured",
+      "journeyType",
+      "travelStyle",
+      "perfectFor",
+      "pace",
+      "comfortLevel",
+      "minPrice",
+      "maxPrice",
+      "minDays",
+      "maxDays",
+      "locationId",
+      "locationSlug",
+      "search",
+    ],
   });
 
   return result;
@@ -152,6 +173,7 @@ export const deleteJourneyService = async (req: any, res: any) => {
     prisma,
     model: prisma.journey,
     modelName: "journey",
+    softDelete: true,
     rawIds: req.body.id,
     externalDomain: ["res.cloudinary.com"],
     maxLimit: 10,

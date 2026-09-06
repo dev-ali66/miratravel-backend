@@ -1,12 +1,7 @@
 import chalk from "chalk";
 import util from "util";
 
-export type LogLevel =
-  | "INFO"
-  | "SUCCESS"
-  | "WARN"
-  | "ERROR"
-  | "DEBUG";
+export type LogLevel = "INFO" | "SUCCESS" | "WARN" | "ERROR" | "DEBUG";
 
 const levelColor = {
   INFO: chalk.blueBright.bold,
@@ -48,9 +43,7 @@ class Logger {
 
     const timestamp = new Date().toISOString();
 
-    const prefix = levelColor[level](
-      `[${timestamp}] ${level.padEnd(7)}`
-    );
+    const prefix = levelColor[level](`[${timestamp}] ${level.padEnd(7)}`);
 
     // console.log(prefix, ...this.format(args));
   }

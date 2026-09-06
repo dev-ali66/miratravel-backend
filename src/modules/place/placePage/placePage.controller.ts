@@ -18,10 +18,7 @@ export const getPlacePageController = catchAsync(
 
 export const managePlacePageController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const result = await PlacePageService.managePlacePageService(
-      req,
-      res,
-    );
+    const result = await PlacePageService.managePlacePageService(req, res);
 
     return successResponse({
       res,
@@ -32,10 +29,7 @@ export const managePlacePageController = catchAsync(
 
 export const deletePlacePageController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const result = await PlacePageService.deletePlacePageService(
-      req,
-      res,
-    );
+    const result = await PlacePageService.deletePlacePageService(req, res);
 
     return successResponse({
       res,

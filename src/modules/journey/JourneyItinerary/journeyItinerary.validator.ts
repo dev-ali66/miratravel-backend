@@ -14,7 +14,6 @@ export const manageJourneyItineraryValidator = z.object({
       locationId: z.string().trim().optional(),
       metadata: z.any().optional(),
       data: z.any().optional(),
-
     })
     .transform((data) => {
       if (data.title) {
@@ -30,14 +29,54 @@ export const manageJourneyItineraryValidator = z.object({
     })
     .superRefine((data, ctx) => {
       if (!data.id) {
-        if (!data.journeyId) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["journeyId"], message: "journeyId is required" });
-        if (!data.dayNumber) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["dayNumber"], message: "dayNumber is required" });
-        if (!data.title) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["title"], message: "title is required" });
-        if (!data.description) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["description"], message: "description is required" });
-        if (!data.journeyItineraryImage) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["journeyItineraryImage"], message: "journeyItineraryImage is required" });
-        if (!data.locationId) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["locationId"], message: "locationId is required" });
-        if (!data.metadata) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["metadata"], message: "metadata is required" });
-        if (!data.data) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["data"], message: "data is required" });
+        if (!data.journeyId)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["journeyId"],
+            message: "journeyId is required",
+          });
+        if (!data.dayNumber)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["dayNumber"],
+            message: "dayNumber is required",
+          });
+        if (!data.title)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["title"],
+            message: "title is required",
+          });
+        if (!data.description)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["description"],
+            message: "description is required",
+          });
+        if (!data.journeyItineraryImage)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["journeyItineraryImage"],
+            message: "journeyItineraryImage is required",
+          });
+        if (!data.locationId)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["locationId"],
+            message: "locationId is required",
+          });
+        if (!data.metadata)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["metadata"],
+            message: "metadata is required",
+          });
+        if (!data.data)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["data"],
+            message: "data is required",
+          });
       }
     }),
 });

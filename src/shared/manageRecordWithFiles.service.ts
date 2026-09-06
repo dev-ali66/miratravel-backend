@@ -170,7 +170,9 @@ export const manageRecordWithFiles = async ({
       }
       if (scope === "ANY") {
         if (attachUser) {
-          updateData.createdBy = isOwner ? req.auth.id : req.validated?.user?.id;
+          updateData.createdBy = isOwner
+            ? req.auth.id
+            : req.validated?.user?.id;
         }
       }
     }

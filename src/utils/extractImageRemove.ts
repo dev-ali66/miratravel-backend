@@ -1,10 +1,13 @@
 // utils/extractfileRemove.js
-export const extractfileRemove = (input: any, domain = "res.cloudinary.com") => {
+export const extractfileRemove = (
+  input: any,
+  domain = "res.cloudinary.com",
+) => {
   if (!input) return [];
   let result: any = [];
 
   // parse stringified JSON arrays
-  const parseIfString = (data:any) => {
+  const parseIfString = (data: any) => {
     if (typeof data === "string") {
       try {
         return JSON.parse(data);
@@ -15,7 +18,7 @@ export const extractfileRemove = (input: any, domain = "res.cloudinary.com") => 
     return data;
   };
 
-  const traverse = (data:any) => {
+  const traverse = (data: any) => {
     if (Array.isArray(data)) {
       data.forEach((item) => traverse(item));
     } else if (data && typeof data === "object") {

@@ -25,7 +25,9 @@ export const managejourneyAccommodationService = async (req: any, res: any) => {
   const { journeyId } = req.validated.body;
 
   if (journeyId) {
-    const journey = await prisma.journey.findUnique({ where: { id: journeyId } });
+    const journey = await prisma.journey.findUnique({
+      where: { id: journeyId },
+    });
     if (!journey) throw new Error("Journey not found");
   }
 
@@ -43,9 +45,12 @@ export const managejourneyAccommodationService = async (req: any, res: any) => {
 
 export const deletejourneyAccommodationService = async (req: any, res: any) => {
   return deleteRecordsSafely({
-    res, req, prisma,
+    res,
+    req,
+    prisma,
     model: prisma.journeyAccommodation,
     modelName: "journeyAccommodation",
+    softDelete: true,
     rawIds: req.body.id,
     externalDomain: ["res.cloudinary.com"],
     maxLimit: 30,

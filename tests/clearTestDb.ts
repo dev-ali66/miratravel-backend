@@ -2,7 +2,7 @@ export async function clearTestDb() {
   try {
     console.log("🧹 Clearing test users and all related data...");
 
-    const testUsers:any = await prisma?.auth.findMany({
+    const testUsers: any = await prisma?.auth.findMany({
       where: {
         email: {
           in: ["admin1@test.com", "partner1@test.com", "partner2@test.com"],
@@ -17,11 +17,11 @@ export async function clearTestDb() {
       return;
     }
 
-    const tables = await prisma?.$queryRawUnsafe(`
+    const tables = (await prisma?.$queryRawUnsafe(`
       SELECT table_name, column_name
       FROM information_schema.columns
       WHERE table_schema = 'public' AND (column_name = 'userId' OR column_name = 'user')
-    `) as { table_name: string; column_name: string }[];;
+    `)) as { table_name: string; column_name: string }[];
 
     for (const t of tables) {
       const table = t.table_name;

@@ -219,7 +219,9 @@ export const createAccountService = async (req: any) => {
     if (dbRoles.length !== roles.length) {
       throw new ApiError("Some roles are invalid", StatusCodes.BAD_REQUEST);
     }
-    const roleConnections = dbRoles.map((role: { id: string, name: string }) => ({ id: role.id }));
+    const roleConnections = dbRoles.map(
+      (role: { id: string; name: string }) => ({ id: role.id }),
+    );
     const otp = AuthHelper.generateOtp();
     const hashedOtp = await AuthHelper.hashPassword(otp);
     const otpExpiresAt = new Date(
@@ -645,7 +647,12 @@ export const loginUserService = async ({
   });
 
   if (!user) throw new ApiError("Unauthorized", StatusCodes.UNAUTHORIZED);
-  if (!user.isVerified && user.roles.some((role: { id: string, name: string }) => role.name === "INSTRUCTOR"))
+  if (
+    !user.isVerified &&
+    user.roles.some(
+      (role: { id: string; name: string }) => role.name === "INSTRUCTOR",
+    )
+  )
     return { message: "Pending, Waiting for admin approval" };
   if (!user.isVerified)
     throw new ApiError(

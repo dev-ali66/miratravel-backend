@@ -18,10 +18,7 @@ export const getCountryPageController = catchAsync(
 
 export const manageCountryPageController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const result = await CountryPageService.manageCountryPageService(
-      req,
-      res,
-    );
+    const result = await CountryPageService.manageCountryPageService(req, res);
 
     return successResponse({
       res,
@@ -32,10 +29,7 @@ export const manageCountryPageController = catchAsync(
 
 export const deleteCountryPageController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const result = await CountryPageService.deleteCountryPageService(
-      req,
-      res,
-    );
+    const result = await CountryPageService.deleteCountryPageService(req, res);
 
     return successResponse({
       res,

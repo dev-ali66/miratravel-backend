@@ -10,7 +10,7 @@
 //     verifyUrl
 //       ? `
 //       <h3>✅ Verify via Link</h3>
-//       <a href="${verifyUrl}" 
+//       <a href="${verifyUrl}"
 //          style="background:#51946D;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;">
 //          Verify Email
 //       </a>
@@ -48,7 +48,7 @@
 // }) => `
 // <div style="font-family: Arial, sans-serif; padding: 40px; background-color: #f9f9fb;">
 //   <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.05); padding: 40px;">
-    
+
 //     <h2 style="color:#51946D; font-size: 24px; font-weight:500; margin-bottom:5px;">POLI</h2>
 //     <p style="color: #6b7280; font-size: 14px; text-align: right;">
 //       ${new Date()
@@ -73,7 +73,7 @@
 //       resetUrl
 //         ? `
 //         <h3 style="margin-top:20px;">✅ Reset via Link</h3>
-//         <a href="${resetUrl}" 
+//         <a href="${resetUrl}"
 //            style="background:#51946D;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;">
 //            Reset Password
 //         </a>
@@ -124,7 +124,7 @@
 //   return `
 //   <div style="font-family: Arial, sans-serif; padding: 40px; background-color: #f9f9fb;">
 //     <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 10px; padding: 40px;">
-      
+
 //       <h2 style="color:#51946D;">${companyName}</h2>
 
 //       <h2 style="margin-top: 10px;">✨ You're Invited!</h2>
@@ -132,7 +132,7 @@
 //       <p>Hello <strong>${fullName || "User"}</strong>,</p>
 
 //       <p>
-//         You are invited </strong> 
+//         You are invited </strong>
 //         as a <strong>${role || status}</strong>.
 //       </p>
 
@@ -202,9 +202,9 @@
 
 //   return `
 //   <div style="font-family: Arial, sans-serif; padding: 40px; background-color: #f9f9fb;">
-    
+
 //     <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 10px; padding: 40px;">
-      
+
 //       <h2 style="color:#51946D;">${companyName || "Company"}</h2>
 
 //       <h2 style="margin-top: 10px;">🚚 Driver Invitation</h2>
@@ -212,7 +212,7 @@
 //       <p>Hello <strong>${fullName || "Driver"}</strong>,</p>
 
 //       <p>
-//         You have been invited by <strong>${contractorName || "your instructorInfo"}</strong> 
+//         You have been invited by <strong>${contractorName || "your instructorInfo"}</strong>
 //         to join as a <strong>${role}</strong>.
 //       </p>
 
@@ -359,7 +359,7 @@
 //       <h2 style="color: #1e293b; margin-bottom: 30px;">Password Changed Successfully</h2>
 //       <p style="font-size: 16px; color: #111827;">Dear <strong>${name}</strong>,</p>
 //       <p style="font-size: 16px; color: #111827; margin-top: 8px;">
-//         We wanted to let you know that your account password has been changed successfully.  
+//         We wanted to let you know that your account password has been changed successfully.
 //         If you did not make this change, please contact our support team immediately.
 //       </p>
 //       <p style="margin-top: 40px; color: #1f2937;">Thank you for staying with us!</p>
@@ -446,7 +446,7 @@
 //       backdrop-filter: blur(8px);
 //       border: 1px solid rgba(255,255,255,0.06);
 
-//       box-shadow: 
+//       box-shadow:
 //         0 10px 25px rgba(0,0,0,0.4),
 //         0 0 0 1px rgba(255,255,255,0.02);
 
@@ -488,7 +488,6 @@
 // </body>
 // </html>
 // `;
-
 
 export const verificationEmailTemplate = ({
   verificationCode,
@@ -618,11 +617,7 @@ export const inviteUserGreetingEmailTemplate = ({
         : ""
     }
 
-    ${
-      otpExpiresAt
-        ? `<p>Expires: ${otpExpiresAt}</p>`
-        : ""
-    }
+    ${otpExpiresAt ? `<p>Expires: ${otpExpiresAt}</p>` : ""}
 
     <p>${footer}</p>
   </div>
@@ -667,11 +662,7 @@ export const inviteDriverEmailTemplate = ({
         : ""
     }
 
-    ${
-      inviteExpiresAt
-        ? `<p>Expires: ${inviteExpiresAt}</p>`
-        : ""
-    }
+    ${inviteExpiresAt ? `<p>Expires: ${inviteExpiresAt}</p>` : ""}
 
     <p>${footer}</p>
   </div>

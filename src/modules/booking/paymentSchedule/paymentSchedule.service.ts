@@ -13,7 +13,14 @@ import {
 
 const scheduleInclude = {
   items: { orderBy: { sequence: "asc" as const } },
-  booking: { select: { id: true, bookingNumber: true, travelerEmail: true, travelDepartureDate: true } },
+  booking: {
+    select: {
+      id: true,
+      bookingNumber: true,
+      travelerEmail: true,
+      travelDepartureDate: true,
+    },
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -46,19 +53,40 @@ export const overridePaymentScheduleService = async (req: any) => {
 
   const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
   if (!booking) throw new ApiError("Booking not found", 404);
-  if (!booking.confirmedTotal) throw new ApiError("Booking must be approved (confirmed total set) before a schedule can be created", 400);
-  if (!["APPROVED", "AWAITING_DEPOSIT", "DEPOSIT_PAID_TENTATIVE", "AWAITING_FINAL_PAYMENT"].includes(booking.bookingStatus)) {
-    throw new ApiError(`Cannot override schedule while booking is ${booking.bookingStatus}`, 400);
+  if (!booking.confirmedTotal)
+    throw new ApiError(
+      "Booking must be approved (confirmed total set) before a schedule can be created",
+      400,
+    );
+  if (
+    ![
+      "APPROVED",
+      "AWAITING_DEPOSIT",
+      "DEPOSIT_PAID_TENTATIVE",
+      "AWAITING_FINAL_PAYMENT",
+    ].includes(booking.bookingStatus)
+  ) {
+    throw new ApiError(
+      `Cannot override schedule while booking is ${booking.bookingStatus}`,
+      400,
+    );
   }
 
   const config = await getEffectivePaymentConfig(booking.journeyId);
-  if (!config.allowAdminOverride) throw new ApiError("Admin override of payment schedules is disabled in payment configuration", 403);
+  if (!config.allowAdminOverride)
+    throw new ApiError(
+      "Admin override of payment schedules is disabled in payment configuration",
+      403,
+    );
 
   const confirmedTotal = Number(booking.confirmedTotal);
   const remainderAmount = validateManualScheduleItems(items, confirmedTotal);
 
   const result = await prisma.$transaction(async (tx: any) => {
-    await tx.paymentSchedule.updateMany({ where: { bookingId, status: "ACTIVE" }, data: { status: "SUPERSEDED" } });
+    await tx.paymentSchedule.updateMany({
+      where: { bookingId, status: "ACTIVE" },
+      data: { status: "SUPERSEDED" },
+    });
 
     const schedule = await tx.paymentSchedule.create({
       data: {
@@ -86,11 +114,14 @@ export const overridePaymentScheduleService = async (req: any) => {
               dueValue: item.dueValue ?? null,
               dueDate:
                 item.dueRule === "FIXED_DATE"
-                  ? item.fixedDate ?? null
+                  ? (item.fixedDate ?? null)
                   : item.dueRule === "IMMEDIATE_AFTER_APPROVAL"
                     ? new Date()
                     : item.dueRule === "DAYS_BEFORE_DEPARTURE"
-                      ? new Date(booking.travelDepartureDate.getTime() - (item.dueValue ?? 0) * 86400000)
+                      ? new Date(
+                          booking.travelDepartureDate.getTime() -
+                            (item.dueValue ?? 0) * 86400000,
+                        )
                       : null,
               calculatedAmount,
             };
@@ -100,14 +131,32 @@ export const overridePaymentScheduleService = async (req: any) => {
       include: { items: true },
     });
 
-    await tx.booking.update({ where: { id: bookingId }, data: { selectedPaymentScheduleId: schedule.id } });
+    await tx.booking.update({
+      where: { id: bookingId },
+      data: { selectedPaymentScheduleId: schedule.id },
+    });
 
     return recalculateBookingState(bookingId, tx);
   });
 
-  await auditLogger({ req, entityId: bookingId, before: booking, after: result, metadata: { source: "database", operation: "OVERRIDE_SCHEDULE", overrideReason } });
+  await auditLogger({
+    req,
+    entityId: bookingId,
+    before: booking,
+    after: result,
+    metadata: {
+      source: "database",
+      operation: "OVERRIDE_SCHEDULE",
+      overrideReason,
+    },
+  });
 
-  return { code: 200, success: true, message: "Payment schedule overridden successfully", data: result };
+  return {
+    code: 200,
+    success: true,
+    message: "Payment schedule overridden successfully",
+    data: result,
+  };
 };
 
 // ---------------------------------------------------------------------------
@@ -123,18 +172,30 @@ export const waiveScheduleItemService = async (req: any) => {
     include: { schedule: { include: { booking: true } } },
   });
   if (!item) throw new ApiError("Schedule item not found", 404);
-  if (item.status === "PAID") throw new ApiError("A fully paid item cannot be waived", 400);
-  if (item.status === "WAIVED") throw new ApiError("Item is already waived", 400);
+  if (item.status === "PAID")
+    throw new ApiError("A fully paid item cannot be waived", 400);
+  if (item.status === "WAIVED")
+    throw new ApiError("Item is already waived", 400);
 
-  const outstandingOnItem = round2(Number(item.calculatedAmount) - Number(item.paidAmount));
+  const outstandingOnItem = round2(
+    Number(item.calculatedAmount) - Number(item.paidAmount),
+  );
 
   const result = await prisma.$transaction(async (tx: any) => {
-    await tx.paymentScheduleItem.update({ where: { id: itemId }, data: { status: "WAIVED" } });
+    await tx.paymentScheduleItem.update({
+      where: { id: itemId },
+      data: { status: "WAIVED" },
+    });
 
     const booking = item.schedule.booking;
-    const newConfirmedTotal = round2(Number(booking.confirmedTotal ?? 0) - outstandingOnItem);
+    const newConfirmedTotal = round2(
+      Number(booking.confirmedTotal ?? 0) - outstandingOnItem,
+    );
 
-    await tx.booking.update({ where: { id: booking.id }, data: { confirmedTotal: newConfirmedTotal } });
+    await tx.booking.update({
+      where: { id: booking.id },
+      data: { confirmedTotal: newConfirmedTotal },
+    });
     await tx.paymentSchedule.update({
       where: { id: item.scheduleId },
       data: { totalScheduledAmount: newConfirmedTotal },
@@ -148,10 +209,20 @@ export const waiveScheduleItemService = async (req: any) => {
     entityId: itemId,
     before: item,
     after: result,
-    metadata: { source: "database", operation: "WAIVE_SCHEDULE_ITEM", reason, waivedAmount: outstandingOnItem },
+    metadata: {
+      source: "database",
+      operation: "WAIVE_SCHEDULE_ITEM",
+      reason,
+      waivedAmount: outstandingOnItem,
+    },
   });
 
-  return { code: 200, success: true, message: "Schedule item waived and booking total recalculated", data: result };
+  return {
+    code: 200,
+    success: true,
+    message: "Schedule item waived and booking total recalculated",
+    data: result,
+  };
 };
 
 // ---------------------------------------------------------------------------
@@ -162,31 +233,53 @@ export const sendPaymentRequestService = async (req: any) => {
 
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
-    include: { selectedPaymentSchedule: { include: { items: { orderBy: { sequence: "asc" } } } } },
+    include: {
+      selectedPaymentSchedule: {
+        include: { items: { orderBy: { sequence: "asc" } } },
+      },
+    },
   });
   if (!booking) throw new ApiError("Booking not found", 404);
-  if (!booking.selectedPaymentSchedule) throw new ApiError("Booking has no active payment schedule", 400);
+  if (!booking.selectedPaymentSchedule)
+    throw new ApiError("Booking has no active payment schedule", 400);
 
   const items: any[] = booking.selectedPaymentSchedule.items;
   const targetItem = scheduleItemId
     ? items.find((i: any) => i.id === scheduleItemId)
     : items.find((i: any) => ["SCHEDULED", "DUE"].includes(i.status));
 
-  if (!targetItem) throw new ApiError("No eligible unpaid schedule item found to send a request for", 400);
+  if (!targetItem)
+    throw new ApiError(
+      "No eligible unpaid schedule item found to send a request for",
+      400,
+    );
   if (targetItem.status === "PAID" || targetItem.status === "WAIVED") {
-    throw new ApiError(`Schedule item is already ${targetItem.status.toLowerCase()}`, 400);
+    throw new ApiError(
+      `Schedule item is already ${targetItem.status.toLowerCase()}`,
+      400,
+    );
   }
 
-  const baseUrl = (config as any).OTP_BASE_URL || config.CORS_ALLOWED_ORIGINS?.[0] || "https://miratravel.com";
+  const baseUrl =
+    (config as any).OTP_BASE_URL ||
+    config.CORS_ALLOWED_ORIGINS?.[0] ||
+    "https://miratravel.com";
   const paymentLink = `${baseUrl}/pay/${booking.id}/${targetItem.id}`;
 
   const isFirstItem = targetItem.sequence === 1;
 
   const result = await prisma.$transaction(async (tx: any) => {
-    await tx.paymentScheduleItem.update({ where: { id: targetItem.id }, data: { status: "DUE" } });
+    await tx.paymentScheduleItem.update({
+      where: { id: targetItem.id },
+      data: { status: "DUE" },
+    });
     return tx.booking.update({
       where: { id: bookingId },
-      data: { bookingStatus: isFirstItem ? "AWAITING_DEPOSIT" : "AWAITING_FINAL_PAYMENT" },
+      data: {
+        bookingStatus: isFirstItem
+          ? "AWAITING_DEPOSIT"
+          : "AWAITING_FINAL_PAYMENT",
+      },
       include: { selectedPaymentSchedule: { include: { items: true } } },
     });
   });
@@ -203,10 +296,20 @@ export const sendPaymentRequestService = async (req: any) => {
     entityId: bookingId,
     before: booking,
     after: result,
-    metadata: { source: "database", operation: "SEND_PAYMENT_REQUEST", scheduleItemId: targetItem.id, paymentLink },
+    metadata: {
+      source: "database",
+      operation: "SEND_PAYMENT_REQUEST",
+      scheduleItemId: targetItem.id,
+      paymentLink,
+    },
   });
 
-  return { code: 200, success: true, message: "Payment request sent", data: { booking: result, paymentLink, scheduleItemId: targetItem.id } };
+  return {
+    code: 200,
+    success: true,
+    message: "Payment request sent",
+    data: { booking: result, paymentLink, scheduleItemId: targetItem.id },
+  };
 };
 
 // ---------------------------------------------------------------------------
@@ -216,7 +319,9 @@ export const getDueOverviewService = async (req: any) => {
   const { dueBefore, withinDays } = req.validated.query;
 
   const now = new Date();
-  const upperBound = dueBefore ?? (withinDays ? new Date(now.getTime() + withinDays * 86400000) : now);
+  const upperBound =
+    dueBefore ??
+    (withinDays ? new Date(now.getTime() + withinDays * 86400000) : now);
 
   const items = await prisma.paymentScheduleItem.findMany({
     where: {
@@ -228,7 +333,16 @@ export const getDueOverviewService = async (req: any) => {
       schedule: {
         include: {
           booking: {
-            select: { id: true, bookingNumber: true, travelerFirstName: true, travelerLastName: true, travelerEmail: true, currency: true, travelDepartureDate: true, bookingStatus: true },
+            select: {
+              id: true,
+              bookingNumber: true,
+              travelerFirstName: true,
+              travelerLastName: true,
+              travelerEmail: true,
+              currency: true,
+              travelDepartureDate: true,
+              bookingStatus: true,
+            },
           },
         },
       },

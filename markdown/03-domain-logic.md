@@ -68,7 +68,7 @@ The response keeps the configured roots in `data` and adds a flat `availableLoca
 
 ## Booking & payment domain
 
-Full spec: *Mira Travel — Booking & Payment Rules v1.0* (30 Aug 2026). Mira is **request-first,
+Full spec: _Mira Travel — Booking & Payment Rules v1.0_ (30 Aug 2026). Mira is **request-first,
 human-review-second** — a booking is never instantly confirmed or charged. The flow is:
 
 ```text
@@ -80,19 +80,19 @@ Request → Review → Approval (schedule generated) → Payment request(s) → 
 They are stored and evolve **separately** (a booking can be `APPROVED` while `UNPAID`, or
 `DEPOSIT_PAID_TENTATIVE` while the balance is still due):
 
-| `BookingStatus` | Meaning |
-| --- | --- |
-| `REQUEST_SUBMITTED` | Customer submitted a request. No payment taken. |
-| `UNDER_REVIEW` | Admin is checking availability/pricing. |
-| `APPROVED` | Final offer approved; payment schedule generated but not yet requested. |
-| `AWAITING_DEPOSIT` | First payment request sent (deposit or full payment). |
-| `DEPOSIT_PAID_TENTATIVE` | Deposit (or partial) received; balance remains. |
-| `AWAITING_FINAL_PAYMENT` | A later installment/final balance is open. |
-| `FULLY_PAID` / `CONFIRMED` | All required payments received. |
-| `CANCELLED` / `REJECTED` | Terminal states. |
+| `BookingStatus`            | Meaning                                                                 |
+| -------------------------- | ----------------------------------------------------------------------- |
+| `REQUEST_SUBMITTED`        | Customer submitted a request. No payment taken.                         |
+| `UNDER_REVIEW`             | Admin is checking availability/pricing.                                 |
+| `APPROVED`                 | Final offer approved; payment schedule generated but not yet requested. |
+| `AWAITING_DEPOSIT`         | First payment request sent (deposit or full payment).                   |
+| `DEPOSIT_PAID_TENTATIVE`   | Deposit (or partial) received; balance remains.                         |
+| `AWAITING_FINAL_PAYMENT`   | A later installment/final balance is open.                              |
+| `FULLY_PAID` / `CONFIRMED` | All required payments received.                                         |
+| `CANCELLED` / `REJECTED`   | Terminal states.                                                        |
 
-| `PaymentStatus` | Meaning |
-| --- | --- |
+| `PaymentStatus`                                                                                                     | Meaning                                                 |
+| ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
 | `UNPAID`, `PARTIALLY_PAID`, `DEPOSIT_PAID`, `BALANCE_DUE`, `FULLY_PAID`, `FAILED`, `REFUNDED`, `PARTIALLY_REFUNDED` | see `paymentEngine.service.ts::recalculateBookingState` |
 
 ### Payment schedule rule (spec §5)
@@ -131,14 +131,14 @@ schedule override, waiver, and total revision, so the two status fields never dr
 
 ### Admin actions and their guardrails
 
-| Action | Route | Guardrail |
-| --- | --- | --- |
-| Approve | `POST /bookings/:id/approve` | only from `REQUEST_SUBMITTED`/`UNDER_REVIEW` |
-| Reject | `POST /bookings/:id/reject` | only pre-approval |
-| Cancel | `POST /bookings/:id/cancel` | not already `CANCELLED`/`REJECTED`; supersedes the active schedule |
-| Revise total | `POST /bookings/:id/revise-total` | new total ≥ amount already paid; redistributes unpaid items only (spec §13 rule 79) |
-| Override schedule | `POST /payment-schedules/override` | requires `PaymentConfig.allowAdminOverride` |
-| Waive item | `POST /payment-schedules/:itemId/waive` | not already `PAID`; reduces `confirmedTotal` by the outstanding portion |
-| Record payment | `POST /payment-records` | `SUCCEEDED` updates item + booking totals; `FAILED` keeps the amount due for retry (spec Table 10) |
-| Refund | `POST /payment-records/:id/refund` | amount ≤ refundable remainder; original record is never deleted (spec §13 rule 82) |
-| Delete booking | `DELETE /bookings` | blocked once `paymentStatus` is anything but `UNPAID` |
+| Action            | Route                                   | Guardrail                                                                                          |
+| ----------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Approve           | `POST /bookings/:id/approve`            | only from `REQUEST_SUBMITTED`/`UNDER_REVIEW`                                                       |
+| Reject            | `POST /bookings/:id/reject`             | only pre-approval                                                                                  |
+| Cancel            | `POST /bookings/:id/cancel`             | not already `CANCELLED`/`REJECTED`; supersedes the active schedule                                 |
+| Revise total      | `POST /bookings/:id/revise-total`       | new total ≥ amount already paid; redistributes unpaid items only (spec §13 rule 79)                |
+| Override schedule | `POST /payment-schedules/override`      | requires `PaymentConfig.allowAdminOverride`                                                        |
+| Waive item        | `POST /payment-schedules/:itemId/waive` | not already `PAID`; reduces `confirmedTotal` by the outstanding portion                            |
+| Record payment    | `POST /payment-records`                 | `SUCCEEDED` updates item + booking totals; `FAILED` keeps the amount due for retry (spec Table 10) |
+| Refund            | `POST /payment-records/:id/refund`      | amount ≤ refundable remainder; original record is never deleted (spec §13 rule 82)                 |
+| Delete booking    | `DELETE /bookings`                      | blocked once `paymentStatus` is anything but `UNPAID`                                              |

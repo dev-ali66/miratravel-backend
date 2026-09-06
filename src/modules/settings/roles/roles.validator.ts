@@ -12,10 +12,7 @@ export const managerolesValidator = z.object({
       id: z.string().optional(),
       name: z.string().optional(),
       permissions: z
-        .union([
-          z.array(z.string()),
-          z.string(),
-        ])
+        .union([z.array(z.string()), z.string()])
         .optional()
         .transform((value) => {
           if (!value) return;

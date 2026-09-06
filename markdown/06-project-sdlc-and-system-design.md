@@ -59,17 +59,17 @@ Location tree -> destination pages -> Journey -> itinerary/accommodation/add-on 
 
 ### Architectural layers
 
-| Layer | Implementation | Responsibility |
-| --- | --- | --- |
-| Entry point | `index.ts` | Connect dependencies, listen, graceful shutdown |
-| Application | `app.ts` | Express, security middleware, health, Socket.IO, Swagger |
-| Bootstrap | `bootstraps.ts` | Mount every module router under `/api/v1` |
-| Routes | `src/modules/**/**.routes.ts` | Method/path and middleware order |
-| Validation | `*.validator.ts` | Zod input contract and create requirements |
-| Controller | `*.controller.ts` | Thin HTTP adapter |
-| Service | `*.service.ts` | Domain business rules and Prisma query composition |
-| Shared services | `src/shared/` | Generic reads, writes, deletion, media, cache |
-| Persistence | `prisma/schema/` | Models, relations, enum values, migrations |
+| Layer           | Implementation                | Responsibility                                           |
+| --------------- | ----------------------------- | -------------------------------------------------------- |
+| Entry point     | `index.ts`                    | Connect dependencies, listen, graceful shutdown          |
+| Application     | `app.ts`                      | Express, security middleware, health, Socket.IO, Swagger |
+| Bootstrap       | `bootstraps.ts`               | Mount every module router under `/api/v1`                |
+| Routes          | `src/modules/**/**.routes.ts` | Method/path and middleware order                         |
+| Validation      | `*.validator.ts`              | Zod input contract and create requirements               |
+| Controller      | `*.controller.ts`             | Thin HTTP adapter                                        |
+| Service         | `*.service.ts`                | Domain business rules and Prisma query composition       |
+| Shared services | `src/shared/`                 | Generic reads, writes, deletion, media, cache            |
+| Persistence     | `prisma/schema/`              | Models, relations, enum values, migrations               |
 
 ## 3. Runtime request workflow
 

@@ -60,13 +60,22 @@ export const globalErrorHandler = (
         statusCode = 400;
         // Try to parse field from constraint name if target missing
         let field = metaTarget[0];
+        let referencingModel = "related";
         if (!field && err.meta?.constraint) {
-          const match = err.meta.constraint.match(/_(\w+)_fkey$/);
-          if (match) field = match[1];
+          const match = String(err.meta.constraint).match(
+            /^(.+?)_(\w+)_fkey$/,
+          );
+          if (match) {
+            referencingModel = match[1];
+            field = match[2];
+          }
         }
-        message = field
-          ? `Invalid reference: ${field} in ${table}. Referenced record does not exist.`
-          : `Invalid reference in ${table}. Referenced record does not exist.`;
+        message =
+          req.method === "DELETE"
+            ? `Cannot delete ${table} because ${referencingModel} record(s) still reference it via ${field || "this relation"}. Resolve those records first.`
+            : field
+              ? `Invalid reference: ${field} in ${table}. Referenced record does not exist.`
+              : `Invalid reference in ${table}. Referenced record does not exist.`;
         break;
 
       case "P2002": // Unique constraint
@@ -161,7 +170,11 @@ export const globalErrorHandler = (
   }
 
   // --- Invalid JSON payload ---
-  else if (err instanceof SyntaxError && (err as any).status === 400 && "body" in (err as any)) {
+  else if (
+    err instanceof SyntaxError &&
+    (err as any).status === 400 &&
+    "body" in (err as any)
+  ) {
     statusCode = 400;
     message = "Invalid JSON payload";
   }

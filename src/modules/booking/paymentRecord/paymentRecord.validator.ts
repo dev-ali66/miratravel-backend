@@ -7,7 +7,15 @@ export const getPaymentRecordValidator = z.object({
     id: z.string().trim().optional(),
     bookingId: z.string().trim().optional(),
     scheduleItemId: z.string().trim().optional(),
-    status: z.enum(["SUCCEEDED", "FAILED", "PENDING", "REFUNDED", "PARTIALLY_REFUNDED"]).optional(),
+    status: z
+      .enum([
+        "SUCCEEDED",
+        "FAILED",
+        "PENDING",
+        "REFUNDED",
+        "PARTIALLY_REFUNDED",
+      ])
+      .optional(),
   }),
 });
 

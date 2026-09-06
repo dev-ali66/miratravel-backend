@@ -41,9 +41,12 @@ export const manageJourneyItineraryService = async (req: any, res: any) => {
 
 export const deleteJourneyItineraryService = async (req: any, res: any) => {
   return deleteRecordsSafely({
-    res, req, prisma,
+    res,
+    req,
+    prisma,
     model: prisma.journeyItinerary,
     modelName: "journeyItinerary",
+    softDelete: true,
     rawIds: req.body.id,
     externalDomain: ["res.cloudinary.com"],
     maxLimit: 30,

@@ -19,7 +19,12 @@ import {
 
 const router = Router();
 
-router.get("/", publicApiLimiter, validate(getJourneyValidator), getJourneyController);
+router.get(
+  "/",
+  publicApiLimiter,
+  validate(getJourneyValidator),
+  getJourneyController,
+);
 
 router.post(
   "/",

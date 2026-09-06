@@ -13,13 +13,17 @@ export const getPaymentConfigService = async (req: any) => {
   let config = await prisma.paymentConfig.findUnique({ where: { scope } });
 
   if (!config && scope === "global") {
-    config = await prisma.paymentConfig.create({ data: DEFAULT_PAYMENT_CONFIG });
+    config = await prisma.paymentConfig.create({
+      data: DEFAULT_PAYMENT_CONFIG,
+    });
   }
 
   return {
     code: 200,
     success: true,
-    message: config ? "Payment configuration fetched successfully" : "No override configured for this scope (falls back to global)",
+    message: config
+      ? "Payment configuration fetched successfully"
+      : "No override configured for this scope (falls back to global)",
     data: config,
   };
 };
@@ -46,5 +50,10 @@ export const upsertPaymentConfigService = async (req: any) => {
     metadata: { source: "database", operation: existing ? "UPDATE" : "CREATE" },
   });
 
-  return { code: 200, success: true, message: "Payment configuration saved successfully", data: config };
+  return {
+    code: 200,
+    success: true,
+    message: "Payment configuration saved successfully",
+    data: config,
+  };
 };

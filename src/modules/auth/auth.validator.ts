@@ -25,9 +25,7 @@ export const inviteSchema = z.object({
       message: "Invalid role",
     }),
 
-    name: z
-      .string("Name is required")
-      .min(1, "Name cannot be empty"),
+    name: z.string("Name is required").min(1, "Name cannot be empty"),
 
     phone: z
       .string()
@@ -111,9 +109,7 @@ export const verifyEmailSchema = z
 // // Resend Verification Code Schema
 export const resendVerificationSchema = z.object({
   body: z.object({
-    email: z
-      .string("Email is required")
-      .email("Invalid email address"),
+    email: z.string("Email is required").email("Invalid email address"),
   }),
 });
 

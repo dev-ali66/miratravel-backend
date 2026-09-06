@@ -30,7 +30,8 @@ export const DEFAULT_PAYMENT_CONFIG = {
 };
 
 /** Round to 2 decimal places (currency-safe enough for this domain; DB column is Decimal(10,2)). */
-export const round2 = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100;
+export const round2 = (value: number) =>
+  Math.round((value + Number.EPSILON) * 100) / 100;
 
 /** Whole days between two dates (spec §5: "days between approval/payment-request date and departure date"). */
 export const daysBetween = (from: Date, to: Date) => {
@@ -46,11 +47,15 @@ export const daysBetween = (from: Date, to: Date) => {
  */
 export const getEffectivePaymentConfig = async (journeyId?: string | null) => {
   if (journeyId) {
-    const journeyScoped = await prisma.paymentConfig.findUnique({ where: { scope: `journey:${journeyId}` } });
+    const journeyScoped = await prisma.paymentConfig.findUnique({
+      where: { scope: `journey:${journeyId}` },
+    });
     if (journeyScoped) return journeyScoped;
   }
 
-  const global = await prisma.paymentConfig.findUnique({ where: { scope: "global" } });
+  const global = await prisma.paymentConfig.findUnique({
+    where: { scope: "global" },
+  });
   if (global) return global;
 
   return prisma.paymentConfig.create({ data: DEFAULT_PAYMENT_CONFIG });
@@ -64,7 +69,11 @@ export const resolveDueDate = ({
   departureDate,
   fixedDate,
 }: {
-  dueRule: "IMMEDIATE_AFTER_APPROVAL" | "DAYS_BEFORE_DEPARTURE" | "FIXED_DATE" | "MANUAL";
+  dueRule:
+    | "IMMEDIATE_AFTER_APPROVAL"
+    | "DAYS_BEFORE_DEPARTURE"
+    | "FIXED_DATE"
+    | "MANUAL";
   dueValue?: number | null;
   approvalDate: Date;
   departureDate: Date;
@@ -90,7 +99,11 @@ export type GeneratedScheduleItem = {
   label: string;
   calculationType: "PERCENTAGE" | "FIXED" | "REMAINDER";
   ruleValue: number | null;
-  dueRule: "IMMEDIATE_AFTER_APPROVAL" | "DAYS_BEFORE_DEPARTURE" | "FIXED_DATE" | "MANUAL";
+  dueRule:
+    | "IMMEDIATE_AFTER_APPROVAL"
+    | "DAYS_BEFORE_DEPARTURE"
+    | "FIXED_DATE"
+    | "MANUAL";
   dueValue: number | null;
   dueDate: Date | null;
   calculatedAmount: number;
@@ -109,12 +122,22 @@ export const resolvePaymentSchedule = ({
   confirmedTotal: number;
   approvalDate: Date;
   departureDate: Date;
-  config: { depositEnabled: boolean; depositType: string; depositValue: number; finalPaymentDueDaysBeforeDeparture: number; fullPaymentRequiredIfWithinDays: number };
-}): { templateType: "STANDARD_30_70" | "FULL_PAYMENT" | "FIXED_DEPOSIT"; items: GeneratedScheduleItem[] } => {
+  config: {
+    depositEnabled: boolean;
+    depositType: string;
+    depositValue: number;
+    finalPaymentDueDaysBeforeDeparture: number;
+    fullPaymentRequiredIfWithinDays: number;
+  };
+}): {
+  templateType: "STANDARD_30_70" | "FULL_PAYMENT" | "FIXED_DEPOSIT";
+  items: GeneratedScheduleItem[];
+} => {
   const daysUntilDeparture = daysBetween(approvalDate, departureDate);
 
   // §5.2 / §5.3 — "60 days or less" (inclusive) before departure => 100% due now, no deposit shown.
-  const withinFullPaymentWindow = daysUntilDeparture <= config.fullPaymentRequiredIfWithinDays;
+  const withinFullPaymentWindow =
+    daysUntilDeparture <= config.fullPaymentRequiredIfWithinDays;
 
   if (!config.depositEnabled || withinFullPaymentWindow) {
     return {
@@ -233,13 +256,21 @@ export const resolvePaymentSchedule = ({
  * rounding differences absorbed by a REMAINDER item.
  */
 export const validateManualScheduleItems = (
-  items: { calculationType: string; ruleValue?: number | null; calculatedAmount?: number | null }[],
+  items: {
+    calculationType: string;
+    ruleValue?: number | null;
+    calculatedAmount?: number | null;
+  }[],
   confirmedTotal: number,
 ) => {
-  if (!items.length) throw new ApiError("A payment schedule needs at least one item", 400);
+  if (!items.length)
+    throw new ApiError("A payment schedule needs at least one item", 400);
 
-  const remainderCount = items.filter((i) => i.calculationType === "REMAINDER").length;
-  if (remainderCount > 1) throw new ApiError("Only one REMAINDER item is allowed per schedule", 400);
+  const remainderCount = items.filter(
+    (i) => i.calculationType === "REMAINDER",
+  ).length;
+  if (remainderCount > 1)
+    throw new ApiError("Only one REMAINDER item is allowed per schedule", 400);
 
   const nonRemainder = items.filter((i) => i.calculationType !== "REMAINDER");
   const nonRemainderSum = round2(
@@ -251,7 +282,10 @@ export const validateManualScheduleItems = (
     }, 0),
   );
 
-  if (remainderCount === 0 && Math.abs(nonRemainderSum - confirmedTotal) > 0.01) {
+  if (
+    remainderCount === 0 &&
+    Math.abs(nonRemainderSum - confirmedTotal) > 0.01
+  ) {
     throw new ApiError(
       `Schedule items must sum to the confirmed total (${confirmedTotal}); got ${nonRemainderSum}`,
       400,
@@ -259,7 +293,10 @@ export const validateManualScheduleItems = (
   }
 
   if (nonRemainderSum > confirmedTotal + 0.01) {
-    throw new ApiError("Schedule items exceed the confirmed booking total", 400);
+    throw new ApiError(
+      "Schedule items exceed the confirmed booking total",
+      400,
+    );
   }
 
   return round2(confirmedTotal - nonRemainderSum); // amount for the REMAINDER item, if any
@@ -270,7 +307,10 @@ export const validateManualScheduleItems = (
  * from its ACTIVE payment schedule + payment records. Called after every payment,
  * refund, waiver or schedule change so the two status fields (spec §8) never drift.
  */
-export const recalculateBookingState = async (bookingId: string, tx: any = prisma) => {
+export const recalculateBookingState = async (
+  bookingId: string,
+  tx: any = prisma,
+) => {
   const booking = await tx.booking.findUnique({
     where: { id: bookingId },
     include: {
@@ -284,31 +324,45 @@ export const recalculateBookingState = async (bookingId: string, tx: any = prism
 
   const paidAmount = round2(
     booking.paymentRecords
-      .filter((r: any) => r.status === "SUCCEEDED" || r.status === "PARTIALLY_REFUNDED")
-      .reduce((sum: number, r: any) => sum + Number(r.amount) - Number(r.refundAmount ?? 0), 0),
+      .filter(
+        (r: any) =>
+          r.status === "SUCCEEDED" || r.status === "PARTIALLY_REFUNDED",
+      )
+      .reduce(
+        (sum: number, r: any) =>
+          sum + Number(r.amount) - Number(r.refundAmount ?? 0),
+        0,
+      ),
   );
 
   const refundedAmount = round2(
-    booking.paymentRecords.reduce((sum: number, r: any) => sum + Number(r.refundAmount ?? 0), 0),
+    booking.paymentRecords.reduce(
+      (sum: number, r: any) => sum + Number(r.refundAmount ?? 0),
+      0,
+    ),
   );
 
   const outstandingAmount = Math.max(0, round2(confirmedTotal - paidAmount));
 
   const items = booking.selectedPaymentSchedule?.items ?? [];
   const hasAnyPaid = items.some((i: any) => i.status === "PAID");
-  const allPaid = items.length > 0 && items.every((i: any) => i.status === "PAID" || i.status === "WAIVED");
+  const allPaid =
+    items.length > 0 &&
+    items.every((i: any) => i.status === "PAID" || i.status === "WAIVED");
   const anyFailed = items.some((i: any) => i.status === "FAILED");
 
   // ---- payment status (spec Table 8) ----
   let paymentStatus: string;
   if (refundedAmount > 0 && paidAmount <= 0) paymentStatus = "REFUNDED";
   else if (refundedAmount > 0) paymentStatus = "PARTIALLY_REFUNDED";
-  else if (confirmedTotal > 0 && outstandingAmount <= 0.01) paymentStatus = "FULLY_PAID";
+  else if (confirmedTotal > 0 && outstandingAmount <= 0.01)
+    paymentStatus = "FULLY_PAID";
   else if (allPaid) paymentStatus = "FULLY_PAID";
   else if (anyFailed && paidAmount <= 0) paymentStatus = "FAILED";
   else if (hasAnyPaid && paidAmount < confirmedTotal) {
     const depositItem = items.find((i: any) => i.sequence === 1);
-    paymentStatus = depositItem?.status === "PAID" ? "DEPOSIT_PAID" : "BALANCE_DUE";
+    paymentStatus =
+      depositItem?.status === "PAID" ? "DEPOSIT_PAID" : "BALANCE_DUE";
   } else if (paidAmount > 0) paymentStatus = "PARTIALLY_PAID";
   else paymentStatus = "UNPAID";
 
@@ -318,7 +372,10 @@ export const recalculateBookingState = async (bookingId: string, tx: any = prism
   if (!terminal.includes(bookingStatus)) {
     if (paymentStatus === "FULLY_PAID") {
       bookingStatus = "CONFIRMED";
-    } else if (paymentStatus === "DEPOSIT_PAID" || paymentStatus === "PARTIALLY_PAID") {
+    } else if (
+      paymentStatus === "DEPOSIT_PAID" ||
+      paymentStatus === "PARTIALLY_PAID"
+    ) {
       bookingStatus = "DEPOSIT_PAID_TENTATIVE";
     } else if (paymentStatus === "BALANCE_DUE") {
       bookingStatus = "AWAITING_FINAL_PAYMENT";

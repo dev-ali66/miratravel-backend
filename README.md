@@ -207,6 +207,7 @@ model Auth {
 ```
 
 Purpose:
+
 - primary user/account model
 - authentication and profile relation owner
 - used by login, registration, reset password, profile update, wishlist, reservation
@@ -238,6 +239,7 @@ model Role {
 ```
 
 Purpose:
+
 - role-based access control
 - roles like admin / contractor / driver etc. depending on implementation
 
@@ -253,12 +255,14 @@ model Permission {
 ```
 
 Action values:
+
 - CREATE
 - READ
 - UPDATE
 - DELETE
 
 Scope values:
+
 - OWN
 - ANY
 - OTHER
@@ -285,6 +289,7 @@ model Session {
 ```
 
 Purpose:
+
 - refresh token/session tracking
 - supports multi-device logout and security flows
 
@@ -573,6 +578,7 @@ model Reservation {
 #### protect
 
 Used to authenticate user from access token in:
+
 - cookies
 - `Authorization: Bearer ...` header
 
@@ -591,6 +597,7 @@ This is a reusable permission middleware. It determines the action based on `GET
 #### validate
 
 Uses Zod schemas to parse and validate request data from:
+
 - params
 - query
 - body
@@ -600,6 +607,7 @@ Uses Zod schemas to parse and validate request data from:
 #### uploadFile
 
 Handles multipart/form-data uploads with multer. It supports:
+
 - image/video/audio/file upload
 - size limits
 - max file count
@@ -643,9 +651,11 @@ src/modules/auth/
 ### 8.1 Auth Module
 
 Path:
+
 - `src/modules/auth/`
 
 Routes:
+
 - `POST /api/v1/auth/register`
 - `POST /api/v1/auth/register/instructorInfo/:token`
 - `POST /api/v1/auth/register/userInfo/:token`
@@ -666,6 +676,7 @@ Routes:
 - `POST /api/v1/auth/me`
 
 Responsibilities:
+
 - user registration
 - email verification
 - resend otp / verification code
@@ -677,6 +688,7 @@ Responsibilities:
 - profile update
 
 Main service functions:
+
 - `createAccountService`
 - `verifyEmail`
 - `resendVerificationCode`
@@ -691,41 +703,50 @@ Main service functions:
 ### 8.2 CMS Pages Module
 
 Path:
+
 - `src/modules/cms/pages/`
 
 Routes:
+
 - `GET /api/v1/pages`
 - `POST /api/v1/pages`
 
 Responsibilities:
+
 - manage page records
 - fetch page data with sections
 
 ### 8.3 CMS Destination Module
 
 Path:
+
 - `src/modules/cms/destination/`
 
 Routes:
+
 - `GET /api/v1/destination`
 - `POST /api/v1/destination`
 - `DELETE /api/v1/destination`
 
 Responsibilities:
+
 - CRUD for destinations
 - supports image/video fields
 
 ### 8.4 CMS Journeys Module
 
 Path:
+
 - `src/modules/cms/journeys/`
 
 Routes:
+
 - `GET /api/v1/journeys`
 - `POST /api/v1/journeys`
 - `DELETE /api/v1/journeys`
 
 Responsibilities:
+
 - CRUD for journeys
 - supports media fields and feature flag
 
@@ -744,14 +765,17 @@ These modules follow the same generic pattern as pages/destination/journeys. The
 ### 8.6 Wishlist Module
 
 Path:
+
 - `src/modules/wishList/`
 
 Routes:
+
 - `GET /api/v1/wishlist`
 - `POST /api/v1/wishlist`
 - `DELETE /api/v1/wishlist`
 
 Responsibilities:
+
 - user-specific wishlist management
 - tied to `authId` and `journeyId`
 
@@ -764,9 +788,11 @@ This project uses a rich shared layer so module code stays short and reusable.
 ### 9.1 getRecords service
 
 File:
+
 - `src/shared/getRecords.service.ts`
 
 Purpose:
+
 - generic read/query handler
 - supports pagination
 - supports search/filter through validated query/body/params
@@ -775,6 +801,7 @@ Purpose:
 - logs audit records
 
 Key behavior:
+
 - page and limit from query
 - cache key built from route + query + model + method
 - uses `model.findMany()` and `model.count()`
@@ -783,9 +810,11 @@ Key behavior:
 ### 9.2 manageRecordWithFiles service
 
 File:
+
 - `src/shared/manageRecordWithFiles.service.ts`
 
 Purpose:
+
 - generic create/update handler with media support
 - parses JSON-like strings and booleans from request input
 - handles file removal by URL
@@ -797,9 +826,11 @@ Purpose:
 ### 9.3 delete.service
 
 File:
+
 - `src/shared/delete.service.ts`
 
 Purpose:
+
 - generic safe deletion with:
   - ID extraction from body/query/params
   - permission enforcement
@@ -810,9 +841,11 @@ Purpose:
 ### 9.4 upload_cloudinary.service
 
 File:
+
 - `src/shared/upload_cloudinary.service.ts`
 
 Purpose:
+
 - upload buffers to Cloudinary
 - supports image/video/audio/raw resource types
 - applies transformations for media optimization
@@ -820,17 +853,21 @@ Purpose:
 ### 9.5 delete_cloudinary.service
 
 File:
+
 - `src/shared/delete_cloudinary.service.ts`
 
 Purpose:
+
 - deletes uploaded media from Cloudinary
 
 ### 9.6 email_template.service
 
 File:
+
 - `src/shared/email_template.service.ts`
 
 Purpose:
+
 - HTML templates for email confirmation, password reset, password change, etc.
 
 ---
@@ -840,6 +877,7 @@ Purpose:
 ### auth.helper.ts
 
 Purpose:
+
 - password hashing
 - JWT creation/verification
 - OTP generation
@@ -849,51 +887,61 @@ Purpose:
 ### email.helper.ts
 
 Purpose:
+
 - send emails via nodemailer
 
 ### api.error.ts
 
 Purpose:
+
 - custom API error class for consistent error responses
 
 ### success.response.ts
 
 Purpose:
+
 - standard success response formatting
 
 ### catch.async.ts
 
 Purpose:
+
 - wrap async controller/service functions for centralized error handling
 
 ### convertBooleans.ts
 
 Purpose:
+
 - convert string booleans like `"true"`/`"false"` to actual booleans
 
 ### extractDomains.ts
 
 Purpose:
+
 - extract host domains from external URLs
 
 ### extractExternalUrls.ts
 
 Purpose:
+
 - recursively extract URLs from objects/arrays
 
 ### extractIds.ts
 
 Purpose:
+
 - parse ID arrays from body/query/params
 
 ### retryOperation.ts
 
 Purpose:
+
 - retry failed operations safely
 
 ### perfomance.tester.ts
 
 Purpose:
+
 - request performance profiling middleware
 
 ---
@@ -901,6 +949,7 @@ Purpose:
 ## 11. Config Layer
 
 File:
+
 - `src/config/index.ts`
 
 This loads environment variables and exposes shared config values.

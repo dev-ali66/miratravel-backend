@@ -16,14 +16,13 @@ export const getCmsPageService = async (req: any) => {
     // }
     include: {
       // sections: true
-    }
+    },
   });
 
   return result;
 };
 
 export const manageCmsPageService = async (req: any, res: any) => {
-
   let result = await manageRecordWithFiles({
     req,
     res,
@@ -43,6 +42,7 @@ export const deleteCmsPageService = async (req: any, res: any) => {
     prisma,
     model: prisma.cmsPage,
     modelName: "cmsPage",
+    softDelete: true,
     rawIds: req.body.id,
     externalDomain: ["res.cloudinary.com"],
     maxLimit: 10,

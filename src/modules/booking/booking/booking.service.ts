@@ -14,7 +14,9 @@ import {
 } from "../engine/paymentEngine.service.js";
 
 const bookingInclude = {
-  journey: { select: { id: true, title: true, slug: true, price: true, currency: true } },
+  journey: {
+    select: { id: true, title: true, slug: true, price: true, currency: true },
+  },
   selectedPaymentSchedule: { include: { items: true } },
   paymentSchedules: { include: { items: true } },
   paymentRecords: true,
@@ -44,8 +46,16 @@ export const getBookingService = async (req: any) => {
   if (journeyId) customWhere.journeyId = journeyId;
   if (bookingStatus) customWhere.bookingStatus = bookingStatus;
   if (paymentStatus) customWhere.paymentStatus = paymentStatus;
-  if (bookingNumber) customWhere.bookingNumber = { contains: bookingNumber, mode: "insensitive" };
-  if (travelerEmail) customWhere.travelerEmail = { contains: travelerEmail, mode: "insensitive" };
+  if (bookingNumber)
+    customWhere.bookingNumber = {
+      contains: bookingNumber,
+      mode: "insensitive",
+    };
+  if (travelerEmail)
+    customWhere.travelerEmail = {
+      contains: travelerEmail,
+      mode: "insensitive",
+    };
   if (travelerType) customWhere.travelerType = travelerType;
   if (travelerName) {
     customWhere.OR = [
@@ -83,7 +93,16 @@ export const getBookingService = async (req: any) => {
         { travelerLastName: { contains: token, mode: "insensitive" } },
         { travelerEmail: { contains: token, mode: "insensitive" } },
         { travelerPhone: { contains: token, mode: "insensitive" } },
-        { journey: { is: { OR: [{ title: { contains: token, mode: "insensitive" } }, { slug: { contains: token, mode: "insensitive" } }] } } },
+        {
+          journey: {
+            is: {
+              OR: [
+                { title: { contains: token, mode: "insensitive" } },
+                { slug: { contains: token, mode: "insensitive" } },
+              ],
+            },
+          },
+        },
       ],
     }));
   }
@@ -96,8 +115,20 @@ export const getBookingService = async (req: any) => {
     include: bookingInclude,
     orderBy: { createdAt: "desc" },
     excludeFilterKeys: [
-      "page", "limit", "id", "journeyId", "bookingStatus", "paymentStatus", "bookingNumber",
-      "travelerEmail", "travelerName", "travelerType", "search", "departureFrom", "departureTo", "dueBefore",
+      "page",
+      "limit",
+      "id",
+      "journeyId",
+      "bookingStatus",
+      "paymentStatus",
+      "bookingNumber",
+      "travelerEmail",
+      "travelerName",
+      "travelerType",
+      "search",
+      "departureFrom",
+      "departureTo",
+      "dueBefore",
     ],
   });
 };
@@ -108,16 +139,22 @@ export const getBookingService = async (req: any) => {
 export const createBookingRequestService = async (req: any) => {
   const data = req.validated.body;
 
-  const journey = await prisma.journey.findUnique({ where: { id: data.journeyId } });
+  const journey = await prisma.journey.findUnique({
+    where: { id: data.journeyId },
+  });
   if (!journey) throw new ApiError("Journey not found", 404);
-  if (journey.status !== "PUBLISHED") throw new ApiError("This journey is not open for booking requests", 400);
+  if (journey.status !== "PUBLISHED")
+    throw new ApiError("This journey is not open for booking requests", 400);
 
   if (data.addOnIds?.length) {
     const validAddOnCount = await prisma.journeyAddOn.count({
       where: { id: { in: data.addOnIds }, journeyId: journey.id },
     });
     if (validAddOnCount !== data.addOnIds.length) {
-      throw new ApiError("One or more selected add-ons do not belong to this journey", 400);
+      throw new ApiError(
+        "One or more selected add-ons do not belong to this journey",
+        400,
+      );
     }
   }
 
@@ -153,9 +190,21 @@ export const createBookingRequestService = async (req: any) => {
     include: bookingInclude,
   });
 
-  await auditLogger({ req, entityId: booking.id, before: null, after: booking, metadata: { source: "database", operation: "CREATE" } });
+  await auditLogger({
+    req,
+    entityId: booking.id,
+    before: null,
+    after: booking,
+    metadata: { source: "database", operation: "CREATE" },
+  });
 
-  return { code: 201, success: true, message: "Booking request submitted successfully. No payment is required at this stage.", data: booking };
+  return {
+    code: 201,
+    success: true,
+    message:
+      "Booking request submitted successfully. No payment is required at this stage.",
+    data: booking,
+  };
 };
 
 // ---------------------------------------------------------------------------
@@ -169,14 +218,32 @@ export const updateBookingService = async (req: any) => {
   if (!existing) throw new ApiError("Booking not found", 404);
 
   if (!["REQUEST_SUBMITTED", "UNDER_REVIEW"].includes(existing.bookingStatus)) {
-    throw new ApiError("Booking details can only be edited before approval", 400);
+    throw new ApiError(
+      "Booking details can only be edited before approval",
+      400,
+    );
   }
 
-  const updated = await prisma.booking.update({ where: { id }, data, include: bookingInclude });
+  const updated = await prisma.booking.update({
+    where: { id },
+    data,
+    include: bookingInclude,
+  });
 
-  await auditLogger({ req, entityId: id, before: existing, after: updated, metadata: { source: "database", operation: "UPDATE" } });
+  await auditLogger({
+    req,
+    entityId: id,
+    before: existing,
+    after: updated,
+    metadata: { source: "database", operation: "UPDATE" },
+  });
 
-  return { code: 200, success: true, message: "Booking updated successfully", data: updated };
+  return {
+    code: 200,
+    success: true,
+    message: "Booking updated successfully",
+    data: updated,
+  };
 };
 
 // ---------------------------------------------------------------------------
@@ -184,12 +251,22 @@ export const updateBookingService = async (req: any) => {
 // ---------------------------------------------------------------------------
 export const approveBookingService = async (req: any) => {
   const { id } = req.validated.params;
-  const { confirmedTotal: confirmedTotalInput, currency, scheduleOverride } = req.validated.body ?? {};
+  const {
+    confirmedTotal: confirmedTotalInput,
+    currency,
+    scheduleOverride,
+  } = req.validated.body ?? {};
 
-  const booking = await prisma.booking.findUnique({ where: { id }, include: { journey: true } });
+  const booking = await prisma.booking.findUnique({
+    where: { id },
+    include: { journey: true },
+  });
   if (!booking) throw new ApiError("Booking not found", 404);
   if (!["REQUEST_SUBMITTED", "UNDER_REVIEW"].includes(booking.bookingStatus)) {
-    throw new ApiError(`Booking cannot be approved from status ${booking.bookingStatus}`, 400);
+    throw new ApiError(
+      `Booking cannot be approved from status ${booking.bookingStatus}`,
+      400,
+    );
   }
 
   // §13 rule 77: use the final approved total after supplements/add-ons/discounts.
@@ -197,25 +274,51 @@ export const approveBookingService = async (req: any) => {
   let confirmedTotal = confirmedTotalInput;
   if (confirmedTotal === undefined) {
     const addOns: any[] = booking.addOnIds.length
-      ? await prisma.journeyAddOn.findMany({ where: { id: { in: booking.addOnIds } } })
+      ? await prisma.journeyAddOn.findMany({
+          where: { id: { in: booking.addOnIds } },
+        })
       : [];
-    const addOnsTotal = addOns.reduce((sum: number, a: any) => sum + Number(a.price), 0);
+    const addOnsTotal = addOns.reduce(
+      (sum: number, a: any) => sum + Number(a.price),
+      0,
+    );
     confirmedTotal = round2(Number(booking.journey.price) + addOnsTotal);
   }
 
   const approvalDate = new Date();
-  const bookingCurrency = currency ?? booking.currency ?? booking.journey.currency;
+  const bookingCurrency =
+    currency ?? booking.currency ?? booking.journey.currency;
 
   const config = await getEffectivePaymentConfig(booking.journeyId);
 
-  let templateType: "STANDARD_30_70" | "FULL_PAYMENT" | "FIXED_DEPOSIT" | "INSTALLMENT_PLAN";
-  let items: { sequence: number; label: string; calculationType: string; ruleValue: number | null; dueRule: string; dueValue: number | null; dueDate: Date | null; calculatedAmount: number }[];
+  let templateType:
+    | "STANDARD_30_70"
+    | "FULL_PAYMENT"
+    | "FIXED_DEPOSIT"
+    | "INSTALLMENT_PLAN";
+  let items: {
+    sequence: number;
+    label: string;
+    calculationType: string;
+    ruleValue: number | null;
+    dueRule: string;
+    dueValue: number | null;
+    dueDate: Date | null;
+    calculatedAmount: number;
+  }[];
   let overrideReason: string | null = null;
 
   if (scheduleOverride) {
-    if (!config.allowAdminOverride) throw new ApiError("Admin override of payment schedules is disabled in payment configuration", 403);
+    if (!config.allowAdminOverride)
+      throw new ApiError(
+        "Admin override of payment schedules is disabled in payment configuration",
+        403,
+      );
 
-    const remainderAmount = validateManualScheduleItems(scheduleOverride.items, confirmedTotal);
+    const remainderAmount = validateManualScheduleItems(
+      scheduleOverride.items,
+      confirmedTotal,
+    );
     templateType = "INSTALLMENT_PLAN";
     overrideReason = scheduleOverride.overrideReason;
     items = scheduleOverride.items.map((item: any, index: number) => {
@@ -235,11 +338,14 @@ export const approveBookingService = async (req: any) => {
         dueValue: item.dueValue ?? null,
         dueDate:
           item.dueRule === "FIXED_DATE"
-            ? item.fixedDate ?? null
+            ? (item.fixedDate ?? null)
             : item.dueRule === "IMMEDIATE_AFTER_APPROVAL"
               ? approvalDate
               : item.dueRule === "DAYS_BEFORE_DEPARTURE"
-                ? new Date(booking.travelDepartureDate.getTime() - (item.dueValue ?? 0) * 86400000)
+                ? new Date(
+                    booking.travelDepartureDate.getTime() -
+                      (item.dueValue ?? 0) * 86400000,
+                  )
                 : null,
         calculatedAmount,
       };
@@ -296,10 +402,21 @@ export const approveBookingService = async (req: any) => {
     entityId: id,
     before: booking,
     after: result.booking,
-    metadata: { source: "database", operation: "APPROVE", templateType, confirmedTotal, scheduleId: result.schedule.id },
+    metadata: {
+      source: "database",
+      operation: "APPROVE",
+      templateType,
+      confirmedTotal,
+      scheduleId: result.schedule.id,
+    },
   });
 
-  return { code: 200, success: true, message: "Booking approved and payment schedule generated", data: result.booking };
+  return {
+    code: 200,
+    success: true,
+    message: "Booking approved and payment schedule generated",
+    data: result.booking,
+  };
 };
 
 // ---------------------------------------------------------------------------
@@ -312,12 +429,25 @@ export const rejectBookingService = async (req: any) => {
   const booking = await prisma.booking.findUnique({ where: { id } });
   if (!booking) throw new ApiError("Booking not found", 404);
   if (!["REQUEST_SUBMITTED", "UNDER_REVIEW"].includes(booking.bookingStatus)) {
-    throw new ApiError(`Booking cannot be rejected from status ${booking.bookingStatus}`, 400);
+    throw new ApiError(
+      `Booking cannot be rejected from status ${booking.bookingStatus}`,
+      400,
+    );
   }
 
-  const updated = await prisma.booking.update({ where: { id }, data: { bookingStatus: "REJECTED" }, include: bookingInclude });
+  const updated = await prisma.booking.update({
+    where: { id },
+    data: { bookingStatus: "REJECTED" },
+    include: bookingInclude,
+  });
 
-  await auditLogger({ req, entityId: id, before: booking, after: updated, metadata: { source: "database", operation: "REJECT", reason } });
+  await auditLogger({
+    req,
+    entityId: id,
+    before: booking,
+    after: updated,
+    metadata: { source: "database", operation: "REJECT", reason },
+  });
 
   emailHelper({
     to: booking.travelerEmail,
@@ -325,7 +455,12 @@ export const rejectBookingService = async (req: any) => {
     message: `We're sorry — we're unable to accept your travel request at this time. Reason: ${reason}`,
   }).catch(() => {});
 
-  return { code: 200, success: true, message: "Booking rejected", data: updated };
+  return {
+    code: 200,
+    success: true,
+    message: "Booking rejected",
+    data: updated,
+  };
 };
 
 // ---------------------------------------------------------------------------
@@ -346,17 +481,28 @@ export const cancelBookingService = async (req: any) => {
       where: { bookingId: id, status: "ACTIVE" },
       data: { status: "CANCELLED" },
     });
-    return tx.booking.update({ where: { id }, data: { bookingStatus: "CANCELLED" }, include: bookingInclude });
+    return tx.booking.update({
+      where: { id },
+      data: { bookingStatus: "CANCELLED" },
+      include: bookingInclude,
+    });
   });
 
-  await auditLogger({ req, entityId: id, before: booking, after: updated, metadata: { source: "database", operation: "CANCEL", reason } });
+  await auditLogger({
+    req,
+    entityId: id,
+    before: booking,
+    after: updated,
+    metadata: { source: "database", operation: "CANCEL", reason },
+  });
 
   return {
     code: 200,
     success: true,
-    message: booking.paidAmount && Number(booking.paidAmount) > 0
-      ? "Booking cancelled. Any refund must be recorded separately via the payment-records refund endpoint."
-      : "Booking cancelled",
+    message:
+      booking.paidAmount && Number(booking.paidAmount) > 0
+        ? "Booking cancelled. Any refund must be recorded separately via the payment-records refund endpoint."
+        : "Booking cancelled",
     data: updated,
   };
 };
@@ -373,22 +519,38 @@ export const reviseBookingTotalService = async (req: any) => {
     include: { selectedPaymentSchedule: { include: { items: true } } },
   });
   if (!booking) throw new ApiError("Booking not found", 404);
-  if (!booking.selectedPaymentSchedule) throw new ApiError("Booking has no active payment schedule to revise", 400);
+  if (!booking.selectedPaymentSchedule)
+    throw new ApiError("Booking has no active payment schedule to revise", 400);
 
   const items: any[] = booking.selectedPaymentSchedule.items;
   const paidItems = items.filter((i: any) => i.status === "PAID");
-  const unpaidItems = items.filter((i: any) => i.status !== "PAID" && i.status !== "WAIVED");
+  const unpaidItems = items.filter(
+    (i: any) => i.status !== "PAID" && i.status !== "WAIVED",
+  );
 
-  const paidSoFar = round2(paidItems.reduce((s: number, i: any) => s + Number(i.paidAmount), 0));
+  const paidSoFar = round2(
+    paidItems.reduce((s: number, i: any) => s + Number(i.paidAmount), 0),
+  );
   if (newConfirmedTotal < paidSoFar) {
-    throw new ApiError(`New total (${newConfirmedTotal}) cannot be less than the amount already paid (${paidSoFar})`, 400);
+    throw new ApiError(
+      `New total (${newConfirmedTotal}) cannot be less than the amount already paid (${paidSoFar})`,
+      400,
+    );
   }
   if (!unpaidItems.length) {
-    throw new ApiError("All schedule items are already paid or waived — nothing to recalculate", 400);
+    throw new ApiError(
+      "All schedule items are already paid or waived — nothing to recalculate",
+      400,
+    );
   }
 
   const newRemainingTotal = round2(newConfirmedTotal - paidSoFar);
-  const originalUnpaidSum = round2(unpaidItems.reduce((s: number, i: any) => s + Number(i.calculatedAmount), 0));
+  const originalUnpaidSum = round2(
+    unpaidItems.reduce(
+      (s: number, i: any) => s + Number(i.calculatedAmount),
+      0,
+    ),
+  );
 
   const result = await prisma.$transaction(async (tx: any) => {
     // Distribute the new remaining total across unpaid items, preserving their original ratio;
@@ -397,11 +559,19 @@ export const reviseBookingTotalService = async (req: any) => {
     for (let i = 0; i < unpaidItems.length; i++) {
       const item = unpaidItems[i];
       const isLast = i === unpaidItems.length - 1;
-      const ratio = originalUnpaidSum > 0 ? Number(item.calculatedAmount) / originalUnpaidSum : 1 / unpaidItems.length;
-      const newAmount = isLast ? round2(newRemainingTotal - runningSum) : round2(newRemainingTotal * ratio);
+      const ratio =
+        originalUnpaidSum > 0
+          ? Number(item.calculatedAmount) / originalUnpaidSum
+          : 1 / unpaidItems.length;
+      const newAmount = isLast
+        ? round2(newRemainingTotal - runningSum)
+        : round2(newRemainingTotal * ratio);
       runningSum = round2(runningSum + newAmount);
 
-      await tx.paymentScheduleItem.update({ where: { id: item.id }, data: { calculatedAmount: Math.max(0, newAmount) } });
+      await tx.paymentScheduleItem.update({
+        where: { id: item.id },
+        data: { calculatedAmount: Math.max(0, newAmount) },
+      });
     }
 
     await tx.paymentSchedule.update({
@@ -409,7 +579,10 @@ export const reviseBookingTotalService = async (req: any) => {
       data: { totalScheduledAmount: newConfirmedTotal, overrideReason: reason },
     });
 
-    await tx.booking.update({ where: { id }, data: { confirmedTotal: newConfirmedTotal } });
+    await tx.booking.update({
+      where: { id },
+      data: { confirmedTotal: newConfirmedTotal },
+    });
 
     return recalculateBookingState(id, tx);
   });
@@ -419,10 +592,21 @@ export const reviseBookingTotalService = async (req: any) => {
     entityId: id,
     before: booking,
     after: result,
-    metadata: { source: "database", operation: "REVISE_TOTAL", reason, previousTotal: Number(booking.confirmedTotal), newConfirmedTotal },
+    metadata: {
+      source: "database",
+      operation: "REVISE_TOTAL",
+      reason,
+      previousTotal: Number(booking.confirmedTotal),
+      newConfirmedTotal,
+    },
   });
 
-  return { code: 200, success: true, message: "Booking total revised; unpaid schedule items recalculated", data: result };
+  return {
+    code: 200,
+    success: true,
+    message: "Booking total revised; unpaid schedule items recalculated",
+    data: result,
+  };
 };
 
 // ---------------------------------------------------------------------------
@@ -434,7 +618,10 @@ export const deleteBookingService = async (req: any) => {
     where: { id: { in: rawIds }, paymentStatus: { not: "UNPAID" } },
   });
   if (nonDeletable > 0) {
-    throw new ApiError("Bookings with recorded payments cannot be deleted — cancel them instead", 400);
+    throw new ApiError(
+      "Bookings with recorded payments cannot be deleted — cancel them instead",
+      400,
+    );
   }
 
   return deleteRecordsSafely({
@@ -443,6 +630,7 @@ export const deleteBookingService = async (req: any) => {
     prisma,
     model: prisma.booking,
     modelName: "booking",
+    softDelete: true,
     rawIds: req.body.id,
     externalDomain: [],
     maxLimit: 10,

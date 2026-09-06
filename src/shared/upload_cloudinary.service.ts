@@ -247,9 +247,7 @@ export const uploadFilesToCloudinary = async (
       // ---------------------------
       // Final folder
       // ---------------------------
-      const finalFolder = rootFolder
-        ? `${rootFolder}/${folder}`
-        : folder;
+      const finalFolder = rootFolder ? `${rootFolder}/${folder}` : folder;
 
       // ---------------------------
       // Cloudinary options

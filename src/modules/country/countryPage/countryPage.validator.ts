@@ -3,7 +3,6 @@ import { z } from "zod";
 export const getCountryPageValidator = z.object({
   query: z.object({
     // id: z.string().optional(),
-
     // locationId: z.string().optional(),
   }),
 });
@@ -17,7 +16,6 @@ export const manageCountryPageValidator = z.object({
 
       metadata: z.any().optional(),
       data: z.any().optional(),
-
     })
     .superRefine((data, ctx) => {
       // CREATE

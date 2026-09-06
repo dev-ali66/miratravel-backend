@@ -5,13 +5,7 @@ import { deleteRecordsSafely } from "../../../shared/delete.service.js";
 import { getRecords } from "../../../shared/getRecords.service.js";
 
 export const getRegionPageSectionService = async (req: any) => {
-  const {
-    id,
-    pageId,
-    name,
-    slug,
-    search,
-  } = req.query;
+  const { id, pageId, name, slug, search } = req.query;
 
   const customWhere: any = {};
 
@@ -86,7 +80,7 @@ export const getRegionPageSectionService = async (req: any) => {
     req,
     model: prisma.regionPageSection,
     customWhere,
-    modelName: "RegionPageSection",
+    modelName: "regionPageSection",
 
     include: {
       page: {
@@ -100,10 +94,7 @@ export const getRegionPageSectionService = async (req: any) => {
   return result;
 };
 
-export const manageRegionPageSectionService = async (
-  req: any,
-  res: any,
-) => {
+export const manageRegionPageSectionService = async (req: any, res: any) => {
   const { pageId } = req.validated.body;
 
   // -------------------------
@@ -149,16 +140,14 @@ export const manageRegionPageSectionService = async (
   return result;
 };
 
-export const deleteRegionPageSectionService = async (
-  req: any,
-  res: any,
-) => {
+export const deleteRegionPageSectionService = async (req: any, res: any) => {
   const result = await deleteRecordsSafely({
     res,
     req,
     prisma,
     model: prisma.regionPageSection,
     modelName: "RegionPageSection",
+    softDelete: true,
     rawIds: req.body.id,
     externalDomain: ["res.cloudinary.com"],
     maxLimit: 10,

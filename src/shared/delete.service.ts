@@ -1,16 +1,8 @@
-import { retryOperation } from "../utils/retryOperation.js";
-import { extractExternalUrlsDeep } from "../utils/extractExternalUrls.js";
 import { extractIds } from "../utils/extractIds.js";
-import { deleteFromCloudinary } from "./delete_cloudinary.service.js";
-import { extractDomains } from "../utils/extractDomains.js";
 import { StatusCodes } from "http-status-codes";
 import ApiError from "../utils/api.error.js";
 import { redisManager } from "../config/redis.js";
 import { auditLogger } from "../logger/audit.logger.js";
-
-const externalDeleteMap = {
-  "res.cloudinary.com": deleteFromCloudinary,
-};
 
 export const deleteRecordsSafely = async ({
   req,
@@ -18,12 +10,12 @@ export const deleteRecordsSafely = async ({
   model,
   modelName,
   rawIds,
-  externalDomain,
   dbField = null,
   ownerField = null,
   maxLimit = 10,
   txClient = prisma,
   audit = true,
+  softDelete = true,
 }: any) => {
   const ids = extractIds(rawIds);
 
@@ -31,8 +23,6 @@ export const deleteRecordsSafely = async ({
 
   if (ids.length > maxLimit)
     throw new Error(`Delete limit exceeded (${maxLimit})`);
-
-  const domains = extractDomains(externalDomain);
 
   const getScopeFilter = () => {
     if (!req.matchedPermissions) return {};
@@ -64,8 +54,31 @@ export const deleteRecordsSafely = async ({
   };
 
   const whereClause = { id: { in: ids }, ...getScopeFilter() };
+  const requestSoftDelete = req?.body?.softDelete ?? req?.query?.softDelete;
+  const hardDeleteRequested =
+    requestSoftDelete === false ||
+    (typeof requestSoftDelete === "string" &&
+      requestSoftDelete.toLowerCase() === "false");
+  const shouldSoftDelete = softDelete && !hardDeleteRequested;
 
-  const records = await model.findMany({ where: whereClause });
+  // A hard delete deliberately skips record lookup, external deletion, cache
+  // invalidation, and audit logging.
+  if (!shouldSoftDelete) {
+    const result = await txClient.$transaction(async (tx: any) => {
+      return tx[modelName].deleteMany({ where: whereClause });
+    });
+
+    return {
+      code: StatusCodes.OK,
+      success: true,
+      message: "Hard deleted successfully",
+      data: result,
+    };
+  }
+
+  const softDeleteWhereClause = { ...whereClause, deletedAt: null };
+
+  const records = await model.findMany({ where: softDeleteWhereClause });
 
   if (!records.length) {
     return {
@@ -75,32 +88,14 @@ export const deleteRecordsSafely = async ({
     };
   }
 
-  // 🔥 external delete
-  const externalUrls = new Set<string>();
-  records.forEach((r: any) =>
-    extractExternalUrlsDeep(r, externalUrls, domains as string[]),
-  );
+  const deletedAt = new Date();
 
-  if (domains.length > 0) {
-    await Promise.all(
-      [...externalUrls].map(async (url) => {
-        const matched = domains.find((d: any) => url.includes(d));
-
-        if (!matched) return;
-        if (typeof matched !== "string") return;
-
-        const fn = (externalDeleteMap as any)[matched];
-
-        if (!fn) return;
-
-        await retryOperation(() => fn(url), 3);
-      }),
-    );
-  }
-
-  // 🔥 DB DELETE
+  // Soft-deleted records retain their external files for a possible restore.
   const result = await txClient.$transaction(async (tx: any) => {
-    return await tx[modelName].deleteMany({ where: whereClause });
+    return tx[modelName].updateMany({
+      where: softDeleteWhereClause,
+      data: { deletedAt },
+    });
   });
 
   // 🚀 CACHE INVALIDATION (MAIN PART)
@@ -127,7 +122,7 @@ export const deleteRecordsSafely = async ({
           req,
           entityId: record.id,
           before: record,
-          after: null,
+          after: { ...record, deletedAt },
           metadata: {
             source: "database",
           },
@@ -138,12 +133,10 @@ export const deleteRecordsSafely = async ({
   return {
     code: StatusCodes.OK,
     success: true,
-    message: "Deleted successfully",
+    message: "Deleted success",
     data: result,
   };
 };
-
-
 
 // import { retryOperation } from "../utils/retryOperation.js";
 // import { extractExternalUrlsDeep } from "../utils/extractExternalUrls.js";
@@ -292,4 +285,3 @@ export const deleteRecordsSafely = async ({
 //     }
 
 // };
-

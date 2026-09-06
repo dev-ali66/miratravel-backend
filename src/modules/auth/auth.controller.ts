@@ -139,7 +139,7 @@ export const userLoginController = catchAsync(
       res.cookie(
         "accessToken",
         result.accessToken,
-        result.accessOptions as any
+        result.accessOptions as any,
       );
     }
 
@@ -147,7 +147,7 @@ export const userLoginController = catchAsync(
       res.cookie(
         "refreshToken",
         result.refreshToken,
-        result.refreshOptions as any
+        result.refreshOptions as any,
       );
     }
     successResponse({
@@ -157,10 +157,10 @@ export const userLoginController = catchAsync(
       message: result.message ? result.message : "User logged in successfully!",
       data: result.user
         ? {
-          accessToken: result.accessToken,
-          refreshToken: result.refreshToken,
-          user: result.user,
-        }
+            accessToken: result.accessToken,
+            refreshToken: result.refreshToken,
+            user: result.user,
+          }
         : null,
     });
   },
@@ -181,7 +181,7 @@ export const refreshTokenController = catchAsync(
       res.cookie(
         "accessToken",
         result.accessToken,
-        result.accessOptions as any
+        result.accessOptions as any,
       );
     }
 
@@ -189,7 +189,7 @@ export const refreshTokenController = catchAsync(
       res.cookie(
         "refreshToken",
         result.refreshToken,
-        result.refreshOptions as any
+        result.refreshOptions as any,
       );
     }
 

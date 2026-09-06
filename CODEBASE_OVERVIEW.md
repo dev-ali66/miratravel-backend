@@ -43,25 +43,25 @@ The repository is **backend-only**. No frontend application, frontend API client
 
 ## 2. Technology Stack
 
-| Area | Technology | Current use |
-|---|---|---|
-| Runtime | Node.js 22 in Docker | Server runtime; Docker images use `node:22-alpine` |
-| Language | TypeScript | Application source and Prisma integration |
-| HTTP framework | Express 5 | REST API and middleware pipeline |
-| Database | PostgreSQL | Prisma datasource in `prisma/schema/schema.prisma` |
-| ORM | Prisma 6 | Generated client, models, transactions, migrations/config |
-| Authentication | `jsonwebtoken`, `bcryptjs`, cookies | JWT access/refresh/invite tokens and password hashing |
-| Validation | Zod | Request schemas and OpenAPI metadata |
-| Cache / rate-limit store | Redis via `ioredis` and `rate-limit-redis` | Read cache and optional distributed rate limiting |
-| File handling | Multer memory storage | Multipart parsing and file type/size checks |
-| Media storage | Cloudinary | Upload and deletion of externally stored media |
-| Email | Nodemailer Gmail transport | Verification, reset, booking, payment and notification email |
-| API documentation | Swagger UI, custom OpenAPI builder | `/api/docs` and `/api/swagger.json` |
-| Realtime | Socket.IO | Authenticated sockets and ticket-room join event |
-| Security middleware | Helmet, CORS, HPP, XSS sanitizer, compression | HTTP hardening and request processing |
-| Testing | Jest, Supertest | Current tests under `tests/` |
-| Process manager | PM2 config | Production process configuration in `ecosystem.config.cjs` |
-| Containers | Docker / Docker Compose | Build image and development compose service |
+| Area                     | Technology                                    | Current use                                                  |
+| ------------------------ | --------------------------------------------- | ------------------------------------------------------------ |
+| Runtime                  | Node.js 22 in Docker                          | Server runtime; Docker images use `node:22-alpine`           |
+| Language                 | TypeScript                                    | Application source and Prisma integration                    |
+| HTTP framework           | Express 5                                     | REST API and middleware pipeline                             |
+| Database                 | PostgreSQL                                    | Prisma datasource in `prisma/schema/schema.prisma`           |
+| ORM                      | Prisma 6                                      | Generated client, models, transactions, migrations/config    |
+| Authentication           | `jsonwebtoken`, `bcryptjs`, cookies           | JWT access/refresh/invite tokens and password hashing        |
+| Validation               | Zod                                           | Request schemas and OpenAPI metadata                         |
+| Cache / rate-limit store | Redis via `ioredis` and `rate-limit-redis`    | Read cache and optional distributed rate limiting            |
+| File handling            | Multer memory storage                         | Multipart parsing and file type/size checks                  |
+| Media storage            | Cloudinary                                    | Upload and deletion of externally stored media               |
+| Email                    | Nodemailer Gmail transport                    | Verification, reset, booking, payment and notification email |
+| API documentation        | Swagger UI, custom OpenAPI builder            | `/api/docs` and `/api/swagger.json`                          |
+| Realtime                 | Socket.IO                                     | Authenticated sockets and ticket-room join event             |
+| Security middleware      | Helmet, CORS, HPP, XSS sanitizer, compression | HTTP hardening and request processing                        |
+| Testing                  | Jest, Supertest                               | Current tests under `tests/`                                 |
+| Process manager          | PM2 config                                    | Production process configuration in `ecosystem.config.cjs`   |
+| Containers               | Docker / Docker Compose                       | Build image and development compose service                  |
 
 Declared dependencies are authoritative in `package.json`. The old root `README.md` describes a different/older module layout in places; follow source and schema files over that README.
 
@@ -138,19 +138,19 @@ route
 
 ### Important module folders
 
-| Folder | Responsibility |
-|---|---|
-| `src/modules/auth` | Registration, verification, login, refresh, logout, profile, passwords |
-| `src/modules/settings/roles` | Role CRUD and role permissions |
-| `src/modules/settings/permissions` | Permission CRUD |
-| `src/modules/fileUpload` | Generic authenticated Cloudinary upload endpoint |
-| `src/modules/cms` | `CmsPage` and `CmsPageSection` management |
-| `src/modules/location` | Hierarchical location CRUD |
-| `src/modules/country` | Country page and country page sections |
-| `src/modules/region` | Region page and region page sections |
-| `src/modules/place` | Place page and place page sections |
-| `src/modules/journey` | Journey, itinerary, accommodation and add-on resources |
-| `src/modules/booking` | Booking, payment schedule, payment record, payment config and payment engine |
+| Folder                             | Responsibility                                                               |
+| ---------------------------------- | ---------------------------------------------------------------------------- |
+| `src/modules/auth`                 | Registration, verification, login, refresh, logout, profile, passwords       |
+| `src/modules/settings/roles`       | Role CRUD and role permissions                                               |
+| `src/modules/settings/permissions` | Permission CRUD                                                              |
+| `src/modules/fileUpload`           | Generic authenticated Cloudinary upload endpoint                             |
+| `src/modules/cms`                  | `CmsPage` and `CmsPageSection` management                                    |
+| `src/modules/location`             | Hierarchical location CRUD                                                   |
+| `src/modules/country`              | Country page and country page sections                                       |
+| `src/modules/region`               | Region page and region page sections                                         |
+| `src/modules/place`                | Place page and place page sections                                           |
+| `src/modules/journey`              | Journey, itinerary, accommodation and add-on resources                       |
+| `src/modules/booking`              | Booking, payment schedule, payment record, payment config and payment engine |
 
 Most feature folders follow the local pattern of `*.routes.ts`, `*.controller.ts`, `*.service.ts`, and `*.validator.ts`. Some nested resource names use capitalized directory names such as `Journey/` while file names remain lower camel case.
 
@@ -225,23 +225,23 @@ The backend does expose APIs that a separate frontend can consume. The intended 
 
 **Routes:**
 
-| Method | Path | Protection | Behavior |
-|---|---|---|---|
-| POST | `/api/v1/auth/register` | Public + limiter + upload + Zod | Direct account registration; email verification is required |
-| POST | `/api/v1/auth/register/instructorInfo/:token` | Public | Contractor role wrapper around registration; token path exists but token registration branch is currently commented in service |
-| POST | `/api/v1/auth/register/userInfo/:token` | Public | Driver role wrapper; same token-registration limitation |
-| POST/GET | `/api/v1/auth/verify-email`, `/verify-email/:token` | Public + OTP limiter | Verify by OTP or invite/email token |
-| POST | `/api/v1/auth/resend-verification` | Public + OTP limiter | Reissue verification code |
-| POST | `/api/v1/auth/login` | Login limiter + placeholder checks + validation | Authenticate and set access/refresh cookies; response also includes tokens |
-| POST | `/api/v1/auth/refresh-token` | Public | Reads refresh cookie or body token and rotates/returns tokens |
-| POST | `/api/v1/auth/logout` | `protect` | Logout current session or all devices |
-| POST | `/api/v1/auth/forgot-password` | OTP limiter | Send reset OTP/link |
-| GET/POST | `/api/v1/auth/verify-forgot-password` | OTP limiter | Verify reset OTP/token |
-| GET/POST | `/api/v1/auth/reset-password` | Public | Reset password using reset token |
-| GET | `/api/v1/auth/me` | `protect` | Return authenticated request user |
-| GET | `/api/v1/auth/user-info` | `protect` | Query current user profile/roles |
-| POST | `/api/v1/auth/change-password` | `protect` | Change password |
-| POST | `/api/v1/auth/me` | `protect` + image upload | Update profile and media |
+| Method   | Path                                                | Protection                                      | Behavior                                                                                                                       |
+| -------- | --------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| POST     | `/api/v1/auth/register`                             | Public + limiter + upload + Zod                 | Direct account registration; email verification is required                                                                    |
+| POST     | `/api/v1/auth/register/instructorInfo/:token`       | Public                                          | Contractor role wrapper around registration; token path exists but token registration branch is currently commented in service |
+| POST     | `/api/v1/auth/register/userInfo/:token`             | Public                                          | Driver role wrapper; same token-registration limitation                                                                        |
+| POST/GET | `/api/v1/auth/verify-email`, `/verify-email/:token` | Public + OTP limiter                            | Verify by OTP or invite/email token                                                                                            |
+| POST     | `/api/v1/auth/resend-verification`                  | Public + OTP limiter                            | Reissue verification code                                                                                                      |
+| POST     | `/api/v1/auth/login`                                | Login limiter + placeholder checks + validation | Authenticate and set access/refresh cookies; response also includes tokens                                                     |
+| POST     | `/api/v1/auth/refresh-token`                        | Public                                          | Reads refresh cookie or body token and rotates/returns tokens                                                                  |
+| POST     | `/api/v1/auth/logout`                               | `protect`                                       | Logout current session or all devices                                                                                          |
+| POST     | `/api/v1/auth/forgot-password`                      | OTP limiter                                     | Send reset OTP/link                                                                                                            |
+| GET/POST | `/api/v1/auth/verify-forgot-password`               | OTP limiter                                     | Verify reset OTP/token                                                                                                         |
+| GET/POST | `/api/v1/auth/reset-password`                       | Public                                          | Reset password using reset token                                                                                               |
+| GET      | `/api/v1/auth/me`                                   | `protect`                                       | Return authenticated request user                                                                                              |
+| GET      | `/api/v1/auth/user-info`                            | `protect`                                       | Query current user profile/roles                                                                                               |
+| POST     | `/api/v1/auth/change-password`                      | `protect`                                       | Change password                                                                                                                |
+| POST     | `/api/v1/auth/me`                                   | `protect` + image upload                        | Update profile and media                                                                                                       |
 
 **Current implementation notes:** `createAccountService` supports direct registration based on `DIRECT_REGISTER`; the token-registration code is commented out. `protect` verifies the access token and attaches decoded token data, but the full database user lookup and account status checks are commented out. The `checkBlockedIP`, `checkBruteForce`, and `checkDeviceTrust` middleware functions currently call `next()` and contain TODOs. Do not document those as active security enforcement.
 
@@ -368,16 +368,16 @@ The Prisma datasource is PostgreSQL and the schema entry is `prisma/schema/schem
 
 ### Core model groups
 
-| Group | Models / enums | Important relationships |
-|---|---|---|
-| Identity | `Auth`, `UserPersonalInfo`, `UserSettings`, `Session`, `Status` | Auth owns sessions, profile/settings, roles, bookings |
-| Authorization | `Role`, `Permission`, `Action`, `Scope` | Role/Auth and Role/Permission are many-to-many |
-| Location | `Location`, `LocationType` | Self-referencing parent/children hierarchy |
-| Content | `CmsPage`, `CmsPageSection` | Page has ordered sections; cascade delete from page |
-| Geo content | `CountryPage`, `CountryPageSection`, `RegionPage`, `RegionPageSection`, `PlacePage`, `PlacePageSection` | Each page is one-to-one with a location and has sections |
-| Journey | `Journey`, `JourneyItinerary`, `JourneyAccommodation`, `JourneyAddOn` | Journey has itinerary/add-ons, optional accommodation, bookings |
-| Booking | `Booking`, `BookingStatus`, `TravelerType` | Booking belongs to Auth and Journey |
-| Payment | `PaymentSchedule`, `PaymentScheduleItem`, `PaymentRecord`, `PaymentConfig` and payment enums | Booking has schedules/records; schedule has items; records can target an item |
+| Group         | Models / enums                                                                                          | Important relationships                                                       |
+| ------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Identity      | `Auth`, `UserPersonalInfo`, `UserSettings`, `Session`, `Status`                                         | Auth owns sessions, profile/settings, roles, bookings                         |
+| Authorization | `Role`, `Permission`, `Action`, `Scope`                                                                 | Role/Auth and Role/Permission are many-to-many                                |
+| Location      | `Location`, `LocationType`                                                                              | Self-referencing parent/children hierarchy                                    |
+| Content       | `CmsPage`, `CmsPageSection`                                                                             | Page has ordered sections; cascade delete from page                           |
+| Geo content   | `CountryPage`, `CountryPageSection`, `RegionPage`, `RegionPageSection`, `PlacePage`, `PlacePageSection` | Each page is one-to-one with a location and has sections                      |
+| Journey       | `Journey`, `JourneyItinerary`, `JourneyAccommodation`, `JourneyAddOn`                                   | Journey has itinerary/add-ons, optional accommodation, bookings               |
+| Booking       | `Booking`, `BookingStatus`, `TravelerType`                                                              | Booking belongs to Auth and Journey                                           |
+| Payment       | `PaymentSchedule`, `PaymentScheduleItem`, `PaymentRecord`, `PaymentConfig` and payment enums            | Booking has schedules/records; schedule has items; records can target an item |
 
 ### Relationship overview
 
@@ -508,29 +508,29 @@ Swagger is mounted at `GET /api/docs`; the generated JSON is available at `GET /
 
 ### Major API surface
 
-| Base path | Module | Typical access |
-|---|---|---|
-| `/api/v1/auth` | Auth/profile/password | Mixed public/protected |
-| `/api/v1/roles` | Roles | Protected/permission-managed |
-| `/api/v1/permissions` | Permissions | Protected/permission-managed |
-| `/api/v1/file-upload` | Generic media upload | Protected |
-| `/api/v1/cms-pages` | CMS pages | Public GET, protected writes |
-| `/api/v1/cms-pages-sections` | CMS sections | Mixed, see route file |
-| `/api/v1/locations` | Location hierarchy | Mixed, see route file |
-| `/api/v1/country-pages` | Country pages | Mixed |
-| `/api/v1/country-pages-sections` | Country sections | Mixed |
-| `/api/v1/region-pages` | Region pages | Mixed |
-| `/api/v1/region-pages-sections` | Region sections | Mixed |
-| `/api/v1/place-pages` | Place pages | Mixed |
-| `/api/v1/place-pages-sections` | Place sections | Mixed |
-| `/api/v1/journeys` | Journeys | Public GET, protected writes |
-| `/api/v1/journey-itinerary` | Itinerary | Mixed |
-| `/api/v1/journey-accommodations` | Accommodation | Mixed |
-| `/api/v1/journey-addons` | Add-ons | Mixed |
-| `/api/v1/bookings` | Booking lifecycle | Protected |
-| `/api/v1/payment-schedules` | Schedule management | Protected |
-| `/api/v1/payment-records` | Payment/refund records | Protected |
-| `/api/v1/payment-config` | Payment configuration | Protected |
+| Base path                        | Module                 | Typical access               |
+| -------------------------------- | ---------------------- | ---------------------------- |
+| `/api/v1/auth`                   | Auth/profile/password  | Mixed public/protected       |
+| `/api/v1/roles`                  | Roles                  | Protected/permission-managed |
+| `/api/v1/permissions`            | Permissions            | Protected/permission-managed |
+| `/api/v1/file-upload`            | Generic media upload   | Protected                    |
+| `/api/v1/cms-pages`              | CMS pages              | Public GET, protected writes |
+| `/api/v1/cms-pages-sections`     | CMS sections           | Mixed, see route file        |
+| `/api/v1/locations`              | Location hierarchy     | Mixed, see route file        |
+| `/api/v1/country-pages`          | Country pages          | Mixed                        |
+| `/api/v1/country-pages-sections` | Country sections       | Mixed                        |
+| `/api/v1/region-pages`           | Region pages           | Mixed                        |
+| `/api/v1/region-pages-sections`  | Region sections        | Mixed                        |
+| `/api/v1/place-pages`            | Place pages            | Mixed                        |
+| `/api/v1/place-pages-sections`   | Place sections         | Mixed                        |
+| `/api/v1/journeys`               | Journeys               | Public GET, protected writes |
+| `/api/v1/journey-itinerary`      | Itinerary              | Mixed                        |
+| `/api/v1/journey-accommodations` | Accommodation          | Mixed                        |
+| `/api/v1/journey-addons`         | Add-ons                | Mixed                        |
+| `/api/v1/bookings`               | Booking lifecycle      | Protected                    |
+| `/api/v1/payment-schedules`      | Schedule management    | Protected                    |
+| `/api/v1/payment-records`        | Payment/refund records | Protected                    |
+| `/api/v1/payment-config`         | Payment configuration  | Protected                    |
 
 Operational endpoints are `/api/v1/health` and `/api/v1/`; welcome output points clients to `/api/docs`.
 
@@ -670,15 +670,15 @@ If Redis is ready, `limiter.factory.ts` uses `rate-limit-redis`; otherwise `expr
 
 ## 21. External Integrations
 
-| Integration | Purpose | Configuration | Used by | Failure behavior |
-|---|---|---|---|---|
-| PostgreSQL | Primary persistence | `DATABASE_URL` | Prisma and all services | Startup fails if Prisma connection/query fails |
-| Redis | Cache and distributed rate limits | `REDIS_HOST`, `REDIS_PORT`, `REDIS_TIMEOUT` | `redisManager`, `getRecords`, limiter factory | Optional; disabled/fallback when unavailable |
-| Cloudinary | Media upload/deletion | cloud name, API key, secret | upload/delete shared services | Upload errors reject; deletion uses retry in shared delete paths |
-| Gmail/Nodemailer | Email delivery | `EMAIL_USER`, `EMAIL_PASS`, `EMAIL_FROM` | Auth and booking/payment services | Errors logged; several notification calls intentionally catch and ignore failure |
-| Socket.IO | Realtime transport | CORS origins and access JWT secret | `app.ts` | Socket rejects absent/invalid token |
-| RabbitMQ | Intended future broker | No active config/use | Commented lines only | Not active |
-| Payment PSP | External payment collection | No provider config | None found | Not implemented |
+| Integration      | Purpose                           | Configuration                               | Used by                                       | Failure behavior                                                                 |
+| ---------------- | --------------------------------- | ------------------------------------------- | --------------------------------------------- | -------------------------------------------------------------------------------- |
+| PostgreSQL       | Primary persistence               | `DATABASE_URL`                              | Prisma and all services                       | Startup fails if Prisma connection/query fails                                   |
+| Redis            | Cache and distributed rate limits | `REDIS_HOST`, `REDIS_PORT`, `REDIS_TIMEOUT` | `redisManager`, `getRecords`, limiter factory | Optional; disabled/fallback when unavailable                                     |
+| Cloudinary       | Media upload/deletion             | cloud name, API key, secret                 | upload/delete shared services                 | Upload errors reject; deletion uses retry in shared delete paths                 |
+| Gmail/Nodemailer | Email delivery                    | `EMAIL_USER`, `EMAIL_PASS`, `EMAIL_FROM`    | Auth and booking/payment services             | Errors logged; several notification calls intentionally catch and ignore failure |
+| Socket.IO        | Realtime transport                | CORS origins and access JWT secret          | `app.ts`                                      | Socket rejects absent/invalid token                                              |
+| RabbitMQ         | Intended future broker            | No active config/use                        | Commented lines only                          | Not active                                                                       |
+| Payment PSP      | External payment collection       | No provider config                          | None found                                    | Not implemented                                                                  |
 
 ## 22. Environment Variables
 
@@ -832,21 +832,21 @@ Shared deleteRecordsSafely
 
 ## 29. Change Impact Guide
 
-| If you change... | Also inspect... |
-|---|---|
+| If you change...                   | Also inspect...                                                                                                                     |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | `BookingStatus` or `PaymentStatus` | `booking.prisma`, payment engine, booking/payment validators, all booking/payment services, Swagger schemas, client status handling |
-| Payment schedule rules | `PaymentConfig`, `paymentEngine.service.ts`, approval, override, waiver, record, refund flows and related tests |
-| Booking totals or currency | Decimal fields, rounding, schedule item calculations, refund calculations, response serializers |
-| Journey publish/status behavior | Journey service/validator, booking creation guard, public journey reads |
-| Journey or location slugs | Unique constraints, lookup/filter services, client URLs and any email links |
-| Role/permission resources | `accessMiddleware`, role/permission seed data, every protected route, token/auth payload assumptions |
-| `protect` or token claims | login/refresh/logout, all protected routes, access middleware, Socket.IO auth |
-| `req.validated` shape | validators, controllers, Swagger builder, multipart routes |
-| `getRecords` cache keys | Redis tags, every read service, write invalidation, pagination/filter behavior |
-| Upload field names | Multer field expectations, Cloudinary folder naming, model media fields, delete extraction |
-| Response envelope | every API consumer, Swagger/OpenAPI, controllers and tests |
-| Prisma relation/delete behavior | migrations, nested creates, include graphs, service transactions and existing data |
-| `PORT`/listen address | Docker, Compose mapping, PM2, proxy/WebSocket configuration |
+| Payment schedule rules             | `PaymentConfig`, `paymentEngine.service.ts`, approval, override, waiver, record, refund flows and related tests                     |
+| Booking totals or currency         | Decimal fields, rounding, schedule item calculations, refund calculations, response serializers                                     |
+| Journey publish/status behavior    | Journey service/validator, booking creation guard, public journey reads                                                             |
+| Journey or location slugs          | Unique constraints, lookup/filter services, client URLs and any email links                                                         |
+| Role/permission resources          | `accessMiddleware`, role/permission seed data, every protected route, token/auth payload assumptions                                |
+| `protect` or token claims          | login/refresh/logout, all protected routes, access middleware, Socket.IO auth                                                       |
+| `req.validated` shape              | validators, controllers, Swagger builder, multipart routes                                                                          |
+| `getRecords` cache keys            | Redis tags, every read service, write invalidation, pagination/filter behavior                                                      |
+| Upload field names                 | Multer field expectations, Cloudinary folder naming, model media fields, delete extraction                                          |
+| Response envelope                  | every API consumer, Swagger/OpenAPI, controllers and tests                                                                          |
+| Prisma relation/delete behavior    | migrations, nested creates, include graphs, service transactions and existing data                                                  |
+| `PORT`/listen address              | Docker, Compose mapping, PM2, proxy/WebSocket configuration                                                                         |
 
 ## 30. How to Add a New Feature
 
@@ -882,19 +882,19 @@ Follow the existing feature/module pattern:
 
 ## 32. Important Patterns / Reusable Abstractions
 
-| Abstraction | Location | Use |
-|---|---|---|
-| Standard success envelope | `src/utils/success.response.ts` | Consistent HTTP success responses |
-| Async error forwarding | `src/utils/catch.async.ts` | Controller promise handling |
-| Application error | `src/utils/api.error.ts` | Expected domain/HTTP failures |
-| Common reads | `src/shared/getRecords.service.ts` | Filtering, pagination, includes, cache, audit |
-| Safe deletes | `src/shared/delete.service.ts` | Bounded delete, external media cleanup, transactions, cache tags |
-| Payment engine | `src/modules/booking/engine/paymentEngine.service.ts` | Schedule resolution and booking status recalculation |
-| Upload middleware | `src/middlewares/multer.middleware.ts` | MIME and per-type size checks |
-| Cloudinary upload | `src/shared/upload_cloudinary.service.ts` | Buffer upload and optional transforms |
-| Cloudinary delete | `src/shared/delete_cloudinary.service.ts` | External media removal |
-| Redis manager | `src/config/redis.ts` | Optional singleton connection |
-| Route registry | `src/docs/swagger/routeRegistry.ts` | Route/OpenAPI registration |
+| Abstraction               | Location                                              | Use                                                              |
+| ------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------- |
+| Standard success envelope | `src/utils/success.response.ts`                       | Consistent HTTP success responses                                |
+| Async error forwarding    | `src/utils/catch.async.ts`                            | Controller promise handling                                      |
+| Application error         | `src/utils/api.error.ts`                              | Expected domain/HTTP failures                                    |
+| Common reads              | `src/shared/getRecords.service.ts`                    | Filtering, pagination, includes, cache, audit                    |
+| Safe deletes              | `src/shared/delete.service.ts`                        | Bounded delete, external media cleanup, transactions, cache tags |
+| Payment engine            | `src/modules/booking/engine/paymentEngine.service.ts` | Schedule resolution and booking status recalculation             |
+| Upload middleware         | `src/middlewares/multer.middleware.ts`                | MIME and per-type size checks                                    |
+| Cloudinary upload         | `src/shared/upload_cloudinary.service.ts`             | Buffer upload and optional transforms                            |
+| Cloudinary delete         | `src/shared/delete_cloudinary.service.ts`             | External media removal                                           |
+| Redis manager             | `src/config/redis.ts`                                 | Optional singleton connection                                    |
+| Route registry            | `src/docs/swagger/routeRegistry.ts`                   | Route/OpenAPI registration                                       |
 
 ## 33. Known Issues / Technical Debt
 

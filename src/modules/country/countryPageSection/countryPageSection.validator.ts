@@ -3,13 +3,9 @@ import { z } from "zod";
 export const getCountryPageSectionValidator = z.object({
   query: z.object({
     // id: z.string().optional(),
-
     // pageId: z.string().optional(),
-
     // name: z.string().optional(),
-
     // slug: z.string().optional(),
-
     // search: z.string().optional(),
   }),
 });
@@ -55,8 +51,7 @@ export const manageCountryPageSectionValidator = z.object({
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ["pageId"],
-            message:
-              "pageId is required when creating Country Page Section",
+            message: "pageId is required when creating Country Page Section",
           });
         }
 
@@ -64,8 +59,7 @@ export const manageCountryPageSectionValidator = z.object({
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ["name"],
-            message:
-              "name is required when creating Country Page Section",
+            message: "name is required when creating Country Page Section",
           });
         }
 
@@ -73,8 +67,7 @@ export const manageCountryPageSectionValidator = z.object({
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ["slug"],
-            message:
-              "slug is required when creating Country Page Section",
+            message: "slug is required when creating Country Page Section",
           });
         }
       }
