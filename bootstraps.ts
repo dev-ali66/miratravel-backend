@@ -19,6 +19,9 @@ import bookingRoutes from "./src/modules/booking/booking/booking.routes.js";
 import paymentScheduleRoutes from "./src/modules/booking/paymentSchedule/paymentSchedule.routes.js";
 import paymentRecordRoutes from "./src/modules/booking/paymentRecord/paymentRecord.routes.js";
 import paymentConfigRoutes from "./src/modules/booking/paymentConfig/paymentConfig.routes.js";
+import storyRoutes from "./src/modules/story/story.routes.js";
+import storyCategoryRoutes from "./src/modules/storyCategory/storyCategory.routes.js";
+import storyTypeRoutes from "./src/modules/storyType/storyType.routes.js";
 export const bootstraps = (app: any) => {
   mount(app, "/api/v1/auth", authRoutes);
   mount(app, "/api/v1/roles", rolesRoutes);
@@ -40,4 +43,8 @@ export const bootstraps = (app: any) => {
   mount(app, "/api/v1/payment-schedules", paymentScheduleRoutes);
   mount(app, "/api/v1/payment-records", paymentRecordRoutes);
   mount(app, "/api/v1/payment-config", paymentConfigRoutes);
+  mount(app, "/api/v1/stories", storyRoutes);
+  mount(app, "/api/v1/story-categories", storyCategoryRoutes);
+  mount(app, "/api/v1/story-types", storyTypeRoutes);
 };
+

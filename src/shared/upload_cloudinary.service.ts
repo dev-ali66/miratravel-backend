@@ -267,11 +267,32 @@ export const uploadFilesToCloudinary = async (
       }
 
       // ---------------------------
-      // Upload stream
+      // Upload stream with timeout guard
       // ---------------------------
+      let isSettled = false;
+      const timeoutMs = 45000;
+
+      const timeoutId = setTimeout(() => {
+        if (!isSettled) {
+          isSettled = true;
+          reject({
+            message: "Cloudinary upload request timed out",
+            http_code: 499,
+            name: "TimeoutError",
+          });
+        }
+      }, timeoutMs);
+
       const stream = cloudinary.v2.uploader.upload_stream(
-        uploadOptions,
+        {
+          ...uploadOptions,
+          timeout: timeoutMs,
+        },
         (error, result) => {
+          if (isSettled) return;
+          isSettled = true;
+          clearTimeout(timeoutId);
+
           if (error) {
             console.error("Cloudinary upload error:", error);
             return reject(error);
@@ -281,6 +302,12 @@ export const uploadFilesToCloudinary = async (
       );
 
       const readable = new Readable();
+      readable.on("error", (err) => {
+        if (isSettled) return;
+        isSettled = true;
+        clearTimeout(timeoutId);
+        reject(err);
+      });
       readable.push(buffer);
       readable.push(null);
       readable.pipe(stream);

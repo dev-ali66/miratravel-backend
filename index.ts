@@ -126,8 +126,10 @@ const startServer = async () => {
 process.on("uncaughtException", (error) => {
   logger.error("UNCAUGHT EXCEPTION", error);
 
-  if (isDevelopment && error.stack) {
-    logger.debug(error.stack);
+  if (isDevelopment) {
+    if (error.stack) logger.debug(error.stack);
+    logger.warn("Server kept running in development mode after uncaught exception.");
+    return;
   }
 
   gracefulShutdown("Uncaught Exception");
@@ -135,6 +137,11 @@ process.on("uncaughtException", (error) => {
 
 process.on("unhandledRejection", (reason) => {
   logger.error("UNHANDLED REJECTION", reason);
+
+  if (isDevelopment) {
+    logger.warn("Server kept running in development mode after unhandled rejection.");
+    return;
+  }
 
   gracefulShutdown("Unhandled Rejection");
 });

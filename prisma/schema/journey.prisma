@@ -59,7 +59,10 @@ model Journey {
   currency String  @default("EUR")
   minDays  Int
   maxDays  Int
-
+  pace         Pace
+  comfortLevel ComfortLevel
+  status       JourneyStatus @default(DRAFT)
+  
   journeyHeroImage String[]
   journeyGallery   String[]
   highlights       String[]
@@ -69,9 +72,8 @@ model Journey {
   journeyType  JourneyType[]
   travelStyle  TravelStyle[]
   perfectFor   PerfectFor[]
-  pace         Pace
-  comfortLevel ComfortLevel
-  status       JourneyStatus @default(DRAFT)
+
+
   featured     Boolean       @default(false)
 
   metadata Json?

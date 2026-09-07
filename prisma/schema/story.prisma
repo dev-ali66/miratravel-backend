@@ -1,0 +1,32 @@
+model Story {
+  id           String    @id @default(uuid())
+  slug         String    @unique
+  category     String    @default("Culture & Heritage")
+  categories   String[]  @default([])
+  title        String
+  description  String
+  readTime     String?
+  image        String?   // Image URL
+  templateType String    @default("long-story")
+  detail       Json?     // Flexible JSON content
+  deletedAt    DateTime?
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model StoryCategory {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  slug      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model StoryType {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  slug      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}

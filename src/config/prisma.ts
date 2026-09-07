@@ -67,6 +67,14 @@ const createPrismaClient = () => {
           return query({
             ...args,
             where: { ...where, deletedAt: null },
+          }).catch((err: any) => {
+            if (
+              err?.name === "PrismaClientValidationError" &&
+              err?.message?.includes("Unknown argument `deletedAt`")
+            ) {
+              return query(args);
+            }
+            throw err;
           });
         },
       },
