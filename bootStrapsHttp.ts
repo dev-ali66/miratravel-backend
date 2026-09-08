@@ -22,8 +22,18 @@ import paymentConfigRoutes from "./src/modules/booking/paymentConfig/paymentConf
 import storyRoutes from "./src/modules/story/story.routes.js";
 import storyCategoryRoutes from "./src/modules/storyCategory/storyCategory.routes.js";
 import storyTypeRoutes from "./src/modules/storyType/storyType.routes.js";
-export const bootstraps = (app: any) => {
+import userRoutes from "./src/modules/users/users.routes.js";
+import statisticsRoutes from "./src/modules/statistics/statistics.routes.js";
+import systemRoutes from "./src/modules/system/system.routes.js";
+import auditRoutes from "./src/modules/audit/audit.routes.js";
+
+export const bootStapHttps = (app: any) => {
+  mount(app, "/api/v1/audit", auditRoutes);
+  mount(app, "/api/v1/system", systemRoutes);
   mount(app, "/api/v1/auth", authRoutes);
+  mount(app, "/api/v1/users", userRoutes);
+  mount(app, "/api/v1/statistics", statisticsRoutes);
+  mount(app, "/api/v1/dashboard/statastics", statisticsRoutes);
   mount(app, "/api/v1/roles", rolesRoutes);
   mount(app, "/api/v1/permissions", permissionsRoutes);
   mount(app, "/api/v1/file-upload", fileUploadRoutes);
@@ -47,4 +57,6 @@ export const bootstraps = (app: any) => {
   mount(app, "/api/v1/story-categories", storyCategoryRoutes);
   mount(app, "/api/v1/story-types", storyTypeRoutes);
 };
+
+export const bootstraps = bootStapHttps;
 

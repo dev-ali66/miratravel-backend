@@ -17,7 +17,8 @@ import {
 import jwt from "jsonwebtoken";
 import config from "./src/config/index.js";
 import { requestProfilerMiddleware } from "./src/utils/perfomance.tester.js";
-import { bootstraps } from "./bootstraps.js";
+import { bootStapHttps } from "./bootStrapsHttp.js";
+import { bootStapSocket } from "./bootsStrapsSocket.js";
 import { redisManager } from "./src/config/redis.js";
 import { setupSwagger } from "./src/docs/swagger/swagger.js";
 import { responseLogger } from "./src/logger/response.logger.js";
@@ -78,43 +79,8 @@ export const io = new Server(httpServer, {
   transports: ["websocket", "polling"],
 });
 
-// Socket.IO authentication middleware
-export interface AuthenticatedSocket extends Socket {
-  user?: any;
-}
-io.use((socket: AuthenticatedSocket, next) => {
-  const token =
-    socket.handshake.auth?.token ||
-    socket.handshake.headers?.authorization?.split(" ")[1];
-  if (!token) {
-    return next(new Error("Authentication required"));
-  }
-  try {
-    if (!config.JWT_ACCESS_TOKEN_SECRET) {
-      throw new Error("JWT secret not configured");
-    }
-    const decoded = jwt.verify(token, config.JWT_ACCESS_TOKEN_SECRET);
-    socket.user = decoded;
-    next();
-  } catch (err: any) {
-    return next(new Error("Invalid or expired token"));
-  }
-});
-
-// Listen for connections
-io.on("connection", (socket) => {
-  //console.log("Socket connected:", socket.id);
-
-  // Join ticket room
-  socket.on("joinTicket", (ticketId) => {
-    socket.join(ticketId);
-    //console.log(`Socket ${socket.id} joined ticket ${ticketId}`);
-  });
-
-  socket.on("disconnect", () => {
-    //console.log("Socket disconnected:", socket.id);
-  });
-});
+// Initialize socket modules through bootStapSocket
+bootStapSocket(io);
 
 app.use(compression());
 app.use(express.json({ limit: "2mb" }));
@@ -123,6 +89,10 @@ app.use(cookieParser());
 app.use(globalLimiter);
 
 if (isProduction) app.set("trust proxy", 1);
+
+app.get("/favicon.ico", (_req, res) => {
+  res.status(204).end();
+});
 
 app.get("/api/v1/health", (req, res) => {
   const healthData = {
@@ -154,7 +124,7 @@ app.get("/api/v1/", (req, res) => {
 });
 app.use(requestLogger);
 app.use(responseLogger);
-bootstraps(app);
+bootStapHttps(app);
 setupSwagger(app);
 app.use(notFoundMiddleware);
 app.use(globalErrorHandler);

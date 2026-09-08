@@ -13,6 +13,7 @@ import * as AuthService from "./auth.service.js";
 import { NextFunction, Request, Response } from "express";
 import { uploadFilesToCloudinary } from "../../shared/upload_cloudinary.service.js";
 import { deleteFromCloudinary } from "../../shared/delete_cloudinary.service.js";
+import { auditLogger } from "../../logger/audit.logger.js";
 import prisma from "../../config/prisma.js";
 const OTP_CONFIG = {
   expiresMinutes: config.OTP_EXPIRE_MINUTE,
@@ -150,6 +151,20 @@ export const userLoginController = catchAsync(
         result.refreshOptions as any,
       );
     }
+
+    // Audit Log: Login Success
+    await auditLogger({
+      req,
+      action: "AUTH_LOGIN_SUCCESS",
+      entity: "Auth",
+      entityId: result.user?.id || email,
+      status: "SUCCESS",
+      metadata: {
+        description: `User ${email} signed in successfully via credentials.`,
+        role: result.user?.roles || "USER",
+      },
+    });
+
     successResponse({
       res,
       code: StatusCodes.CREATED,
@@ -215,6 +230,18 @@ export const logoutController = catchAsync(
 
     res.clearCookie("accessToken", { path: "/" });
     res.clearCookie("refreshToken", { path: "/" });
+
+    // Audit Log: Logout
+    await auditLogger({
+      req,
+      action: "AUTH_LOGOUT",
+      entity: "Auth",
+      entityId: req.auth?.id || "session",
+      status: "SUCCESS",
+      metadata: {
+        description: `User ${req.auth?.email || "User"} logged out${allDevices ? " from all devices" : ""}.`,
+      },
+    });
 
     return successResponse({
       res,

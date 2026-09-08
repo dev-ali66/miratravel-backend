@@ -8,7 +8,8 @@
     "start": "node ./dist/index.js",
     "start:dev": "concurrently \"npm run watch\" \"npm run dev\"",
     "watch": "tsc --watch",
-    "dev": "node ./dist/src/database/seed/seed.js && nodemon --watch dist --ext js --exec node ./dist/index.js",
+    "seed": "node ./dist/src/database/seed/seed.js",
+    "dev": "nodemon --watch dist --ext js --exec node ./dist/index.js",
     "format": " prettier --write .",
     "format:check": "prettier --check .",
     "test": "node tests/clearTestDb.js && node tests/seedTestUsers.js && npx jest --colors && node tests/clearTestDb.js "

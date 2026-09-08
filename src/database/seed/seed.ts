@@ -136,6 +136,15 @@ export const seed = async ({
 };
 
 // Run if this file is executed directly
-if (process.argv[1].endsWith("seed.js")) {
-  seed();
+if (process.argv[1] && (process.argv[1].endsWith("seed.js") || process.argv[1].endsWith("seed.ts"))) {
+  seed()
+    .then(async () => {
+      await prisma.$disconnect();
+      process.exit(0);
+    })
+    .catch(async (e) => {
+      console.error("Seed failed:", e);
+      await prisma.$disconnect();
+      process.exit(1);
+    });
 }

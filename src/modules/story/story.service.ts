@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../../config/prisma.js";
 import ApiError from "../../utils/api.error.js";
+import { auditLogger } from "../../logger/audit.logger.js";
 
 export const getStoryService = async (req: Request) => {
   const { id, slug, category, tagPlace, tagTheme, tagLens, search, journeyId, relatedToId } = req.query;
@@ -154,6 +155,18 @@ export const manageStoryService = async (req: Request, res: Response) => {
       where: { id },
       data: updateData,
     });
+
+    // Audit Log: Story Updated
+    await auditLogger({
+      req,
+      action: "STORY_UPDATED",
+      entity: "Story",
+      entityId: story.id,
+      status: "SUCCESS",
+      metadata: {
+        description: `Updated editorial story '${story.title}' (${story.slug}).`,
+      },
+    });
   } else {
     // CREATE
     const existingSlug = await prisma.story.findUnique({
@@ -184,6 +197,18 @@ export const manageStoryService = async (req: Request, res: Response) => {
         detail: data.detail || {},
       },
     });
+
+    // Audit Log: Story Created
+    await auditLogger({
+      req,
+      action: "STORY_PUBLISHED",
+      entity: "Story",
+      entityId: story.id,
+      status: "SUCCESS",
+      metadata: {
+        description: `Published new editorial story '${story.title}' (${story.slug}).`,
+      },
+    });
   }
 
   return { data: story };
@@ -202,6 +227,18 @@ export const deleteStoryService = async (req: Request, res: Response) => {
 
   await prisma.story.delete({
     where: { id: String(id) },
+  });
+
+  // Audit Log: Story Deleted
+  await auditLogger({
+    req,
+    action: "STORY_DELETED",
+    entity: "Story",
+    entityId: String(id),
+    status: "WARNING",
+    metadata: {
+      description: `Deleted editorial story '${existing.title}'.`,
+    },
   });
 
   return { message: "Story deleted successfully" };

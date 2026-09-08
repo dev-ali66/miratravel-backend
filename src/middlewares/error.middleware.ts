@@ -10,6 +10,9 @@ export const notFoundMiddleware = (
   res: Response,
   next: NextFunction,
 ) => {
+  if (req.originalUrl === "/favicon.ico" || req.path === "/favicon.ico") {
+    return res.status(204).end();
+  }
   next(new ApiError(`Cannot find ${req.originalUrl} on this server`, 404));
 };
 
