@@ -926,7 +926,7 @@ export const forgotPasswordService = async (email: string) => {
   if (!user || user.isDeleted) return true;
 
   //  Generate OTP + hashed OTP
-  const otp = AuthHelper.generateOtp(); // e.g., 6 digits
+  const otp = AuthHelper.generateOtp();
   const hashedOtp = await AuthHelper.hashPassword(otp);
   const otpExpiresAt = new Date(
     Date.now() + config.PASSWORD_RESET_EXPIRE_IN * 60 * 1000,

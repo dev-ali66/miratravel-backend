@@ -1,4 +1,7 @@
 import { z } from "zod";
+import config from "../../config/index.js";
+
+const otpLength = config.OTP_LENGTH || 4;
 
 const passwordSchema = z
   .string()
@@ -93,7 +96,7 @@ export const verifyEmailSchema = z
     }),
     body: z.object({
       email: z.string().email().optional(),
-      otp: z.string().length(6).optional(),
+      otp: z.string().length(otpLength).optional(),
     }),
   })
   .refine(
@@ -162,8 +165,8 @@ export const verifyForgotPasswordViaLinkSchema = z
       email: z.string().email("Please provide valid email").optional(),
       otp: z
         .string()
-        .min(6, "Must be 6 digit")
-        .max(6, "Max length 6")
+        .min(otpLength, `Must be ${otpLength} digit`)
+        .max(otpLength, `Max length ${otpLength}`)
         .optional(),
     }),
   })
@@ -184,7 +187,7 @@ export const verifyForgotPasswordViaLinkSchema = z
 export const verifyOtpSchema = z.object({
   body: z.object({
     email: emailSchema,
-    otp: z.string().length(6, "OTP must be 6 digits"),
+    otp: z.string().length(otpLength, `OTP must be ${otpLength} digits`),
   }),
 });
 

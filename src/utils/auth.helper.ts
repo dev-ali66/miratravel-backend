@@ -112,9 +112,10 @@ class AuthHelper {
   }
 
   // OTP Methods
-  static generateOtp() {
-    // return Math.floor(100000 + Math.random() * 900000).toString();
-    return Math.floor(crypto.randomInt(100000, 999999)).toString();
+  static generateOtp(length: number = config.OTP_LENGTH || 4) {
+    const min = Math.pow(10, length - 1);
+    const max = Math.pow(10, length);
+    return Math.floor(crypto.randomInt(min, max)).toString();
   }
 }
 

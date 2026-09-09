@@ -59,6 +59,7 @@ const config = {
 
   API_VERSION: process.env.API_VERSION,
   OTP_EXPIRE_MINUTE: Number(process.env.OTP_EXPIRE_MINUTE) || 10,
+  OTP_LENGTH: Number(process.env.OTP_LENGTH) || 4,
   OTP_BASE_URL: process.env.OTP_BASE_URL,
 
   PASSWORD_RESET_EXPIRE_IN: Number(process.env.PASSWORD_RESET_EXPIRE_IN) || 10,
