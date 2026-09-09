@@ -73,7 +73,9 @@ export const registerSchema = z.object({
     firstName: z.string().max(100, "Max 100 carecter").optional(),
     lastName: z.string().max(100, "Max 100 carecter").optional(),
     roles: z.enum(["USER", "EDITOR", "MANAGER"]).default("USER"),
-    termsAccepted: z.boolean().optional(),
+    termsAccepted: z.literal(true, {
+      message: "You must accept the terms and conditions to register",
+    }),
   }),
 });
 export const inviteRegisterSchema = z.object({
@@ -122,6 +124,7 @@ export const loginSchema = z.object({
   body: z.object({
     email: emailSchema,
     password: passwordSchema,
+    rememberMe: z.boolean().optional().default(false),
   }),
 });
 

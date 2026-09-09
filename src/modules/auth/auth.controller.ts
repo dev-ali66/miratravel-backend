@@ -134,8 +134,13 @@ export const resendVerificationCode = catchAsync(
 
 export const userLoginController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { email, password } = req.validated?.body;
-    const result = await AuthService.loginUserService({ email, password, req });
+    const { email, password, rememberMe } = req.validated?.body ?? req.body ?? {};
+    const result = await AuthService.loginUserService({
+      email,
+      password,
+      rememberMe: Boolean(rememberMe),
+      req,
+    });
     if (result.accessToken && result.accessOptions) {
       res.cookie(
         "accessToken",
@@ -150,6 +155,8 @@ export const userLoginController = catchAsync(
         result.refreshToken,
         result.refreshOptions as any,
       );
+    } else {
+      res.clearCookie("refreshToken", { path: "/" });
     }
 
     // Audit Log: Login Success
@@ -160,7 +167,7 @@ export const userLoginController = catchAsync(
       entityId: result.user?.id || email,
       status: "SUCCESS",
       metadata: {
-        description: `User ${email} signed in successfully via credentials.`,
+        description: `User ${email} signed in successfully via credentials. (Remember: ${Boolean(rememberMe)})`,
         role: result.user?.roles || "USER",
       },
     });
@@ -173,7 +180,7 @@ export const userLoginController = catchAsync(
       data: result.user
         ? {
             accessToken: result.accessToken,
-            refreshToken: result.refreshToken,
+            refreshToken: result.refreshToken || null,
             user: result.user,
           }
         : null,

@@ -163,6 +163,12 @@ export const createAccountService = async (req: any) => {
   let request: any;
   let updateData: any = {};
   let { email, password, firstName, lastName, roles, termsAccepted } = req.validated.body;
+  if (!termsAccepted) {
+    throw new ApiError(
+      "You must accept the terms and conditions to register",
+      StatusCodes.BAD_REQUEST,
+    );
+  }
   const token = req.validated?.params?.token;
   const hashedPassword = await AuthHelper.hashPassword(password);
   // normalize roles → always array
@@ -610,10 +616,12 @@ export const resendVerificationCode = async (
 export const loginUserService = async ({
   email,
   password,
+  rememberMe = false,
   req,
 }: {
   email: string;
   password: string;
+  rememberMe?: boolean;
   req: Request;
 }) => {
   //  Find user
@@ -698,48 +706,66 @@ export const loginUserService = async ({
     );
   }
 
-  const tokenFamily = await AuthHelper.generateTokenFamily();
-
-  //  Generate access & refresh tokens
+  //  Generate access token
   const { password: _password, ...safeUser } = user;
   const accessToken = AuthHelper.generateAccessToken(safeUser);
-  const refreshToken = AuthHelper.generateRefreshToken({
-    id: user.id,
-    email: user.email,
-    tokenFamily,
-  });
 
-  // Hash refresh token
-  const hashedRefreshToken = await AuthHelper.hashToken(refreshToken as string);
+  let refreshToken: string | null = null;
+  let refreshOptions: any = null;
 
-  //  Calculate expiry
-  const expiresAt = new Date();
-  expiresAt.setDate(
-    expiresAt.getDate() + config.REFRESH_TOKEN_COOKIE_EXPIRE_DAYS,
-  );
+  const baseCookieOptions = {
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : ("lax" as const),
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+  };
 
-  //  Create session
-  await prisma?.session.create({
-    data: {
-      authId: user.id,
-      refreshTokenHash: hashedRefreshToken,
+  // Only create persistent session and refresh token if rememberMe is enabled
+  if (rememberMe) {
+    const tokenFamily = await AuthHelper.generateTokenFamily();
+    refreshToken = AuthHelper.generateRefreshToken({
+      id: user.id,
+      email: user.email,
       tokenFamily,
-      deviceName: req.body?.deviceName || "N/A",
-      userAgent: req.headers["user-agent"] || "N/A",
-      ipAddress:
-        (typeof req.headers["x-forwarded-for"] === "string"
-          ? req.headers["x-forwarded-for"].split(",")[0].trim()
-          : Array.isArray(req.headers["x-forwarded-for"])
-            ? req.headers["x-forwarded-for"][0]
-            : undefined) ||
-        req.socket.remoteAddress ||
-        req.ip ||
-        "N/A",
-      fingerprintHash: "N/A",
-      expiresAt,
-      lastUsedAt: new Date(),
-    },
-  });
+    }) as string;
+
+    // Hash refresh token
+    const hashedRefreshToken = await AuthHelper.hashToken(refreshToken as string);
+
+    // Calculate expiry
+    const expiresAt = new Date();
+    expiresAt.setDate(
+      expiresAt.getDate() + config.REFRESH_TOKEN_COOKIE_EXPIRE_DAYS,
+    );
+
+    // Create session in database
+    await prisma?.session.create({
+      data: {
+        authId: user.id,
+        refreshTokenHash: hashedRefreshToken,
+        tokenFamily,
+        deviceName: req.body?.deviceName || "N/A",
+        userAgent: req.headers["user-agent"] || "N/A",
+        ipAddress:
+          (typeof req.headers["x-forwarded-for"] === "string"
+            ? req.headers["x-forwarded-for"].split(",")[0].trim()
+            : Array.isArray(req.headers["x-forwarded-for"])
+              ? req.headers["x-forwarded-for"][0]
+              : undefined) ||
+          req.socket.remoteAddress ||
+          req.ip ||
+          "N/A",
+        fingerprintHash: "N/A",
+        expiresAt,
+        lastUsedAt: new Date(),
+      },
+    });
+
+    refreshOptions = {
+      ...baseCookieOptions,
+      maxAge: config.REFRESH_TOKEN_COOKIE_EXPIRE_DAYS * 24 * 60 * 60 * 1000,
+    };
+  }
 
   await prisma?.auth.update({
     where: { email },
@@ -751,22 +777,12 @@ export const loginUserService = async ({
 
   //  Remove sensitive user fields
   const { password: pw, ...userData } = user;
-  const baseCookieOptions = {
-    httpOnly: true,
-    sameSite: process.env.NODE_ENV === "production" ? "none" : ("lax" as const),
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-  };
 
   const accessOptions = {
     ...baseCookieOptions,
-    maxAge: config.JWT_ACCESS_TOKEN_EXPIRES_IN * 24 * 60 * 60 * 1000,
+    maxAge: config.JWT_ACCESS_TOKEN_EXPIRES_IN * 60 * 1000,
   };
 
-  const refreshOptions = {
-    ...baseCookieOptions,
-    maxAge: config.REFRESH_TOKEN_COOKIE_EXPIRE_DAYS * 24 * 60 * 60 * 1000,
-  };
   //  Return tokens + cookie options
   return {
     accessToken,
