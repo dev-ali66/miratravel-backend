@@ -25,6 +25,7 @@ export const createUpdateUserValidator = z.object({
     phone: z.string().optional(),
     status: z.enum(["ACTIVE", "INACTIVE", "DEACTIVE", "BLOCKED", "SUSPENDED", "PENDING", "DELETED", "ARCHIVED"]).optional(),
     isVerified: z.boolean().optional(),
+    termsAccepted: z.boolean().optional(),
     role: z.string().optional(),
     roleId: z.string().optional(),
     roles: z.string().optional(),

@@ -70,6 +70,9 @@ const config = {
   TOKEN_REGISTER: process.env.TOKEN_REGISTER || "TRUE",
 
   PASSWORD_LENGTH: Number(process.env.PASSWORD_LENGTH) || 8,
+
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || "",
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || "",
 };
 
 export default config;

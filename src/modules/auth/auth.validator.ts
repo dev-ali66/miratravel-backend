@@ -70,6 +70,7 @@ export const registerSchema = z.object({
     firstName: z.string().max(100, "Max 100 carecter").optional(),
     lastName: z.string().max(100, "Max 100 carecter").optional(),
     roles: z.enum(["USER", "EDITOR", "MANAGER"]).default("USER"),
+    termsAccepted: z.boolean().optional(),
   }),
 });
 export const inviteRegisterSchema = z.object({

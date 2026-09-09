@@ -4,6 +4,8 @@ model Auth {
   password               String
   isVerified             Boolean           @default(false)
   status                 Status            @default(ACTIVE)
+  termsAccepted          Boolean           @default(false)
+  termsAcceptedAt        DateTime?
   otp                    String?
   otpExpiresAt           DateTime?
   passwordResetToken     String?
@@ -20,6 +22,7 @@ model Auth {
   userPersonalInfo       UserPersonalInfo?
   userSettings           UserSettings?
   bookings               Booking[]
+  conciergeLeads         ConciergeLead[]   @relation("ConciergeDesigner")
 }
 
 enum Status {

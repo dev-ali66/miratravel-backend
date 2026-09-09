@@ -33,6 +33,8 @@ export const getUsersService = async (req: Request) => {
       email: user.email,
       status: user.status,
       isVerified: user.isVerified,
+      termsAccepted: (user as any).termsAccepted ?? false,
+      termsAcceptedAt: (user as any).termsAcceptedAt || null,
       isDeleted: user.isDeleted,
       roles: user.roles.map((r) => r.name).join(", ") || "USER",
       roleId: user.roles[0]?.id || "",
@@ -122,6 +124,8 @@ export const getUsersService = async (req: Request) => {
     email: u.email,
     status: u.status,
     isVerified: u.isVerified,
+    termsAccepted: (u as any).termsAccepted ?? false,
+    termsAcceptedAt: (u as any).termsAcceptedAt || null,
     isDeleted: u.isDeleted,
     roles: u.roles.map((r) => r.name).join(", ") || "USER",
     roleId: u.roles[0]?.id || "",
@@ -152,7 +156,7 @@ export const getUsersService = async (req: Request) => {
 };
 
 export const createUserService = async (req: Request) => {
-  const { email, password = "Pa$$w0rd.", firstName, lastName, phone, role = "USER", status = "ACTIVE", isVerified = true } = req.body;
+  const { email, password = "Pa$$w0rd.", firstName, lastName, phone, role = "USER", status = "ACTIVE", isVerified = true, termsAccepted = true } = req.body;
 
   if (!email) {
     throw new ApiError("Email is required", 400);
@@ -186,6 +190,8 @@ export const createUserService = async (req: Request) => {
       password: hashedPassword,
       status: status || "ACTIVE",
       isVerified: isVerified !== undefined ? Boolean(isVerified) : true,
+      termsAccepted: Boolean(termsAccepted),
+      termsAcceptedAt: termsAccepted ? new Date() : null,
       roles: dbRole ? { connect: { id: dbRole.id } } : undefined,
       userPersonalInfo: {
         create: {
@@ -236,7 +242,7 @@ export const updateUserService = async (req: Request) => {
     throw new ApiError("User ID is required", 400);
   }
 
-  const { email, password, firstName, lastName, phone, role, roleId, status, isVerified } = req.body;
+  const { email, password, firstName, lastName, phone, role, roleId, status, isVerified, termsAccepted } = req.body;
 
   const existing = await prisma.auth.findUnique({
     where: { id: String(id) },
@@ -265,6 +271,11 @@ export const updateUserService = async (req: Request) => {
 
   if (isVerified !== undefined) {
     updateData.isVerified = Boolean(isVerified);
+  }
+
+  if (termsAccepted !== undefined) {
+    updateData.termsAccepted = Boolean(termsAccepted);
+    updateData.termsAcceptedAt = termsAccepted ? new Date() : null;
   }
 
   if (password && password.trim() !== "") {

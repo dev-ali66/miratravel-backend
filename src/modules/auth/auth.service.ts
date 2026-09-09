@@ -162,7 +162,7 @@ export const createAccountService = async (req: any) => {
   let user: any;
   let request: any;
   let updateData: any = {};
-  let { email, password, firstName, lastName, roles } = req.validated.body;
+  let { email, password, firstName, lastName, roles, termsAccepted } = req.validated.body;
   const token = req.validated?.params?.token;
   const hashedPassword = await AuthHelper.hashPassword(password);
   // normalize roles → always array
@@ -237,6 +237,8 @@ export const createAccountService = async (req: any) => {
           connect: roleConnections,
         },
         password: hashedPassword,
+        termsAccepted: termsAccepted ?? false,
+        termsAcceptedAt: termsAccepted ? new Date() : null,
         otp: hashedOtp,
         otpExpiresAt,
         emailToken,
