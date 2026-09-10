@@ -10,7 +10,7 @@ export const preDecode = (req: Request, res: Response, next: NextFunction) => {
   let token;
 
   // Get token from cookies or headers or preDecode
-  if (req.cookies.accessToken) {
+  if (req.cookies?.accessToken) {
     token = req.cookies.accessToken;
   } else if (
     req.headers.authorization &&
@@ -25,8 +25,8 @@ export const preDecode = (req: Request, res: Response, next: NextFunction) => {
   }
   req.token = token;
   try {
-    const decoded: any = jwt.verify(token, config.JWT_ACCESS_TOKEN_SECRET as string);
-    req.auth = { id: decoded.id }; // Only set ID for limiter
+    const decoded: any = AuthHelper.verifyAccessToken(token);
+    req.auth = decoded;
   } catch (err: any) {
     return next();
   }
@@ -59,62 +59,21 @@ export const protect = catchAsync(
     }
 
     // Decode token
-
     let decoded;
     try {
-      if (req.auth?.id) {
-        // Already decoded in preDecode
-        decoded = { id: req.auth.id };
-      } else {
-        decoded = AuthHelper.verifyAccessToken(token);
-      }
+      decoded = AuthHelper.verifyAccessToken(token);
     } catch (error) {
       throw new ApiError("Invalid or expired token", StatusCodes.UNAUTHORIZED);
     }
 
-    // Fetch full user
-    // const user = await prisma?.auth.findUnique({
-    //   where: { id: decoded.id },
-    //   select: {
-    //     id: true,
-    //     email: true,
-    //     isVerified: true,
-    //     isDeleted: true,
-    //     status: true,
-    //     roles: {
-    //       include: {
-    //         permissions: true
-    //       }
-    //     },
-    //     instructorInfo: {
-    //       select: {
-    //         id: true
-    //       }
-    //     },
-
-    //   }
-    // });
-    const user = decoded;
-    if (!user) {
+    if (!decoded) {
       throw new ApiError(
         "User belonging to this token no longer exists",
         StatusCodes.UNAUTHORIZED,
       );
     }
-    // if (user.status as string && user.status === "blocked") {
-    //   throw new ApiError(
-    //     "Your account has been blocked",
-    //     StatusCodes.FORBIDDEN,
-    //   );
-    // }
-    // if (user.isDeleted) {
-    //   throw new ApiError(
-    //     "Your account has been deleted",
-    //     StatusCodes.FORBIDDEN,
-    //   );
-    // }
 
-    req.auth = user; // attach full user
+    req.auth = decoded; // attach full user with roles and permissions
 
     next();
   },

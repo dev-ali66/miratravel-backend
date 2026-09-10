@@ -45,7 +45,9 @@ const config = {
   IS_PRODUCTION: process.env.NODE_ENV === "production",
 
   REFRESH_TOKEN_COOKIE_EXPIRE_DAYS:
-    Number(process.env.REFRESH_TOKEN_COOKIE_EXPIRE_DAYS) || 1,
+    Number(process.env.REFRESH_TOKEN_COOKIE_EXPIRE_DAYS) || 30,
+  REFRESH_TOKEN_NON_REMEMBER_EXPIRE_MINUTES:
+    Number(process.env.REFRESH_TOKEN_NON_REMEMBER_EXPIRE_MINUTES) || 1,
 
   EMAIL_USER: process.env.EMAIL_USER || "",
   EMAIL_PASS: process.env.EMAIL_PASS || "",

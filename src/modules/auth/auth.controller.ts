@@ -220,7 +220,11 @@ export const refreshTokenController = catchAsync(
       code: 200,
       success: true,
       message: "Token refreshed successfully",
-      data: { accessToken: result.accessToken },
+      data: {
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+        user: result.user,
+      },
     });
   },
 );

@@ -710,9 +710,6 @@ export const loginUserService = async ({
   const { password: _password, ...safeUser } = user;
   const accessToken = AuthHelper.generateAccessToken(safeUser);
 
-  let refreshToken: string | null = null;
-  let refreshOptions: any = null;
-
   const baseCookieOptions = {
     httpOnly: true,
     sameSite: process.env.NODE_ENV === "production" ? "none" : ("lax" as const),
@@ -720,52 +717,52 @@ export const loginUserService = async ({
     path: "/",
   };
 
-  // Only create persistent session and refresh token if rememberMe is enabled
-  if (rememberMe) {
-    const tokenFamily = await AuthHelper.generateTokenFamily();
-    refreshToken = AuthHelper.generateRefreshToken({
-      id: user.id,
-      email: user.email,
+  // Calculate session expiry duration
+  const isRemember = Boolean(rememberMe);
+  const sessionExpireMs = isRemember
+    ? config.REFRESH_TOKEN_COOKIE_EXPIRE_DAYS * 24 * 60 * 60 * 1000
+    : config.REFRESH_TOKEN_NON_REMEMBER_EXPIRE_MINUTES * 60 * 1000;
+
+  const expiresAt = new Date(Date.now() + sessionExpireMs);
+
+  const tokenFamily = await AuthHelper.generateTokenFamily();
+  const refreshToken = AuthHelper.generateRefreshToken({
+    id: user.id,
+    email: user.email,
+    tokenFamily,
+  }) as string;
+
+  // Hash refresh token
+  const hashedRefreshToken = await AuthHelper.hashToken(refreshToken as string);
+
+  // Create session in database
+  await prisma?.session.create({
+    data: {
+      authId: user.id,
+      refreshTokenHash: hashedRefreshToken,
       tokenFamily,
-    }) as string;
+      deviceName: req.body?.deviceName || "N/A",
+      userAgent: req.headers["user-agent"] || "N/A",
+      ipAddress:
+        (typeof req.headers["x-forwarded-for"] === "string"
+          ? req.headers["x-forwarded-for"].split(",")[0].trim()
+          : Array.isArray(req.headers["x-forwarded-for"])
+            ? req.headers["x-forwarded-for"][0]
+            : undefined) ||
+        req.socket.remoteAddress ||
+        req.ip ||
+        "N/A",
+      fingerprintHash: "N/A",
+      rememberMe: isRemember,
+      expiresAt,
+      lastUsedAt: new Date(),
+    },
+  });
 
-    // Hash refresh token
-    const hashedRefreshToken = await AuthHelper.hashToken(refreshToken as string);
-
-    // Calculate expiry
-    const expiresAt = new Date();
-    expiresAt.setDate(
-      expiresAt.getDate() + config.REFRESH_TOKEN_COOKIE_EXPIRE_DAYS,
-    );
-
-    // Create session in database
-    await prisma?.session.create({
-      data: {
-        authId: user.id,
-        refreshTokenHash: hashedRefreshToken,
-        tokenFamily,
-        deviceName: req.body?.deviceName || "N/A",
-        userAgent: req.headers["user-agent"] || "N/A",
-        ipAddress:
-          (typeof req.headers["x-forwarded-for"] === "string"
-            ? req.headers["x-forwarded-for"].split(",")[0].trim()
-            : Array.isArray(req.headers["x-forwarded-for"])
-              ? req.headers["x-forwarded-for"][0]
-              : undefined) ||
-          req.socket.remoteAddress ||
-          req.ip ||
-          "N/A",
-        fingerprintHash: "N/A",
-        expiresAt,
-        lastUsedAt: new Date(),
-      },
-    });
-
-    refreshOptions = {
-      ...baseCookieOptions,
-      maxAge: config.REFRESH_TOKEN_COOKIE_EXPIRE_DAYS * 24 * 60 * 60 * 1000,
-    };
-  }
+  const refreshOptions = {
+    ...baseCookieOptions,
+    maxAge: sessionExpireMs,
+  };
 
   await prisma?.auth.update({
     where: { email },
@@ -812,7 +809,27 @@ export const refreshTokenService = async (token: string, req: any) => {
       expiresAt: { gt: new Date() },
     },
     include: {
-      user: true,
+      user: {
+        include: {
+          roles: {
+            include: {
+              permissions: true,
+            },
+          },
+          userPersonalInfo: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
+          userSettings: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -832,26 +849,27 @@ export const refreshTokenService = async (token: string, req: any) => {
   }
 
   const user = session.user;
+  const { password: _password, ...safeUser } = user;
 
-  // generate tokens
-  const newAccessToken = AuthHelper.generateAccessToken({
-    id: user.id,
-    email: user.email,
-  });
+  // generate tokens with full safeUser payload (including roles and permissions)
+  const newAccessToken = AuthHelper.generateAccessToken(safeUser);
 
   const newRefreshToken = AuthHelper.generateRefreshToken({
     id: user.id,
+    email: user.email,
     tokenFamily: session.tokenFamily,
   });
 
   //  hash new refresh token
   const newHashedToken = await AuthHelper.hashToken(newRefreshToken as string);
 
-  //  expiry
-  const expiresAt = new Date();
-  expiresAt.setDate(
-    expiresAt.getDate() + config.REFRESH_TOKEN_COOKIE_EXPIRE_DAYS,
-  );
+  // Calculate rotated session expiry based on original rememberMe setting
+  const isRemember = Boolean((session as any).rememberMe);
+  const sessionExpireMs = isRemember
+    ? config.REFRESH_TOKEN_COOKIE_EXPIRE_DAYS * 24 * 60 * 60 * 1000
+    : config.REFRESH_TOKEN_NON_REMEMBER_EXPIRE_MINUTES * 60 * 1000;
+
+  const expiresAt = new Date(Date.now() + sessionExpireMs);
 
   //  revoke old session
   await prisma?.session.update({
@@ -876,6 +894,7 @@ export const refreshTokenService = async (token: string, req: any) => {
         req.socket.remoteAddress ||
         req.ip,
       fingerprintHash: "N/A",
+      rememberMe: isRemember,
       expiresAt,
       lastUsedAt: new Date(),
     },
@@ -885,17 +904,18 @@ export const refreshTokenService = async (token: string, req: any) => {
   return {
     accessToken: newAccessToken,
     refreshToken: newRefreshToken,
+    user: safeUser,
     accessOptions: {
       httpOnly: true,
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       secure: process.env.NODE_ENV === "production",
-      maxAge: 15 * 60 * 1000,
+      maxAge: config.JWT_ACCESS_TOKEN_EXPIRES_IN * 60 * 1000,
     },
     refreshOptions: {
       httpOnly: true,
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       secure: process.env.NODE_ENV === "production",
-      maxAge: config.REFRESH_TOKEN_COOKIE_EXPIRE_DAYS * 24 * 60 * 60 * 1000,
+      maxAge: sessionExpireMs,
     },
   };
 };
