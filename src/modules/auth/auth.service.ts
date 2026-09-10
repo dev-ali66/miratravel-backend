@@ -780,11 +780,23 @@ export const loginUserService = async ({
     maxAge: config.JWT_ACCESS_TOKEN_EXPIRES_IN * 60 * 1000,
   };
 
-  //  Return tokens + cookie options
+  const sessionInfo = {
+    rememberMe: isRemember,
+    expiresAt: expiresAt.toISOString(),
+    expiresInMinutes: isRemember
+      ? config.REFRESH_TOKEN_COOKIE_EXPIRE_DAYS * 24 * 60
+      : config.REFRESH_TOKEN_NON_REMEMBER_EXPIRE_MINUTES,
+    durationFormatted: isRemember
+      ? `${config.REFRESH_TOKEN_COOKIE_EXPIRE_DAYS}d`
+      : `${config.REFRESH_TOKEN_NON_REMEMBER_EXPIRE_MINUTES}m`,
+  };
+
+  //  Return tokens + cookie options + session metadata
   return {
     accessToken,
     refreshToken,
     user: userData,
+    session: sessionInfo,
     accessOptions,
     refreshOptions,
   };
@@ -900,11 +912,23 @@ export const refreshTokenService = async (token: string, req: any) => {
     },
   });
 
+  const sessionInfo = {
+    rememberMe: isRemember,
+    expiresAt: expiresAt.toISOString(),
+    expiresInMinutes: isRemember
+      ? config.REFRESH_TOKEN_COOKIE_EXPIRE_DAYS * 24 * 60
+      : config.REFRESH_TOKEN_NON_REMEMBER_EXPIRE_MINUTES,
+    durationFormatted: isRemember
+      ? `${config.REFRESH_TOKEN_COOKIE_EXPIRE_DAYS}d`
+      : `${config.REFRESH_TOKEN_NON_REMEMBER_EXPIRE_MINUTES}m`,
+  };
+
   // 9️⃣ return with cookie options
   return {
     accessToken: newAccessToken,
     refreshToken: newRefreshToken,
     user: safeUser,
+    session: sessionInfo,
     accessOptions: {
       httpOnly: true,
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",

@@ -182,6 +182,7 @@ export const userLoginController = catchAsync(
             accessToken: result.accessToken,
             refreshToken: result.refreshToken || null,
             user: result.user,
+            session: result.session,
           }
         : null,
     });
@@ -224,6 +225,7 @@ export const refreshTokenController = catchAsync(
         accessToken: result.accessToken,
         refreshToken: result.refreshToken,
         user: result.user,
+        session: result.session,
       },
     });
   },
