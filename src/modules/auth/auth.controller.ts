@@ -234,11 +234,36 @@ export const refreshTokenController = catchAsync(
 // LOGOUT CONTROLLER
 export const logoutController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { allDevices } = req.validated?.body;
+    const { allDevices, refreshToken: bodyRefreshToken } =
+      req.validated?.body ?? req.body ?? {};
+    const token = req.cookies?.refreshToken || bodyRefreshToken;
+
     if (allDevices) {
       await AuthService.logoutAllDevicesService(req.auth.id);
+    } else if (token) {
+      try {
+        await AuthService.logoutSingleDeviceService(token);
+      } catch {
+        // Fallback: revoke latest active session for this auth user
+        await prisma.session.updateMany({
+          where: { authId: req.auth.id, isRevoked: false },
+          data: {
+            isRevoked: true,
+            revokeReason: "logout",
+            lastUsedAt: new Date(),
+          },
+        });
+      }
     } else {
-      await AuthService.logoutSingleDeviceService(req.cookies?.refreshToken);
+      // Fallback if no refreshToken provided: revoke active sessions for this user
+      await prisma.session.updateMany({
+        where: { authId: req.auth.id, isRevoked: false },
+        data: {
+          isRevoked: true,
+          revokeReason: "logout",
+          lastUsedAt: new Date(),
+        },
+      });
     }
 
     res.clearCookie("accessToken", { path: "/" });
@@ -261,6 +286,100 @@ export const logoutController = catchAsync(
       code: 200,
       success: true,
       message: "Logout successful",
+    });
+  },
+);
+
+export const getUserSessionsController = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const authId = req.auth?.id;
+    if (!authId) {
+      throw new ApiError("Unauthorized", StatusCodes.UNAUTHORIZED);
+    }
+
+    const result = await AuthService.getUserSessionsService(authId);
+
+    return successResponse({
+      res,
+      code: StatusCodes.OK,
+      success: true,
+      message: "User active sessions fetched successfully",
+      data: result,
+    });
+  },
+);
+
+export const revokeDeviceSessionController = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const authId = req.auth?.id;
+    const sessionId = Array.isArray(req.params.sessionId)
+      ? req.params.sessionId[0]
+      : req.params.sessionId;
+
+    if (!authId) {
+      throw new ApiError("Unauthorized", StatusCodes.UNAUTHORIZED);
+    }
+    if (!sessionId) {
+      throw new ApiError("Session ID is required", StatusCodes.BAD_REQUEST);
+    }
+
+    const result = await AuthService.revokeDeviceSessionService(authId, sessionId);
+
+    // Audit Log: Device Revocation
+    await auditLogger({
+      req,
+      action: "AUTH_DEVICE_REVOKED",
+      entity: "Session",
+      entityId: sessionId,
+      status: "SUCCESS",
+      metadata: {
+        description: `User ${req.auth?.email || "User"} revoked session/device (${sessionId}).`,
+      },
+    });
+
+    return successResponse({
+      res,
+      code: StatusCodes.OK,
+      success: true,
+      message: result.message,
+      data: null,
+    });
+  },
+);
+
+export const revokeAllOtherSessionsController = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const authId = req.auth?.id;
+    const currentRefreshToken =
+      req.cookies?.refreshToken || req.body?.refreshToken;
+
+    if (!authId) {
+      throw new ApiError("Unauthorized", StatusCodes.UNAUTHORIZED);
+    }
+
+    const result = await AuthService.revokeAllOtherSessionsService(
+      authId,
+      currentRefreshToken,
+    );
+
+    // Audit Log: Revoke All Other Devices
+    await auditLogger({
+      req,
+      action: "AUTH_ALL_OTHER_DEVICES_REVOKED",
+      entity: "Session",
+      entityId: authId,
+      status: "SUCCESS",
+      metadata: {
+        description: `User ${req.auth?.email || "User"} revoked all other active sessions.`,
+      },
+    });
+
+    return successResponse({
+      res,
+      code: StatusCodes.OK,
+      success: true,
+      message: result.message,
+      data: null,
     });
   },
 );

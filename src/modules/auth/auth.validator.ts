@@ -132,6 +132,7 @@ export const loginSchema = z.object({
 export const logoutSchema = z.object({
   body: z.object({
     allDevices: z.boolean().optional().default(false),
+    refreshToken: z.string().optional(),
   }),
 });
 

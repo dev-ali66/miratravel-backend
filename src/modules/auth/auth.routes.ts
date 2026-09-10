@@ -14,6 +14,9 @@ import {
   forgotPasswordController,
   getCurrentUser,
   getUserInfo,
+  getUserSessionsController,
+  revokeDeviceSessionController,
+  revokeAllOtherSessionsController,
   logoutController,
   refreshTokenController,
   resendVerificationCode,
@@ -164,6 +167,10 @@ router.post(
 );
 
 router.get("/me", protect, getCurrentUser);
+
+router.get("/sessions", protect, getUserSessionsController);
+router.delete("/sessions/all-other", protect, revokeAllOtherSessionsController);
+router.delete("/sessions/:sessionId", protect, revokeDeviceSessionController);
 
 router.get("/user-info", protect, getUserInfo);
 

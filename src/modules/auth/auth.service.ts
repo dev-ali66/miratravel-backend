@@ -972,6 +972,157 @@ export const logoutAllDevicesService = async (authId: string) => {
   });
 };
 
+export const getUserSessionsService = async (authId: string) => {
+  const now = new Date();
+  // Fetch active and non-expired sessions
+  const sessions = await prisma.session.findMany({
+    where: {
+      authId,
+      isRevoked: false,
+      expiresAt: { gt: now },
+      deletedAt: null,
+    },
+    orderBy: {
+      lastUsedAt: "desc",
+    },
+    select: {
+      id: true,
+      deviceName: true,
+      userAgent: true,
+      ipAddress: true,
+      rememberMe: true,
+      expiresAt: true,
+      lastUsedAt: true,
+      createdAt: true,
+    },
+  });
+
+  // Online threshold: 15 minutes
+  const onlineThresholdMs = 15 * 60 * 1000;
+  const onlineSessions = sessions.filter((s) => {
+    const lastActive = s.lastUsedAt || s.createdAt;
+    return now.getTime() - new Date(lastActive).getTime() <= onlineThresholdMs;
+  });
+
+  const totalActiveDevices = sessions.length;
+  const onlineDevices = Math.max(
+    onlineSessions.length,
+    totalActiveDevices > 0 ? 1 : 0
+  );
+
+  const parseUserAgent = (ua?: string | null) => {
+    if (!ua || ua === "N/A") return { browser: "Unknown Browser", os: "Unknown Device", type: "desktop" };
+    const lower = ua.toLowerCase();
+    let browser = "Web Browser";
+    if (lower.includes("edg/")) browser = "Microsoft Edge";
+    else if (lower.includes("chrome") && !lower.includes("edg")) browser = "Google Chrome";
+    else if (lower.includes("safari") && !lower.includes("chrome")) browser = "Safari";
+    else if (lower.includes("firefox")) browser = "Mozilla Firefox";
+    else if (lower.includes("opera") || lower.includes("opr/")) browser = "Opera";
+
+    let os = "Desktop";
+    let type: "mobile" | "tablet" | "desktop" = "desktop";
+    if (lower.includes("windows")) os = "Windows";
+    else if (lower.includes("macintosh") || lower.includes("mac os")) os = "macOS";
+    else if (lower.includes("android")) {
+      os = "Android";
+      type = "mobile";
+    } else if (lower.includes("iphone")) {
+      os = "iOS (iPhone)";
+      type = "mobile";
+    } else if (lower.includes("ipad")) {
+      os = "iPadOS";
+      type = "tablet";
+    } else if (lower.includes("linux")) os = "Linux";
+
+    return { browser, os, type };
+  };
+
+  return {
+    totalActiveDevices,
+    onlineDevices,
+    sessions: sessions.map((s) => {
+      const lastActive = s.lastUsedAt || s.createdAt;
+      const isOnline =
+        now.getTime() - new Date(lastActive).getTime() <= onlineThresholdMs;
+      const parsed = parseUserAgent(s.userAgent);
+
+      return {
+        id: s.id,
+        deviceName: s.deviceName && s.deviceName !== "N/A" ? s.deviceName : `${parsed.browser} on ${parsed.os}`,
+        browser: parsed.browser,
+        os: parsed.os,
+        deviceType: parsed.type,
+        userAgent: s.userAgent,
+        ipAddress: s.ipAddress,
+        rememberMe: s.rememberMe,
+        expiresAt: s.expiresAt,
+        lastUsedAt: s.lastUsedAt,
+        createdAt: s.createdAt,
+        isOnline,
+      };
+    }),
+  };
+};
+
+export const revokeDeviceSessionService = async (
+  authId: string,
+  sessionId: string,
+) => {
+  const session = await prisma.session.findFirst({
+    where: {
+      id: sessionId,
+      authId,
+      isRevoked: false,
+    },
+  });
+
+  if (!session) {
+    throw new ApiError("Session not found or already revoked", StatusCodes.NOT_FOUND);
+  }
+
+  await prisma.session.update({
+    where: { id: sessionId },
+    data: {
+      isRevoked: true,
+      revokeReason: "user_revoked_device",
+      lastUsedAt: new Date(),
+    },
+  });
+
+  return { message: "Device session removed successfully" };
+};
+
+export const revokeAllOtherSessionsService = async (
+  authId: string,
+  currentRefreshToken?: string,
+) => {
+  let currentTokenFamily: string | undefined;
+  if (currentRefreshToken) {
+    const payload = AuthHelper.verifyRefreshToken(currentRefreshToken);
+    if (payload && typeof payload === "object") {
+      currentTokenFamily = (payload as any).tokenFamily;
+    }
+  }
+
+  await prisma.session.updateMany({
+    where: {
+      authId,
+      isRevoked: false,
+      ...(currentTokenFamily && {
+        tokenFamily: { not: currentTokenFamily },
+      }),
+    },
+    data: {
+      isRevoked: true,
+      revokeReason: "user_revoked_other_devices",
+      lastUsedAt: new Date(),
+    },
+  });
+
+  return { message: "All other device sessions removed successfully" };
+};
+
 export const forgotPasswordService = async (email: string) => {
   //  Find user
   const user = await prisma?.auth.findUnique({
