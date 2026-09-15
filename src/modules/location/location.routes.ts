@@ -10,6 +10,7 @@ import {
   deleteLocationController,
   getLocationController,
   manageLocationController,
+  searchLocationOptionsController,
 } from "./location.controller.js";
 
 import {
@@ -18,6 +19,12 @@ import {
 } from "./location.validator.js";
 
 const router = Router();
+
+router.get(
+  "/search",
+  publicApiLimiter,
+  searchLocationOptionsController,
+);
 
 router.get(
   "/",

@@ -134,6 +134,25 @@ export const getLocationService = async (req: any) => {
 };
 
 export const manageLocationService = async (req: any, res: any) => {
+  if (req.validated?.body) {
+    const { parent, children, parentId, ...rest } = req.validated.body;
+
+    const sanitizedBody: any = { ...rest };
+
+    // Handle Prisma relation for parent location
+    if (parentId && typeof parentId === "string" && parentId.trim() !== "") {
+      sanitizedBody.parent = {
+        connect: { id: parentId.trim() },
+      };
+    } else if (req.validated.body.id && (parentId === null || parentId === "")) {
+      sanitizedBody.parent = {
+        disconnect: true,
+      };
+    }
+
+    req.validated.body = sanitizedBody;
+  }
+
   const result = await manageRecordWithFiles({
     req,
     res,
@@ -142,6 +161,10 @@ export const manageLocationService = async (req: any, res: any) => {
     modelName: "location",
     externalDomain: ["res.cloudinary.com"],
     attachUser: false,
+    include: {
+      parent: true,
+      children: true,
+    },
   });
 
   return result;
@@ -163,3 +186,53 @@ export const deleteLocationService = async (req: any, res: any) => {
 
   return result;
 };
+
+export const searchLocationOptionsService = async (req: any) => {
+  const { search, limit = 50, type } = req.query;
+  const where: any = {
+    deletedAt: null,
+  };
+
+  if (type) {
+    where.type = type;
+  }
+
+  if (search && typeof search === "string" && search.trim()) {
+    const trimmed = search.trim();
+    where.OR = [
+      { name: { contains: trimmed, mode: "insensitive" } },
+      { slug: { contains: trimmed, mode: "insensitive" } },
+    ];
+  }
+
+  const locations = await prisma.location.findMany({
+    where,
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      type: true,
+      hero: true,
+      card: true,
+      why: true,
+      parent: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          type: true,
+        },
+      },
+    },
+    take: Number(limit) || 50,
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  return {
+    data: locations,
+    message: "Location search options fetched successfully",
+  };
+};
+

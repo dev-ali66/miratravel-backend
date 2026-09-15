@@ -1,24 +1,46 @@
 model Location {
-    id                    String                 @id @default(cuid())
-    name                  String
-    slug                  String
-    type                  LocationType
-    parentId              String?
-    parent                Location?              @relation("LocationHierarchy", fields: [parentId], references: [id])
-    children              Location[]             @relation("LocationHierarchy")
-    geoData               Json?
-    metadata              Json?
-    data                  Json?
-    deletedAt             DateTime?
-    createdAt             DateTime               @default(now())
-    updatedAt             DateTime               @updatedAt
-    countryPage           CountryPage[]
-    regionPage            RegionPage[]
-    placePage             PlacePage[]
-    journeyItinerary      JourneyItinerary[]
-    journeyAddOns         JourneyAddOn[]
+    id       String       @id @default(cuid())
+    name     String
+    slug     String       @unique
+    type     LocationType
+    parentId String?
+    parent   Location?    @relation("LocationHierarchy", fields: [parentId], references: [id])
+    children Location[]   @relation("LocationHierarchy")
+    geoData  Json?
+    metadata Json?
+    data     Json?
 
-    @@unique([deletedAt, slug])
+    // Section Specific Structured Fields
+    hero                 Json?
+    card                 Json?
+    essence              Json?
+    infoCard             Json?
+    highlights           Json?
+    highlightsStatistics Json?
+    why                  Json?
+    explore              Json?
+    glance               Json?
+    experience           Json?
+    character            Json?
+    travelInsight        Json?
+    journeyList          Json?
+    sharedInfo           Json?
+    signatureExperiences Json?
+    stories              Json?
+    accommodation        Json?
+    faq                  Json?
+    travelInfo           Json?
+    cta                  Json?
+
+    deletedAt        DateTime?
+    createdAt        DateTime           @default(now())
+    updatedAt        DateTime           @updatedAt
+    countryPage      CountryPage[]
+    regionPage       RegionPage[]
+    placePage        PlacePage[]
+    journeyItinerary JourneyItinerary[]
+    journeyAddOns    JourneyAddOn[]
+
     @@index([parentId])
     @@index([type])
 }

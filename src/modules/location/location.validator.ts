@@ -44,7 +44,29 @@ export const manageLocationValidator = z.object({
       metadata: z.any().optional(),
 
       data: z.any().optional(),
+
+      hero: z.any().optional(),
+      card: z.any().optional(),
+      essence: z.any().optional(),
+      infoCard: z.any().optional(),
+      highlights: z.any().optional(),
+      highlightsStatistics: z.any().optional(),
+      why: z.any().optional(),
+      explore: z.any().optional(),
+      glance: z.any().optional(),
+      experience: z.any().optional(),
+      character: z.any().optional(),
+      travelInsight: z.any().optional(),
+      journeyList: z.any().optional(),
+      sharedInfo: z.any().optional(),
+      signatureExperiences: z.any().optional(),
+      stories: z.any().optional(),
+      accommodation: z.any().optional(),
+      faq: z.any().optional(),
+      travelInfo: z.any().optional(),
+      cta: z.any().optional(),
     })
+    .passthrough()
     .transform((data) => {
       // Name থেকে slug generate
       if (data.name) {
