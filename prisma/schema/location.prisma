@@ -47,14 +47,9 @@ model Location {
 
 enum LocationType {
     CONTINENT
-    SUBCONTINENT
-    REGION
     COUNTRY
-    ADMINISTRATIVE_AREA
-    CITY
-    TOWN
-    VILLAGE
-    DESTINATION
+    REGION
     PLACE
     LANDMARK
+    ACCOMMODATION
 }
