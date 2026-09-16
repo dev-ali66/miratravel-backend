@@ -21,6 +21,7 @@ model Location {
     explore              Json?
     glance               Json?
     experience           Json?
+    regionExperiences    Json?
     character            Json?
     travelInsight        Json?
     journeyList          Json?

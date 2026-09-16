@@ -55,6 +55,7 @@ export const manageLocationValidator = z.object({
       explore: z.any().optional(),
       glance: z.any().optional(),
       experience: z.any().optional(),
+      regionExperiences: z.any().optional(),
       character: z.any().optional(),
       travelInsight: z.any().optional(),
       journeyList: z.any().optional(),

@@ -31,7 +31,7 @@ const config = {
   JWT_ACCESS_TOKEN_SECRET:
     process.env.JWT_ACCESS_TOKEN_SECRET || "default_access_secret_key_poli_mira_2026",
   JWT_ACCESS_TOKEN_EXPIRES_IN:
-    Number(process.env.JWT_ACCESS_TOKEN_EXPIRES_IN) || 1,
+    Number(process.env.JWT_ACCESS_TOKEN_EXPIRES_IN) || 60,
 
   JWT_INVITE_TOKEN_SECRET:
     process.env.JWT_INVITE_TOKEN_SECRET || "default_invite_secret_key_poli_mira_2026",
@@ -41,11 +41,11 @@ const config = {
   JWT_REFRESH_TOKEN_SECRET:
     process.env.JWT_REFRESH_TOKEN_SECRET || "default_refresh_secret_key_poli_mira_2026",
   JWT_REFRESH_TOKEN_EXPIRES_IN:
-    Number(process.env.JWT_REFRESH_TOKEN_EXPIRES_IN) || 1440,
+    Number(process.env.JWT_REFRESH_TOKEN_EXPIRES_IN) || 10080,
   IS_PRODUCTION: process.env.NODE_ENV === "production",
 
   REFRESH_TOKEN_COOKIE_EXPIRE_DAYS:
-    Number(process.env.REFRESH_TOKEN_COOKIE_EXPIRE_DAYS) || 30,
+    Number(process.env.REFRESH_TOKEN_COOKIE_EXPIRE_DAYS) || 7,
   REFRESH_TOKEN_NON_REMEMBER_EXPIRE_MINUTES:
     Number(process.env.REFRESH_TOKEN_NON_REMEMBER_EXPIRE_MINUTES) || 30,
 
