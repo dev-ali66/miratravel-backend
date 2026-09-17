@@ -50,7 +50,7 @@ export const manageLocationValidator = z.object({
       essence: z.any().optional(),
       infoCard: z.any().optional(),
       highlights: z.any().optional(),
-      highlightsStatistics: z.any().optional(),
+      statistics: z.any().optional(),
       why: z.any().optional(),
       explore: z.any().optional(),
       glance: z.any().optional(),

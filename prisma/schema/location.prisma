@@ -16,7 +16,7 @@ model Location {
     essence              Json?
     infoCard             Json?
     highlights           Json?
-    highlightsStatistics Json?
+    statistics           Json?
     why                  Json?
     explore              Json?
     glance               Json?
