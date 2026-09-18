@@ -12,6 +12,7 @@ const locationTypeEnum = z.enum([
   "DESTINATION",
   "PLACE",
   "LANDMARK",
+  "ACCOMMODATION",
 ]);
 
 export const getLocationValidator = z.object({
@@ -55,6 +56,7 @@ export const manageLocationValidator = z.object({
       explore: z.any().optional(),
       glance: z.any().optional(),
       experience: z.any().optional(),
+      regionExperiences: z.any().optional(),
       character: z.any().optional(),
       travelInsight: z.any().optional(),
       journeyList: z.any().optional(),
@@ -68,8 +70,8 @@ export const manageLocationValidator = z.object({
     })
     .passthrough()
     .transform((data) => {
-      // Name থেকে slug generate
-      if (data.name) {
+      // Name থেকে slug generate if slug is not explicitly provided
+      if (data.name && (!data.slug || !data.slug.trim())) {
         data.slug = data.name
           .trim()
           .toLowerCase()

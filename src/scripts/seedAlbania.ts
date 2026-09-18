@@ -527,7 +527,7 @@ async function main() {
         ],
       },
     },
-    highlightsStatistics: {
+    statistics: {
       area: {
         unit: "km²",
         value: 28748,
