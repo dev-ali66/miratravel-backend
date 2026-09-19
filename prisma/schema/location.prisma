@@ -36,12 +36,6 @@ model Location {
     deletedAt        DateTime?
     createdAt        DateTime           @default(now())
     updatedAt        DateTime           @updatedAt
-    countryPage      CountryPage[]
-    regionPage       RegionPage[]
-    placePage        PlacePage[]
-    journeyItinerary JourneyItinerary[]
-    journeyAddOns    JourneyAddOn[]
-
     @@index([parentId])
     @@index([type])
 }

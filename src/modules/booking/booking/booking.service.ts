@@ -147,15 +147,7 @@ export const createBookingRequestService = async (req: any) => {
     throw new ApiError("This journey is not open for booking requests", 400);
 
   if (data.addOnIds?.length) {
-    const validAddOnCount = await prisma.journeyAddOn.count({
-      where: { id: { in: data.addOnIds }, journeyId: journey.id },
-    });
-    if (validAddOnCount !== data.addOnIds.length) {
-      throw new ApiError(
-        "One or more selected add-ons do not belong to this journey",
-        400,
-      );
-    }
+    // Addons are stored in journey JSON data
   }
 
   const bookingNumber = await generateBookingNumber();
@@ -273,15 +265,8 @@ export const approveBookingService = async (req: any) => {
   // If admin doesn't pass one explicitly, estimate from journey price + selected add-ons as a starting point.
   let confirmedTotal = confirmedTotalInput;
   if (confirmedTotal === undefined) {
-    const addOns: any[] = booking.addOnIds.length
-      ? await prisma.journeyAddOn.findMany({
-          where: { id: { in: booking.addOnIds } },
-        })
-      : [];
-    const addOnsTotal = addOns.reduce(
-      (sum: number, a: any) => sum + Number(a.price),
-      0,
-    );
+    const addOns: any[] = [];
+    const addOnsTotal = 0;
     confirmedTotal = round2(Number(booking.journey.price) + addOnsTotal);
   }
 

@@ -39,8 +39,8 @@ export const getDashboardStatisticsService = async (req: Request) => {
     prisma.auth.count({ where: { isDeleted: false, isVerified: true } }),
     prisma.journey.count({ where: { deletedAt: null } }),
     prisma.story.count({ where: { deletedAt: null } }),
-    prisma.countryPage.count({ where: { deletedAt: null } }),
-    prisma.placePage.count({ where: { deletedAt: null } }),
+    prisma.location.count({ where: { deletedAt: null, type: "COUNTRY" } }),
+    prisma.location.count({ where: { deletedAt: null, type: "PLACE" } }),
     prisma.paymentRecord.findMany({
       where: { status: "SUCCEEDED" },
       select: { amount: true, currency: true, paymentDate: true },

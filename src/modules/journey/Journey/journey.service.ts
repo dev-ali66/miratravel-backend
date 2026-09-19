@@ -3,15 +3,7 @@ import { deleteRecordsSafely } from "../../../shared/delete.service.js";
 import { getRecords } from "../../../shared/getRecords.service.js";
 import { manageRecordWithFiles } from "../../../shared/manageRecordWithFiles.service.js";
 
-const journeyInclude = {
-  itinerary: {
-    include: { location: true },
-    // orderBy: { dayNumber: "asc" as const },
-  },
-  addOns: {
-    // include: { addOn: true },
-  },
-};
+const journeyInclude = undefined;
 
 const toArray = (value: unknown): string[] =>
   Array.isArray(value)
@@ -35,8 +27,6 @@ export const getJourneyService = async (req: any) => {
     maxPrice,
     minDays,
     maxDays,
-    locationId,
-    locationSlug,
     search,
   } = req.validated.query;
 
@@ -79,23 +69,13 @@ export const getJourneyService = async (req: any) => {
   }
 
   // -------------------------
-  // Duration overlap (journey ta requested range er sathe overlap kore kina)
+  // Duration overlap
   // -------------------------
 
   if (minDays || maxDays) {
     customWhere.AND = customWhere.AND || [];
     if (maxDays) customWhere.AND.push({ minDays: { lte: Number(maxDays) } });
     if (minDays) customWhere.AND.push({ maxDays: { gte: Number(minDays) } });
-  }
-
-  // -------------------------
-  // Location filter (route te kono destination thakle)
-  // -------------------------
-
-  if (locationId) {
-    customWhere.locations = { some: { locationId } };
-  } else if (locationSlug) {
-    customWhere.locations = { some: { location: { slug: locationSlug } } };
   }
 
   // -------------------------
@@ -138,8 +118,6 @@ export const getJourneyService = async (req: any) => {
       "maxPrice",
       "minDays",
       "maxDays",
-      "locationId",
-      "locationSlug",
       "search",
     ],
   });

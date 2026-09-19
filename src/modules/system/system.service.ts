@@ -361,8 +361,8 @@ export const getDatabaseStatsService = async (_req: Request) => {
     prisma.journey.count({ where: { deletedAt: null } }).catch(() => 0),
     prisma.story.count({ where: { deletedAt: null } }).catch(() => 0),
     prisma.cmsPage.count({ where: { deletedAt: null } }).catch(() => 0),
-    prisma.countryPage.count({ where: { deletedAt: null } }).catch(() => 0),
-    prisma.placePage.count({ where: { deletedAt: null } }).catch(() => 0),
+    prisma.location.count({ where: { deletedAt: null, type: "COUNTRY" } }).catch(() => 0),
+    prisma.location.count({ where: { deletedAt: null, type: "PLACE" } }).catch(() => 0),
   ]);
 
   return {

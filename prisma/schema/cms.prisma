@@ -4,31 +4,10 @@ model CmsPage {
   slug      String
   metadata  Json?
   data      Json?
-  sections  CmsPageSection[]
   deletedAt DateTime?
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
 
   @@index([deletedAt])
   @@unique([deletedAt, slug])
-}
-
-model CmsPageSection {
-  id        String    @id @default(cuid())
-  pageId    String
-  name      String
-  slug      String
-  type      String
-  order     Int       @default(0)
-  metadata  Json?
-  data      Json?
-  page      CmsPage   @relation(fields: [pageId], references: [id], onDelete: Cascade)
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  @@unique([deletedAt, slug])
-  @@index([pageId])
-  @@index([pageId, order])
-  @@index([deletedAt])
 }

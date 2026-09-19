@@ -51,93 +51,38 @@ enum JourneyStatus {
 }
 
 model Journey {
-  id       String  @id @default(cuid())
-  slug     String
-  title    String
-  subtitle String?
-  price    Decimal @db.Decimal(10, 2)
-  currency String  @default("EUR")
-  minDays  Int
-  maxDays  Int
-  pace         Pace
-  comfortLevel ComfortLevel
-  status       JourneyStatus @default(DRAFT)
-  
-  journeyHeroImage String[]
-  journeyGallery   String[]
-  highlights       String[]
-  included         String[]
-  notIncluded      String[]
-
-  journeyType  JourneyType[]
-  travelStyle  TravelStyle[]
-  perfectFor   PerfectFor[]
-
-
-  featured     Boolean       @default(false)
-
-  metadata Json?
-  data     Json?
-
-  itinerary      JourneyItinerary[]
-  accommodations Json?
-  addOns         JourneyAddOn[]
-  bookings       Booking[]
-
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id                   String        @id @default(cuid())
+  slug                 String
+  title                String
+  subtitle             String?
+  price                Decimal       @db.Decimal(10, 2)
+  currency             String        @default("EUR")
+  minDays              Int
+  maxDays              Int
+  pace                 Pace
+  comfortLevel         ComfortLevel
+  status               JourneyStatus @default(DRAFT)
+  hero                 Json?
+  overview             Json?
+  itinerary            Json?
+  accommodations       Json?
+  addOns               Json?
+  gallery              Json?
+  highlightsInclusions Json?
+  whatsIncluded        Json?
+  tagsAttributes       Json?
+  metadata             Json?
+  journeyType          JourneyType[]
+  travelStyle          TravelStyle[]
+  perfectFor           PerfectFor[]
+  featured             Boolean       @default(false)
+  data                 Json?
+  bookings             Booking[]
+  deletedAt            DateTime?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
 
   @@unique([deletedAt, slug])
   @@index([status])
   @@index([minDays, maxDays])
-}
-
-model JourneyItinerary {
-  id                    String    @id @default(cuid())
-  journeyId             String
-  journey               Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
-  dayNumber             Int
-  title                 String
-  slug                  String
-  description           String?
-  journeyItineraryImage String[]
-  locationId            String?
-  location              Location? @relation(fields: [locationId], references: [id])
-  metadata              Json?
-  data                  Json?
-
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  @@unique([journeyId, dayNumber])
-  @@unique([deletedAt, slug])
-  @@index([journeyId])
-}
-
-
-
-model JourneyAddOn {
-  id                    String    @id @default(cuid())
-  journeyId             String
-  journey               Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
-  dayNumber             Int
-  title                 String
-  slug                  String
-  price                 Decimal   @db.Decimal(10, 2)
-  description           String?
-  journeyItineraryImage String[]
-  locationId            String?
-  location              Location? @relation(fields: [locationId], references: [id])
-  metadata              Json?
-  data                  Json?
-
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  @@unique([journeyId, dayNumber])
-  @@unique([deletedAt, slug])
-  @@index([journeyId])
 }
