@@ -126,7 +126,7 @@ export const getLocationService = async (req: any) => {
     // }
     include: {
       parent: true,
-      children: true,
+      // children: true,
     },
   });
 

@@ -16,6 +16,17 @@ export const getLocationController = catchAsync(
   },
 );
 
+export const searchLocationOptionsController = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await LocationService.searchLocationOptionsService(req);
+
+    return successResponse({
+      res,
+      ...result,
+    });
+  },
+);
+
 export const manageLocationController = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const result = await LocationService.manageLocationService(req, res);
@@ -38,14 +49,5 @@ export const deleteLocationController = catchAsync(
   },
 );
 
-export const searchLocationOptionsController = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const result = await LocationService.searchLocationOptionsService(req);
 
-    return successResponse({
-      res,
-      ...result,
-    });
-  },
-);
 
