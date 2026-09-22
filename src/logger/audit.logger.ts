@@ -57,7 +57,7 @@ export const auditLogger = async ({
     // Store in Audit Service & broadcast to live WebSocket terminal
     AuditService.recordLog(auditData);
 
-    console.log("📝 Audit Log [Live Broadcast]:", auditData.action, "by", auditData.actorEmail);
+    // console.log("📝 Audit Log [Live Broadcast]:", auditData.action, "by", auditData.actorEmail);
   } catch (error) {
     // Audit failure should never stop the main request
     console.error("Audit Logger Error:", error);

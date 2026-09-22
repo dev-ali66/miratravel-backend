@@ -177,7 +177,7 @@ export const deleteLocationService = async (req: any, res: any) => {
     prisma,
     model: prisma.location,
     modelName: "location",
-    softDelete: true,
+    softDelete: false,
     rawIds: req.body.id,
     externalDomain: ["res.cloudinary.com"],
     maxLimit: 10,

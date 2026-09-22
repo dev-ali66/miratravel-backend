@@ -31,6 +31,7 @@ model Location {
     accommodation        Json?
     faq                  Json?
     travelInfo           Json?
+    practicalInfo        Json?
     cta                  Json?
 
     deletedAt        DateTime?
@@ -47,4 +48,5 @@ enum LocationType {
     PLACE
     LANDMARK
     ACCOMMODATION
+    TEST
 }

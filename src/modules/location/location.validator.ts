@@ -13,6 +13,7 @@ const locationTypeEnum = z.enum([
   "PLACE",
   "LANDMARK",
   "ACCOMMODATION",
+  "TEST",
 ]);
 
 export const getLocationValidator = z.object({
