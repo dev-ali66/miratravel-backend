@@ -105,10 +105,17 @@ export const manageJourneyValidator = z.object({
       status: JourneyStatusEnum.optional(),
       featured: z.coerce.boolean().optional(),
 
+      hero: z.any().optional(),
+      overview: z.any().optional(),
+      itinerary: z.any().optional(),
+      accommodations: z.any().optional(),
+      whatsIncluded: z.any().optional(),
+      addOns: z.any().optional(),
+      gallery: z.any().optional(),
       metadata: z.any().optional(),
       data: z.any().optional(),
-      accommodations: z.any().optional(),
     })
+    .passthrough()
     .transform((data) => {
       // Name থেকে slug generate
       if (data.title) {

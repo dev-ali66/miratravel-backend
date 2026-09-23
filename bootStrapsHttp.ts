@@ -20,6 +20,7 @@ import auditRoutes from "./src/modules/audit/audit.routes.js";
 import paymentsRoutes from "./src/modules/payments/payments.routes.js";
 import conciergeRoutes from "./src/modules/concierge/concierge.routes.js";
 import settingsRoutes from "./src/modules/settings/settings.routes.js";
+import wishlistRoutes from "./src/modules/wishlist/wishlist.routes.js";
 
 export const bootStapHttps = (app: any) => {
   mount(app, "/api/v1/audit", auditRoutes);
@@ -34,6 +35,7 @@ export const bootStapHttps = (app: any) => {
   mount(app, "/api/v1/cms-pages", cmsPagesRoutes);
   mount(app, "/api/v1/locations", locationRoutes);
   mount(app, "/api/v1/journeys", journeyRoutes);
+  mount(app, "/api/v1/wishlist", wishlistRoutes);
   
   mount(app, "/api/v1/bookings", bookingRoutes);
   mount(app, "/api/v1/payment-schedules", paymentScheduleRoutes);
