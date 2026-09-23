@@ -23,7 +23,7 @@ model Auth {
   userSettings           UserSettings?
   bookings               Booking[]
   conciergeLeads         ConciergeLead[]   @relation("ConciergeDesigner")
-  wishlist               Wishlist?
+  wishlists              Wishlist[]
 }
 
 enum Status {

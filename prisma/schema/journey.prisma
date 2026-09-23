@@ -74,6 +74,7 @@ model Journey {
   addOns        Json?
   metadata      Json?
   bookings      Booking[]
+  wishlists     Wishlist[]
   deletedAt     DateTime?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt

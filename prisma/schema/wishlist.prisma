@@ -1,12 +1,14 @@
 model Wishlist {
-  id         String    @id @default(cuid())
-  authId     String    @unique
-  auth       Auth      @relation(fields: [authId], references: [id], onDelete: Cascade)
-  journeyIds String[]  @default([])
-  createdBy  String?
-  deletedAt  DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-
+  id        String    @id @default(cuid())
+  authId    String    
+  auth      Auth      @relation(fields: [authId], references: [id], onDelete: Cascade)
+  journeyId String
+  journey   Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  createdBy String?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   @@index([authId])
+  @@index([journeyId])
+  @@unique([authId, journeyId])
 }

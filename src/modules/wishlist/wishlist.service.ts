@@ -15,23 +15,12 @@ export const getWishlistService = async (req: Request) => {
     modelName: "Wishlist",
     dbField: "authId",
     ownerField: targetAuthId,
-    singleRecordAsArray: false,
+    include: {
+      journey: true,
+    },
+    singleRecordAsArray: true,
     audit: false,
   });
-
-  // Hydrate full Journey details for returned journeyIds if requested
-  if (result?.data) {
-    const records = Array.isArray(result.data) ? result.data : [result.data];
-    for (const rec of records) {
-      if (rec.journeyIds && Array.isArray(rec.journeyIds) && rec.journeyIds.length > 0) {
-        rec.journeys = await (prisma as any).journey.findMany({
-          where: { id: { in: rec.journeyIds } },
-        });
-      } else {
-        rec.journeys = [];
-      }
-    }
-  }
 
   return result;
 };
@@ -42,43 +31,79 @@ export const manageWishlistService = async (req: Request, res: Response) => {
     throw new ApiError("Authentication required", 401);
   }
 
-  const { journeyId, journeyIds, actionType = "ADD" } = req.body;
+  const { journeyId, journeyIds, actionType = "TOGGLE" } = req.body;
 
-  let existing = await (prisma as any).wishlist.findUnique({
-    where: { authId },
-  });
-
-  let currentIds: string[] = existing?.journeyIds || [];
-
-  if (actionType === "ADD" && journeyId) {
-    if (!currentIds.includes(journeyId)) {
-      currentIds = [...currentIds, journeyId];
+  // Handle batch array if journeyIds passed
+  if (Array.isArray(journeyIds) && journeyIds.length > 0) {
+    const createdItems = [];
+    for (const jId of journeyIds) {
+      const existing = await (prisma as any).wishlist.findUnique({
+        where: {
+          authId_journeyId: { authId, journeyId: jId },
+        },
+      });
+      if (!existing) {
+        const item = await (prisma as any).wishlist.create({
+          data: {
+            authId,
+            journeyId: jId,
+            createdBy: authId,
+          },
+          include: { journey: true },
+        });
+        createdItems.push(item);
+      }
     }
-  } else if (actionType === "REMOVE" && journeyId) {
-    currentIds = currentIds.filter((id) => id !== journeyId);
-  } else if (actionType === "SET" && Array.isArray(journeyIds)) {
-    currentIds = journeyIds;
+    return { data: createdItems, message: "Wishlist updated successfully" };
   }
 
-  req.body = {
-    ...(existing?.id ? { id: existing.id } : {}),
-    authId,
-    journeyIds: currentIds,
-  };
+  if (!journeyId) {
+    throw new ApiError("journeyId is required", 400);
+  }
 
-  const result = await manageRecordWithFiles({
-    req,
-    res,
-    prisma,
-    model: (prisma as any).wishlist,
-    modelName: "Wishlist",
-    dbField: "authId",
-    ownerField: authId,
-    attachUser: true,
-    audit: false,
+  const existing = await (prisma as any).wishlist.findUnique({
+    where: {
+      authId_journeyId: {
+        authId,
+        journeyId,
+      },
+    },
   });
 
-  return result;
+  if (actionType === "REMOVE" || (actionType === "TOGGLE" && existing)) {
+    if (existing) {
+      await (prisma as any).wishlist.delete({
+        where: { id: existing.id },
+      });
+      return { data: null, message: "Journey removed from wishlist" };
+    }
+    return { data: null, message: "Item not in wishlist" };
+  }
+
+  if (!existing) {
+    req.body = {
+      authId,
+      journeyId,
+      createdBy: authId,
+    };
+
+    const result = await manageRecordWithFiles({
+      req,
+      res,
+      prisma,
+      model: (prisma as any).wishlist,
+      modelName: "Wishlist",
+      dbField: "authId",
+      ownerField: authId,
+      include: { journey: true },
+      attachUser: true,
+      audit: false,
+    });
+
+    return result;
+  }
+
+  return { data: existing, message: "Journey already in wishlist" };
 };
 
 export const deleteWishlistService = async (req: Request, res: Response) => {
