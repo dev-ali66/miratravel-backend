@@ -1,0 +1,233 @@
+{
+	"info": {
+		"_postman_id": "mira-auth-collection-v1",
+		"name": "mira-auth",
+		"description": "Postman API Collection for Mira Auth Module (/api/v1/auth). Supports User Registration, Login, Email Verification, Password Reset, Profile Management, and Device Session Tracking.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5010/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "YOUR_JWT_ACCESS_TOKEN_HERE",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "POST User Login (/login)",
+			"request": {
+				"auth": { "type": "noauth" },
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"user@mira.travel\",\n  \"password\": \"Password123!\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/login",
+					"host": [ "{{base_url}}" ],
+					"path": [ "auth", "login" ]
+				},
+				"description": "Authenticates user credentials and returns JWT Access & Refresh Tokens."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Register Account (/register)",
+			"request": {
+				"auth": { "type": "noauth" },
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"newuser@mira.travel\",\n  \"password\": \"Password123!\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"termsAccepted\": true\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/register",
+					"host": [ "{{base_url}}" ],
+					"path": [ "auth", "register" ]
+				},
+				"description": "Registers a new user account."
+			},
+			"response": []
+		},
+		{
+			"name": "GET Current User Profile (/me)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/auth/me",
+					"host": [ "{{base_url}}" ],
+					"path": [ "auth", "me" ]
+				},
+				"description": "Returns current authenticated user details."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Update Profile (/me)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"firstName\": \"John Updated\",\n  \"lastName\": \"Doe Updated\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/me",
+					"host": [ "{{base_url}}" ],
+					"path": [ "auth", "me" ]
+				},
+				"description": "Updates current user profile info."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Refresh Token (/refresh-token)",
+			"request": {
+				"auth": { "type": "noauth" },
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"refreshToken\": \"YOUR_REFRESH_TOKEN_HERE\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/refresh-token",
+					"host": [ "{{base_url}}" ],
+					"path": [ "auth", "refresh-token" ]
+				},
+				"description": "Generates a new access token using a refresh token."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Logout (/logout)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/auth/logout",
+					"host": [ "{{base_url}}" ],
+					"path": [ "auth", "logout" ]
+				},
+				"description": "Logs out user and revokes active session."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Forgot Password (/forgot-password)",
+			"request": {
+				"auth": { "type": "noauth" },
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"user@mira.travel\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/forgot-password",
+					"host": [ "{{base_url}}" ],
+					"path": [ "auth", "forgot-password" ]
+				},
+				"description": "Sends password reset OTP/link."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Reset Password (/reset-password)",
+			"request": {
+				"auth": { "type": "noauth" },
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"user@mira.travel\",\n  \"token\": \"RESET_TOKEN_HERE\",\n  \"password\": \"NewPassword123!\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/reset-password",
+					"host": [ "{{base_url}}" ],
+					"path": [ "auth", "reset-password" ]
+				},
+				"description": "Resets user password with reset token."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Change Password (/change-password)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"oldPassword\": \"Password123!\",\n  \"newPassword\": \"NewPassword123!\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/change-password",
+					"host": [ "{{base_url}}" ],
+					"path": [ "auth", "change-password" ]
+				},
+				"description": "Changes user password for authenticated user."
+			},
+			"response": []
+		},
+		{
+			"name": "GET User Sessions (/sessions)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/auth/sessions",
+					"host": [ "{{base_url}}" ],
+					"path": [ "auth", "sessions" ]
+				},
+				"description": "Lists active device sessions for authenticated user."
+			},
+			"response": []
+		}
+	]
+}

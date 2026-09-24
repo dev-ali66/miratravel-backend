@@ -1,0 +1,173 @@
+{
+	"info": {
+		"_postman_id": "mira-audit-collection-v1",
+		"name": "mira-audit",
+		"description": "Postman API Collection for Mira Audit Module (/api/v1/audit). Supports fetching audit logs, stats, single log details, clearing audit logs, and simulating audit activity.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5010/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "YOUR_JWT_ACCESS_TOKEN_HERE",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "GET Audit Logs List",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/audit?page=1&limit=20",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"audit"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "limit",
+							"value": "20"
+						}
+					]
+				},
+				"description": "Fetches paginated system audit logs."
+			},
+			"response": []
+		},
+		{
+			"name": "GET Audit Stats",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/audit/stats",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"audit",
+						"stats"
+					]
+				},
+				"description": "Fetches audit log statistics and activity breakdown."
+			},
+			"response": []
+		},
+		{
+			"name": "GET Audit Log Details by ID",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/audit/cm_audit_id_here",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"audit",
+						"cm_audit_id_here"
+					]
+				},
+				"description": "Fetches single audit log details by ID."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Clear Audit Logs",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/audit/clear",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"audit",
+						"clear"
+					]
+				},
+				"description": "Clears audit logs (admin only)."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Simulate Audit Log Activity",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"action\": \"USER_LOGIN\",\n  \"module\": \"AUTH\",\n  \"details\": \"Test simulation audit log entry\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/audit/simulate",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"audit",
+						"simulate"
+					]
+				},
+				"description": "Simulates an audit log entry for testing."
+			},
+			"response": []
+		}
+	]
+}

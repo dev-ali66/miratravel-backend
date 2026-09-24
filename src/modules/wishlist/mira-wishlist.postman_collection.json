@@ -1,0 +1,270 @@
+{
+	"info": {
+		"_postman_id": "mira-wishlist-collection-v1",
+		"name": "MIRA-Wishlist",
+		"description": "Postman API Collection for Mira Wishlist Module (/api/v1/wishlist). Includes GET wishlist items, POST toggle single item, POST batch add, POST explicit add/remove, and DELETE wishlist items.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5010/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "YOUR_JWT_ACCESS_TOKEN_HERE",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "GET Wishlist Items",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/wishlist",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"wishlist"
+					]
+				},
+				"description": "Fetch all saved wishlist items for the authenticated user with populated journey details (`include: { journey: true }`)."
+			},
+			"response": []
+		},
+		{
+			"name": "GET Wishlist Items by Filter (id / journeyId)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/wishlist?journeyId=cm_journey_id_here",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"wishlist"
+					],
+					"query": [
+						{
+							"key": "journeyId",
+							"value": "cm_journey_id_here",
+							"description": "Optional: Filter wishlist item by specific Journey ID"
+						}
+					]
+				},
+				"description": "Fetch wishlist item filtered by specific Journey ID or Wishlist Record ID."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Toggle Wishlist Item (Single)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"journeyId\": \"cm_journey_id_here\",\n  \"actionType\": \"TOGGLE\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/wishlist",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"wishlist"
+					]
+				},
+				"description": "Toggles a journey in the user's wishlist. If it exists, it removes it. If it doesn't exist, it creates it."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Explicit Add Wishlist Item",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"journeyId\": \"cm_journey_id_here\",\n  \"actionType\": \"ADD\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/wishlist",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"wishlist"
+					]
+				},
+				"description": "Explicitly adds a journey to the user's wishlist."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Explicit Remove Wishlist Item",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"journeyId\": \"cm_journey_id_here\",\n  \"actionType\": \"REMOVE\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/wishlist",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"wishlist"
+					]
+				},
+				"description": "Explicitly removes a journey from the user's wishlist."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Batch Add Wishlist Items (Multiple Journeys)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"journeyIds\": [\n    \"cm_journey_id_1\",\n    \"cm_journey_id_2\"\n  ]\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/wishlist",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"wishlist"
+					]
+				},
+				"description": "Adds multiple journey IDs in batch to user wishlist (e.g. syncing guest local storage wishlist after login)."
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE Remove Wishlist Item by Query ID",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/wishlist?id=cm_wishlist_id_here",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"wishlist"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "cm_wishlist_id_here",
+							"description": "ID of the wishlist record to delete"
+						}
+					]
+				},
+				"description": "Deletes a wishlist record safely by ID query parameter."
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE Remove Wishlist Item by Body Payload",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"cm_wishlist_id_here\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/wishlist",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"wishlist"
+					]
+				},
+				"description": "Deletes a wishlist record safely by sending ID in JSON body."
+			},
+			"response": []
+		}
+	]
+}

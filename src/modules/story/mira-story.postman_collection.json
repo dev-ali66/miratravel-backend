@@ -1,0 +1,111 @@
+{
+	"info": {
+		"_postman_id": "mira-story-collection-v1",
+		"name": "mira-story",
+		"description": "Postman API Collection for Mira Story Module (/api/v1/stories). Manages travel journal articles, blog posts, and editorial stories.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5010/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "YOUR_JWT_ACCESS_TOKEN_HERE",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "GET Stories List (/stories)",
+			"request": {
+				"auth": { "type": "noauth" },
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/stories",
+					"host": [ "{{base_url}}" ],
+					"path": [ "stories" ]
+				},
+				"description": "Fetches published travel journal stories."
+			},
+			"response": []
+		},
+		{
+			"name": "GET Story Details by Slug (/stories?slug=balkan-coastal-odyssey)",
+			"request": {
+				"auth": { "type": "noauth" },
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/stories?slug=balkan-coastal-odyssey",
+					"host": [ "{{base_url}}" ],
+					"path": [ "stories" ],
+					"query": [
+						{ "key": "slug", "value": "balkan-coastal-odyssey", "description": "Story slug parameter" }
+					]
+				},
+				"description": "Fetches single story article payload."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Create/Update Story (/stories)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"title\": \"Balkan Coastal Odyssey\",\n  \"slug\": \"balkan-coastal-odyssey\",\n  \"excerpt\": \"Discovering hidden coves along the Ionian Sea.\",\n  \"status\": \"PUBLISHED\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/stories",
+					"host": [ "{{base_url}}" ],
+					"path": [ "stories" ]
+				},
+				"description": "Creates or updates story article record."
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE Story (/stories)",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"cm_story_id_here\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/stories",
+					"host": [ "{{base_url}}" ],
+					"path": [ "stories" ]
+				},
+				"description": "Deletes story record by ID."
+			},
+			"response": []
+		}
+	]
+}

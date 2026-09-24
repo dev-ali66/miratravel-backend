@@ -1,0 +1,58 @@
+{
+	"info": {
+		"_postman_id": "mira-fileupload-collection-v1",
+		"name": "mira-fileupload",
+		"description": "Postman API Collection for Mira File Upload Module (/api/v1/file-upload). Supports image and video uploading to Cloudinary.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5010/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "YOUR_JWT_ACCESS_TOKEN_HERE",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "POST Upload Image/File (/file-upload)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/file-upload",
+					"host": [ "{{base_url}}" ],
+					"path": [ "file-upload" ]
+				},
+				"description": "Uploads single image/video file to Cloudinary and returns CDN URL."
+			},
+			"response": []
+		}
+	]
+}

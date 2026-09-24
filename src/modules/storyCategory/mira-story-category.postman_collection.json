@@ -1,0 +1,91 @@
+{
+	"info": {
+		"_postman_id": "mira-story-category-collection-v1",
+		"name": "mira-story-category",
+		"description": "Postman API Collection for Mira Story Category Module (/api/v1/story-categories). Manages travel journal story categories.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5010/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "YOUR_JWT_ACCESS_TOKEN_HERE",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "GET Story Categories (/story-categories)",
+			"request": {
+				"auth": { "type": "noauth" },
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/story-categories",
+					"host": [ "{{base_url}}" ],
+					"path": [ "story-categories" ]
+				},
+				"description": "Fetches list of story categories."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Create/Update Story Category (/story-categories)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Culture & Heritage\",\n  \"slug\": \"culture-heritage\",\n  \"description\": \"Articles about ancient monuments, traditions, and local crafts.\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/story-categories",
+					"host": [ "{{base_url}}" ],
+					"path": [ "story-categories" ]
+				},
+				"description": "Creates or updates story category."
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE Story Category (/story-categories)",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"cm_category_id_here\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/story-categories",
+					"host": [ "{{base_url}}" ],
+					"path": [ "story-categories" ]
+				},
+				"description": "Deletes story category record."
+			},
+			"response": []
+		}
+	]
+}

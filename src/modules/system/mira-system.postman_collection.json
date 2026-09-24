@@ -1,0 +1,65 @@
+{
+	"info": {
+		"_postman_id": "mira-system-collection-v1",
+		"name": "mira-system",
+		"description": "Postman API Collection for Mira System Module (/api/v1/system). Health checks, server environment, and system diagnostics.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5010/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "YOUR_JWT_ACCESS_TOKEN_HERE",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "GET System Health Check (/system/health)",
+			"request": {
+				"auth": { "type": "noauth" },
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/system/health",
+					"host": [ "{{base_url}}" ],
+					"path": [ "system", "health" ]
+				},
+				"description": "Returns system health, database status, and server uptime."
+			},
+			"response": []
+		},
+		{
+			"name": "GET System Info (/system/info)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/system/info",
+					"host": [ "{{base_url}}" ],
+					"path": [ "system", "info" ]
+				},
+				"description": "Returns environment diagnostics and server configuration."
+			},
+			"response": []
+		}
+	]
+}

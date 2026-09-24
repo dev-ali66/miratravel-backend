@@ -1,0 +1,109 @@
+{
+	"info": {
+		"_postman_id": "mira-cms-collection-v1",
+		"name": "mira-cms",
+		"description": "Postman API Collection for Mira CMS Module (/api/v1/cms-pages). Manages Home, About Us, FAQ, Contact Us, and Footer dynamic pages.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5010/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "YOUR_JWT_ACCESS_TOKEN_HERE",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "GET All CMS Pages (/cms-pages)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/cms-pages",
+					"host": [ "{{base_url}}" ],
+					"path": [ "cms-pages" ]
+				},
+				"description": "Fetches list of all created CMS pages."
+			},
+			"response": []
+		},
+		{
+			"name": "GET CMS Page by Slug (e.g. faq, home, contact-us)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/cms-pages?slug=faq",
+					"host": [ "{{base_url}}" ],
+					"path": [ "cms-pages" ],
+					"query": [
+						{ "key": "slug", "value": "faq", "description": "Page slug: home, about-us, faq, contact-us, footer" }
+					]
+				},
+				"description": "Fetches single CMS page with section objects and array structures."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Create/Update CMS Page (/cms-pages)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"FAQ\",\n  \"slug\": \"faq\",\n  \"metadata\": {\n    \"title\": \"FAQ | Frequently Asked Questions | Mira\",\n    \"description\": \"Practical answers for every stage of your journey.\"\n  },\n  \"data\": {\n    \"page\": \"faq\",\n    \"hero\": {\n      \"title\": { \"value\": \"Frequently Asked Questions\" }\n    }\n  }\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/cms-pages",
+					"host": [ "{{base_url}}" ],
+					"path": [ "cms-pages" ]
+				},
+				"description": "Creates or updates a CMS page payload."
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE CMS Page (/cms-pages)",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"cm_cms_page_id_here\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/cms-pages",
+					"host": [ "{{base_url}}" ],
+					"path": [ "cms-pages" ]
+				},
+				"description": "Deletes CMS page by ID."
+			},
+			"response": []
+		}
+	]
+}

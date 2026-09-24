@@ -1,0 +1,101 @@
+{
+	"info": {
+		"_postman_id": "mira-settings-collection-v1",
+		"name": "mira-settings",
+		"description": "Postman API Collection for Mira Settings Module (/api/v1/settings, /api/v1/roles, /api/v1/permissions). Manages global site settings, user roles, and access control permissions.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5010/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "YOUR_JWT_ACCESS_TOKEN_HERE",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "GET System Settings (/settings)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/settings",
+					"host": [ "{{base_url}}" ],
+					"path": [ "settings" ]
+				},
+				"description": "Fetches global application settings."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Update Settings (/settings)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"siteName\": \"Mira Travel\",\n  \"supportEmail\": \"info@mira.travel\",\n  \"currency\": \"EUR\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/settings",
+					"host": [ "{{base_url}}" ],
+					"path": [ "settings" ]
+				},
+				"description": "Updates global system settings."
+			},
+			"response": []
+		},
+		{
+			"name": "GET Roles List (/roles)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/roles",
+					"host": [ "{{base_url}}" ],
+					"path": [ "roles" ]
+				},
+				"description": "Lists user access roles (ADMIN, SUPER_ADMIN, USER)."
+			},
+			"response": []
+		},
+		{
+			"name": "GET Permissions List (/permissions)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/permissions",
+					"host": [ "{{base_url}}" ],
+					"path": [ "permissions" ]
+				},
+				"description": "Lists system access control permissions."
+			},
+			"response": []
+		}
+	]
+}

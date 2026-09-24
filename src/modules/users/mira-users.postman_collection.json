@@ -1,0 +1,109 @@
+{
+	"info": {
+		"_postman_id": "mira-users-collection-v1",
+		"name": "mira-users",
+		"description": "Postman API Collection for Mira Users Module (/api/v1/users). User accounts management, roles, and status administration.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5010/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "YOUR_JWT_ACCESS_TOKEN_HERE",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "GET Users List (/users)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/users",
+					"host": [ "{{base_url}}" ],
+					"path": [ "users" ]
+				},
+				"description": "Fetches paginated list of user accounts."
+			},
+			"response": []
+		},
+		{
+			"name": "GET User Details by ID (/users?id=...)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/users?id=cm_user_id_here",
+					"host": [ "{{base_url}}" ],
+					"path": [ "users" ],
+					"query": [
+						{ "key": "id", "value": "cm_user_id_here", "description": "User account ID" }
+					]
+				},
+				"description": "Fetches single user details."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Create/Update User (/users)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"specialist@mira.travel\",\n  \"firstName\": \"Travel\",\n  \"lastName\": \"Specialist\",\n  \"role\": \"ADMIN\",\n  \"status\": \"ACTIVE\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/users",
+					"host": [ "{{base_url}}" ],
+					"path": [ "users" ]
+				},
+				"description": "Creates or updates user account record."
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE User (/users)",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"cm_user_id_here\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/users",
+					"host": [ "{{base_url}}" ],
+					"path": [ "users" ]
+				},
+				"description": "Deletes user account record."
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,90 @@
+{
+	"info": {
+		"_postman_id": "mira-payments-collection-v1",
+		"name": "mira-payments",
+		"description": "Postman API Collection for Mira Payments Module (/api/v1/payments). Handles online payment gateways, deposits, and transaction verifications.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5010/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "YOUR_JWT_ACCESS_TOKEN_HERE",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "GET Payments List (/payments)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/payments",
+					"host": [ "{{base_url}}" ],
+					"path": [ "payments" ]
+				},
+				"description": "Fetches user or system payments list."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Create Payment Intent (/payments)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"bookingId\": \"cm_booking_id_here\",\n  \"amount\": 612.50,\n  \"currency\": \"EUR\",\n  \"paymentMethod\": \"CARD\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/payments",
+					"host": [ "{{base_url}}" ],
+					"path": [ "payments" ]
+				},
+				"description": "Creates a payment intent or records payment."
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE Payment Record (/payments)",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"cm_payment_id_here\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/payments",
+					"host": [ "{{base_url}}" ],
+					"path": [ "payments" ]
+				},
+				"description": "Deletes payment record."
+			},
+			"response": []
+		}
+	]
+}

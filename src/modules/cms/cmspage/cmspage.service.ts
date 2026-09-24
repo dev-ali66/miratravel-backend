@@ -39,6 +39,11 @@ const normalizeCmsPageData = (page: any) => {
       "approach",
       "regional_knowledge",
       "people",
+      "faq_intro",
+      "faq_list",
+      "faq_cta",
+      "faq",
+      "topics",
       "seo",
     ];
     for (const key of knownKeys) {

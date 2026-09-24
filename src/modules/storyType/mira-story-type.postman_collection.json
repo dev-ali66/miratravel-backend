@@ -1,0 +1,91 @@
+{
+	"info": {
+		"_postman_id": "mira-story-type-collection-v1",
+		"name": "mira-story-type",
+		"description": "Postman API Collection for Mira Story Type Module (/api/v1/story-types). Manages story content types (e.g. Travelogue, Editorial Note, Guide).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5010/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "YOUR_JWT_ACCESS_TOKEN_HERE",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "GET Story Types (/story-types)",
+			"request": {
+				"auth": { "type": "noauth" },
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/story-types",
+					"host": [ "{{base_url}}" ],
+					"path": [ "story-types" ]
+				},
+				"description": "Fetches list of story types."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Create/Update Story Type (/story-types)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Travelogue\",\n  \"slug\": \"travelogue\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/story-types",
+					"host": [ "{{base_url}}" ],
+					"path": [ "story-types" ]
+				},
+				"description": "Creates or updates story type."
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE Story Type (/story-types)",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"cm_type_id_here\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/story-types",
+					"host": [ "{{base_url}}" ],
+					"path": [ "story-types" ]
+				},
+				"description": "Deletes story type record."
+			},
+			"response": []
+		}
+	]
+}
