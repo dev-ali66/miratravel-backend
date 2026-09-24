@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "mira-journey-collection-v1",
 		"name": "mira-journey",
-		"description": "Postman API Collection for Mira Journey Module (/api/v1/journeys). Manages luxury travel itineraries, highlights, pricing, and accommodations.",
+		"description": "# MIRA Journey Module API Collection\n\nFull Postman API documentation and endpoints for the **Journey** module (`/api/v1/journeys`).\n\n---\n\n## 📚 Enums & Acceptable Values\n\n### 1. JourneyType (`journeyType` array)\n- `PRIVATE_JOURNEY`\n- `SELF_DRIVE_JOURNEY`\n- `SMALL_GROUP`\n- `LUXURY_ESCAPE`\n- `FAMILY_JOURNEY`\n- `SIGNATURE_JOURNEY`\n\n### 2. TravelStyle (`travelStyle` array)\n- `CULTURE_HERITAGE`\n- `NATURE`\n- `ADVENTURE`\n- `FOOD_WINE`\n- `COASTAL_ESCAPE`\n- `MOUNTAINS`\n- `SLOW_TRAVEL`\n- `LUXURY`\n- `PHOTOGRAPHY`\n- `WELLNESS`\n\n### 3. PerfectFor (`perfectFor` array)\n- `COUPLES`\n- `FAMILIES`\n- `FRIENDS`\n- `FOOD_WINE`\n- `SOLO_TRAVELLERS`\n- `HONEYMOONERS`\n- `FIRST_TIME_VISITORS`\n- `RETURNING_VISITORS`\n- `NATURE_LOVERS`\n- `ADVENTURE_SEEKERS`\n\n### 4. Pace (`pace` string)\n- `RELAXED`\n- `BALANCED`\n- `ACTIVE`\n\n### 5. ComfortLevel (`comfortLevel` string)\n- `COMFORT`\n- `BOUTIQUE`\n- `PREMIUM_LUXURY`\n\n### 6. JourneyStatus (`status` string)\n- `DRAFT`\n- `PUBLISHED`\n- `ARCHIVED`",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
@@ -29,7 +29,7 @@
 	},
 	"item": [
 		{
-			"name": "GET All Journeys (/journeys)",
+			"name": "GET All Journeys (Filtered & Paginated)",
 			"request": {
 				"auth": { "type": "noauth" },
 				"method": "GET",
@@ -37,36 +37,72 @@
 					{ "key": "Accept", "value": "application/json" }
 				],
 				"url": {
-					"raw": "{{base_url}}/journeys",
-					"host": [ "{{base_url}}" ],
-					"path": [ "journeys" ]
-				},
-				"description": "Fetches list of published journey itineraries."
-			},
-			"response": []
-		},
-		{
-			"name": "GET Journey Details by Slug/ID (/journeys?slug=...)",
-			"request": {
-				"auth": { "type": "noauth" },
-				"method": "GET",
-				"header": [
-					{ "key": "Accept", "value": "application/json" }
-				],
-				"url": {
-					"raw": "{{base_url}}/journeys?slug=albanian-riviera-escape",
+					"raw": "{{base_url}}/journeys?page=1&limit=10&status=PUBLISHED&journeyType=PRIVATE_JOURNEY,SIGNATURE_JOURNEY&travelStyle=CULTURE_HERITAGE&pace=BALANCED&comfortLevel=PREMIUM_LUXURY&minPrice=1000&maxPrice=5000&minDays=3&maxDays=14",
 					"host": [ "{{base_url}}" ],
 					"path": [ "journeys" ],
 					"query": [
-						{ "key": "slug", "value": "albanian-riviera-escape", "description": "Journey slug parameter" }
+						{ "key": "page", "value": "1", "description": "Page number (default: 1)" },
+						{ "key": "limit", "value": "10", "description": "Page size limit (max 100)" },
+						{ "key": "search", "value": "Albanian", "disabled": true, "description": "Search keyword for title, subtitle or slug" },
+						{ "key": "status", "value": "PUBLISHED", "description": "Status filter: DRAFT | PUBLISHED | ARCHIVED" },
+						{ "key": "featured", "value": "true", "disabled": true, "description": "Filter featured journeys: true | false" },
+						{ "key": "journeyType", "value": "PRIVATE_JOURNEY,SIGNATURE_JOURNEY", "description": "Comma-separated or array of JourneyType enums: PRIVATE_JOURNEY, SELF_DRIVE_JOURNEY, SMALL_GROUP, LUXURY_ESCAPE, FAMILY_JOURNEY, SIGNATURE_JOURNEY" },
+						{ "key": "travelStyle", "value": "CULTURE_HERITAGE", "description": "Comma-separated or array of TravelStyle enums: CULTURE_HERITAGE, NATURE, ADVENTURE, FOOD_WINE, COASTAL_ESCAPE, MOUNTAINS, SLOW_TRAVEL, LUXURY, PHOTOGRAPHY, WELLNESS" },
+						{ "key": "perfectFor", "value": "COUPLES,HONEYMOONERS", "disabled": true, "description": "Comma-separated or array of PerfectFor enums: COUPLES, FAMILIES, FRIENDS, FOOD_WINE, SOLO_TRAVELLERS, HONEYMOONERS, FIRST_TIME_VISITORS, RETURNING_VISITORS, NATURE_LOVERS, ADVENTURE_SEEKERS" },
+						{ "key": "pace", "value": "BALANCED", "description": "Pace enum: RELAXED | BALANCED | ACTIVE" },
+						{ "key": "comfortLevel", "value": "PREMIUM_LUXURY", "description": "ComfortLevel enum: COMFORT | BOUTIQUE | PREMIUM_LUXURY" },
+						{ "key": "minPrice", "value": "1000", "description": "Minimum price limit in EUR" },
+						{ "key": "maxPrice", "value": "5000", "description": "Maximum price limit in EUR" },
+						{ "key": "minDays", "value": "3", "description": "Minimum days duration" },
+						{ "key": "maxDays", "value": "14", "description": "Maximum days duration" }
 					]
 				},
-				"description": "Fetches full journey details including overview, daily itinerary, inclusions, and media."
+				"description": "Fetches paginated list of journeys with flexible multi-enum filtering, price range, duration, and full text search."
 			},
 			"response": []
 		},
 		{
-			"name": "POST Create/Update Journey (/journeys)",
+			"name": "GET Single Journey by Slug (/journeys?slug=...)",
+			"request": {
+				"auth": { "type": "noauth" },
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/journeys?slug=grand-balkan-signature-odyssey",
+					"host": [ "{{base_url}}" ],
+					"path": [ "journeys" ],
+					"query": [
+						{ "key": "slug", "value": "grand-balkan-signature-odyssey", "description": "Exact journey slug string" }
+					]
+				},
+				"description": "Fetches a single journey record by slug."
+			},
+			"response": []
+		},
+		{
+			"name": "GET Single Journey by ID (/journeys?id=...)",
+			"request": {
+				"auth": { "type": "noauth" },
+				"method": "GET",
+				"header": [
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"url": {
+					"raw": "{{base_url}}/journeys?id=cm_journey_id_here",
+					"host": [ "{{base_url}}" ],
+					"path": [ "journeys" ],
+					"query": [
+						{ "key": "id", "value": "cm_journey_id_here", "description": "Exact journey CUID" }
+					]
+				},
+				"description": "Fetches a single journey record by CUID."
+			},
+			"response": []
+		},
+		{
+			"name": "POST Create Journey (/journeys)",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -75,19 +111,40 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"title\": \"Albanian Riviera Escape\",\n  \"slug\": \"albanian-riviera-escape\",\n  \"duration\": \"7 Days\",\n  \"price\": 2450,\n  \"status\": \"PUBLISHED\",\n  \"locationId\": \"cm_location_id_here\"\n}"
+					"raw": "{\n  \"title\": \"Grand Balkan Signature Odyssey\",\n  \"subtitle\": \"An unhurried 10-day private journey across coastal havens and ancient heritage stays\",\n  \"price\": 3450,\n  \"currency\": \"EUR\",\n  \"minDays\": 10,\n  \"maxDays\": 12,\n  \"pace\": \"BALANCED\",\n  \"comfortLevel\": \"PREMIUM_LUXURY\",\n  \"status\": \"PUBLISHED\",\n  \"featured\": true,\n  \"journeyType\": [\n    \"SIGNATURE_JOURNEY\",\n    \"PRIVATE_JOURNEY\"\n  ],\n  \"travelStyle\": [\n    \"CULTURE_HERITAGE\",\n    \"LUXURY\",\n    \"COASTAL_ESCAPE\"\n  ],\n  \"perfectFor\": [\n    \"COUPLES\",\n    \"HONEYMOONERS\",\n    \"FIRST_TIME_VISITORS\"\n  ],\n  \"highlights\": [\n    \"Private chartered boat trip along the Ionian Riviera\",\n    \"Helicopter transfer over the Accursed Mountains\",\n    \"Exclusive wine tasting at a heritage vineyard\"\n  ],\n  \"included\": [\n    \"10 nights hand-picked luxury boutique accommodations\",\n    \"Private chauffeured Mercedes V-Class transfers\",\n    \"Daily artisanal breakfast and 4 curated gourmet dinners\",\n    \"24/7 dedicated local concierge support\"\n  ],\n  \"notIncluded\": [\n    \"International flights to/from Tirana\",\n    \"Personal travel insurance\",\n    \"Discretionary tipping\"\n  ],\n  \"hero\": {\n    \"badge\": \"SIGNATURE COLLECTION\",\n    \"eyebrow\": {\n      \"value\": \"Bespoke Private Voyage\",\n      \"textColor\": \"#E5A84B\",\n      \"textOpacity\": 1,\n      \"backgroundColor\": null,\n      \"backgroundOpacity\": 1\n    },\n    \"title\": {\n      \"value\": \"Grand Balkan\\nSignature Odyssey\",\n      \"textColor\": \"#FFFFFF\",\n      \"textOpacity\": 1,\n      \"backgroundColor\": null,\n      \"backgroundOpacity\": 1\n    },\n    \"subtitle\": {\n      \"value\": \"A curated 10-day journey combining boutique heritage stays with private coastal navigation.\",\n      \"textColor\": \"#E5E7EB\",\n      \"textOpacity\": 1,\n      \"backgroundColor\": null,\n      \"backgroundOpacity\": 1\n    },\n    \"backgroundMultimedia\": {\n      \"show\": \"image\",\n      \"color\": {\n        \"color\": \"#101912\",\n        \"opacity\": 100\n      },\n      \"image\": {\n        \"url\": \"https://res.cloudinary.com/dscqp4wwt/image/upload/v1790241174/journey-hero.jpg\",\n        \"alt\": \"Grand Balkan Signature Odyssey\",\n        \"opacity\": 100\n      },\n      \"video\": {\n        \"url\": null,\n        \"alt\": \"Hero video\"\n      }\n    }\n  },\n  \"overview\": {\n    \"badge\": \"JOURNEY ESSENCE\",\n    \"title\": {\n      \"value\": \"Unrivalled Beauty & Heritage\",\n      \"textColor\": \"#182D09\"\n    },\n    \"description\": {\n      \"value\": \"Immerse yourself in centuries of history, secret coastal coves, and authentic hospitality.\"\n    }\n  },\n  \"itinerary\": {\n    \"title\": \"Daily Itinerary\",\n    \"items\": [\n      {\n        \"dayNumber\": 1,\n        \"title\": \"Arrival in Tirana & Welcome Dinner\",\n        \"description\": \"Chauffeured transfer to your boutique hotel, followed by an evening tasting menu.\"\n      },\n      {\n        \"dayNumber\": 2,\n        \"title\": \"Private Cruise across Ksamil & Riviera\",\n        \"description\": \"Board your private luxury yacht to discover secluded beaches and ancient ruins.\"\n      }\n    ]\n  },\n  \"accommodations\": {\n    \"title\": \"Boutique Heritage Stays\",\n    \"items\": [\n      {\n        \"name\": \"Villa Gjirokastra Retreat\",\n        \"location\": \"Gjirokastër\",\n        \"description\": \"Restored 18th-century stone mansion overlooking the citadel.\"\n      }\n    ]\n  },\n  \"whatsIncluded\": {\n    \"title\": \"What Is Included\",\n    \"inclusions\": [\n      \"Private chauffeur throughout\",\n      \"Luxury boutique stays\"\n    ]\n  },\n  \"addOns\": {\n    \"title\": \"Exclusive Add-Ons\",\n    \"items\": [\n      {\n        \"title\": \"Helicopter Scenic Flight\",\n        \"price\": 850,\n        \"currency\": \"EUR\"\n      }\n    ]\n  },\n  \"metadata\": {\n    \"seo\": {\n      \"title\": \"Grand Balkan Signature Odyssey | Bespoke Luxury Journey\",\n      \"description\": \"Book a bespoke 10-day luxury journey across the Balkans with private transport and boutique stays.\",\n      \"keywords\": [\n        \"balkan luxury travel\",\n        \"signature journey\",\n        \"albania boutique tour\"\n      ],\n      \"canonicalUrl\": \"https://miratravel.nl/journeys/grand-balkan-signature-odyssey\",\n      \"robots\": {\n        \"index\": true,\n        \"follow\": true\n      }\n    }\n  }\n}"
 				},
 				"url": {
 					"raw": "{{base_url}}/journeys",
 					"host": [ "{{base_url}}" ],
 					"path": [ "journeys" ]
 				},
-				"description": "Creates or updates journey itinerary record."
+				"description": "Creates a new Journey record. Accepts all enum types (`SIGNATURE_JOURNEY`, `PRIVATE_JOURNEY`, `CULTURE_HERITAGE`, `COUPLES`, `BALANCED`, `PREMIUM_LUXURY`, `PUBLISHED`, etc.) and structured JSON sections."
 			},
 			"response": []
 		},
 		{
-			"name": "DELETE Journey (/journeys)",
+			"name": "POST Update Journey by ID (/journeys)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" },
+					{ "key": "Accept", "value": "application/json" }
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"cm_journey_id_here\",\n  \"title\": \"Grand Balkan Signature Odyssey - Updated\",\n  \"status\": \"PUBLISHED\",\n  \"featured\": true,\n  \"journeyType\": [\n    \"SIGNATURE_JOURNEY\",\n    \"LUXURY_ESCAPE\"\n  ],\n  \"price\": 3650\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/journeys",
+					"host": [ "{{base_url}}" ],
+					"path": [ "journeys" ]
+				},
+				"description": "Updates an existing Journey record specified by `id` parameter."
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE Journey by ID (/journeys)",
 			"request": {
 				"method": "DELETE",
 				"header": [
@@ -103,7 +160,7 @@
 					"host": [ "{{base_url}}" ],
 					"path": [ "journeys" ]
 				},
-				"description": "Deletes journey record by ID."
+				"description": "Soft-deletes a Journey record by `id`."
 			},
 			"response": []
 		}
