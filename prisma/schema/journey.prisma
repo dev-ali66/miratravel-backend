@@ -4,6 +4,7 @@ enum JourneyType {
   SMALL_GROUP
   LUXURY_ESCAPE
   FAMILY_JOURNEY
+  SIGNATURE_JOURNEY
 }
 
 enum TravelStyle {
