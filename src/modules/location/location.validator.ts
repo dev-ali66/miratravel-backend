@@ -19,6 +19,7 @@ const locationTypeEnum = z.enum([
 export const getLocationValidator = z.object({
   query: z.object({
     id: z.string().optional(),
+    featured: z.union([z.string(), z.boolean()]).optional(),
 
     // name: z.string().trim().optional(),
 
@@ -38,6 +39,8 @@ export const manageLocationValidator = z.object({
       slug: z.string().trim().optional(),
 
       type: locationTypeEnum.optional(),
+
+      featured: z.boolean().optional(),
 
       parentId: z.string().optional().nullable(),
 

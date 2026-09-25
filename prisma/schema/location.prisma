@@ -3,6 +3,7 @@ model Location {
     name     String
     slug     String       @unique
     type     LocationType
+    featured Boolean      @default(false)
     parentId String?
     parent   Location?    @relation("LocationHierarchy", fields: [parentId], references: [id])
     children Location[]   @relation("LocationHierarchy")

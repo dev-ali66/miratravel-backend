@@ -5,13 +5,23 @@ import { getRecords } from "../../shared/getRecords.service.js";
 import { LocationType } from "@prisma/client";
 
 export const getLocationService = async (req: any) => {
-  const { name, slug, type, search } = req.query;
+  const { name, slug, type, search, featured, parentId } = req.query;
 
   const customWhere: any = {};
 
   // -------------------------
   // Existing Filters
   // -------------------------
+
+  // Parent ID
+  if (parentId) {
+    customWhere.parentId = parentId;
+  }
+
+  // Featured Filter - boolean match
+  if (featured !== undefined && featured !== null && featured !== "") {
+    customWhere.featured = String(featured).toLowerCase() === "true";
+  }
 
   // Location Name - Partial Match
   if (name) {
@@ -188,13 +198,17 @@ export const deleteLocationService = async (req: any, res: any) => {
 };
 
 export const searchLocationOptionsService = async (req: any) => {
-  const { search, limit = 50, type } = req.query;
+  const { search, limit = 50, type, featured } = req.query;
   const where: any = {
     deletedAt: null,
   };
 
   if (type) {
     where.type = type;
+  }
+
+  if (featured !== undefined && featured !== null && featured !== "") {
+    where.featured = String(featured).toLowerCase() === "true";
   }
 
   if (search && typeof search === "string" && search.trim()) {
@@ -212,6 +226,7 @@ export const searchLocationOptionsService = async (req: any) => {
       name: true,
       slug: true,
       type: true,
+      featured: true,
       hero: true,
       card: true,
       why: true,
