@@ -1,24 +1,44 @@
 model UserSettings {
-  id        String   @id @default(uuid())
-  authId    String   @unique
+  id        String    @id @default(uuid())
+  authId    String    @unique
   deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      Auth     @relation(fields: [authId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      Auth      @relation(fields: [authId], references: [id], onDelete: Cascade)
 }
 
 model UserPersonalInfo {
-  id        String   @id @default(cuid())
-  authId    String   @unique
-  firstName String?  @db.VarChar(100)
-  lastName  String?  @db.VarChar(50)
-  phone     String?  @db.VarChar(20)
-  country   String?  @db.VarChar(20)
-  state     String?  @db.VarChar(20)
-  city      String?  @db.VarChar(20)
-  zipCode   String?  @db.VarChar(10)
-  about     String?  @db.VarChar(500)
-  photoUrl  String[]
-  deletedAt DateTime?
-  user      Auth     @relation(fields: [authId], references: [id], onDelete: Cascade)
+  id          String    @id @default(cuid())
+  authId      String    @unique
+  firstName   String?   @db.VarChar(100)
+  lastName    String?   @db.VarChar(50)
+  phone       String?   @db.VarChar(50)
+  address     String?   @db.VarChar(255)
+  country     String?   @db.VarChar(100)
+  state       String?   @db.VarChar(100)
+  city        String?   @db.VarChar(100)
+  zipCode     String?   @db.VarChar(30)
+  nationality String?   @db.VarChar(100)
+  dateOfBirth String?   @db.VarChar(50)
+  about       String?   @db.VarChar(500)
+  photoUrl    String[]
+  deletedAt   DateTime?
+  user        Auth      @relation(fields: [authId], references: [id], onDelete: Cascade)
+}
+
+model UserTravelPreferences {
+  id             String    @id @default(cuid())
+  authId         String    @unique
+  pace           Pace?     @default(BALANCED)
+  accommodations String[]
+  foodDietary    String[]
+  foodNotes      String?   @db.VarChar(500)
+  interests      String[]
+  practicalNeeds String[]
+  practicalNotes String?   @db.VarChar(500)
+  generalNotes   String?   @db.VarChar(1000)
+  deletedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  user           Auth      @relation(fields: [authId], references: [id], onDelete: Cascade)
 }

@@ -1,6 +1,6 @@
 model Wishlist {
   id        String    @id @default(cuid())
-  authId    String    
+  authId    String
   auth      Auth      @relation(fields: [authId], references: [id], onDelete: Cascade)
   journeyId String
   journey   Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
@@ -8,7 +8,8 @@ model Wishlist {
   deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  @@unique([authId, journeyId])
   @@index([authId])
   @@index([journeyId])
-  @@unique([authId, journeyId])
 }

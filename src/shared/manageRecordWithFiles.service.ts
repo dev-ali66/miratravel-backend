@@ -97,11 +97,7 @@ export const manageRecordWithFiles = async ({
 
       // 🔴 OWN but no dbField → block
       if (scope === "OWN" && !dbField) {
-        // console.log("Unauthorized: OWN scope but no ownership defined", StatusCodes.BAD_REQUEST);
-        throw new ApiError(
-          "Unauthorized: OWN scope but no ownership defined",
-          StatusCodes.BAD_REQUEST,
-        );
+        throw new ApiError("Unauthorized: OWN scope but no ownership defined", StatusCodes.BAD_REQUEST,);
       }
 
       //  OWN with field
@@ -154,6 +150,7 @@ export const manageRecordWithFiles = async ({
     }
     // Apply scope rules
     if (req.action.toUpperCase() === "CREATE") {
+      if (attachUser && dbField) updateData[dbField] = ownerField || req.auth.id;
       if (scope === "OWN" && attachUser) updateData.createdBy = req.auth.id;
       // if (scope === "OWN" && !attachUser) throw new ApiError("Cannot create this record");
     } else if (req.action.toUpperCase() === "UPDATE") {

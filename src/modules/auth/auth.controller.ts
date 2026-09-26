@@ -63,25 +63,7 @@ export const createContractorAccountController = catchAsync(
     }
   },
 );
-export const createDriverAccountController = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    req.validated = req.validated || {};
-    req.validated.body = req.validated?.body || {};
-    req.validated.body.roles = ["DRIVER"];
-    try {
-      const result = await AuthService.createAccountService(req);
-      successResponse({
-        res,
-        code: StatusCodes.CREATED,
-        success: true,
-        message: "User registered! Verify your email.",
-        data: result,
-      });
-    } catch (err: any) {
-      throw new ApiError(err.message, StatusCodes.BAD_REQUEST);
-    }
-  },
-);
+
 
 export const verifyEmail = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -484,6 +466,7 @@ export const getUserInfo = catchAsync(async (req: Request, res: Response) => {
       },
       userPersonalInfo: true,
       userSettings: true,
+      userTravelPreferences: true,
     },
   });
 
@@ -565,11 +548,58 @@ export const updateProfile = catchAsync(async (req: Request, res: Response) => {
   if (body?.lastName !== undefined) personalData.lastName = body.lastName;
   if (body?.about !== undefined) personalData.about = body.about;
   if (body?.phone !== undefined) personalData.phone = body.phone;
+  if (body?.address !== undefined) personalData.address = body.address;
   if (body?.country !== undefined) personalData.country = body.country;
   if (body?.city !== undefined) personalData.city = body.city;
   if (body?.state !== undefined) personalData.state = body.state;
-  if (body?.zipCode !== undefined) personalData.zipCode = body.zipCode;
+  if (body?.zipCode !== undefined || body?.zip !== undefined) personalData.zipCode = body.zipCode ?? body.zip;
+  if (body?.nationality !== undefined) personalData.nationality = body.nationality;
+  if (body?.dateOfBirth !== undefined) personalData.dateOfBirth = body.dateOfBirth;
   if (body?.photoUrl === "") personalData.photoUrl = [];
+
+  // ================= TRAVEL PREFERENCES =================
+  const travelData: any = {};
+  const tpSource = body?.travelPreferences && typeof body.travelPreferences === "object" ? body.travelPreferences : body;
+
+  const parseArrayOrJson = (val: any) => {
+    if (Array.isArray(val)) return val;
+    if (typeof val === "string" && val.trim()) {
+      try {
+        const parsed = JSON.parse(val);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {
+        return val.split(",").map((s: string) => s.trim()).filter(Boolean);
+      }
+    }
+    return undefined;
+  };
+
+  if (tpSource?.pace !== undefined && tpSource.pace !== null) {
+    const paceUpper = String(tpSource.pace).toUpperCase();
+    if (["RELAXED", "BALANCED", "ACTIVE"].includes(paceUpper)) {
+      travelData.pace = paceUpper as any;
+    }
+  }
+  if (tpSource?.accommodations !== undefined && tpSource.accommodations !== null) {
+    const parsed = parseArrayOrJson(tpSource.accommodations);
+    if (parsed) travelData.accommodations = parsed;
+  }
+  if (tpSource?.foodDietary !== undefined && tpSource.foodDietary !== null) {
+    const parsed = parseArrayOrJson(tpSource.foodDietary);
+    if (parsed) travelData.foodDietary = parsed;
+  }
+  if (tpSource?.foodNotes !== undefined && tpSource.foodNotes !== null) travelData.foodNotes = tpSource.foodNotes;
+  if (tpSource?.interests !== undefined && tpSource.interests !== null) {
+    const parsed = parseArrayOrJson(tpSource.interests);
+    if (parsed) travelData.interests = parsed;
+  }
+  if (tpSource?.practicalNeeds !== undefined && tpSource.practicalNeeds !== null) {
+    const parsed = parseArrayOrJson(tpSource.practicalNeeds);
+    if (parsed) travelData.practicalNeeds = parsed;
+  }
+  if (tpSource?.practicalNotes !== undefined && tpSource.practicalNotes !== null) travelData.practicalNotes = tpSource.practicalNotes;
+  if (tpSource?.generalNotes !== undefined && tpSource.generalNotes !== null) travelData.generalNotes = tpSource.generalNotes;
+
   // ================= FILE UPLOAD (REPLACE + DELETE OLD CLOUDINARY) =================
   const allowedFileFields = ["photoUrl"];
 
@@ -628,6 +658,15 @@ export const updateProfile = catchAsync(async (req: Request, res: Response) => {
     };
   }
 
+  if (Object.keys(travelData).length) {
+    data.userTravelPreferences = {
+      upsert: {
+        update: travelData,
+        create: travelData,
+      },
+    };
+  }
+
   // ================= UPDATE USER =================
   const updated = await prisma.auth.update({
     where: { id: req.auth.id },
@@ -638,6 +677,7 @@ export const updateProfile = catchAsync(async (req: Request, res: Response) => {
       status: true,
       roles: true,
       userPersonalInfo: true,
+      userTravelPreferences: true,
     },
   });
 

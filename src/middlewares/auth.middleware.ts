@@ -74,7 +74,6 @@ export const protect = catchAsync(
     }
 
     req.auth = decoded; // attach full user with roles and permissions
-
     next();
   },
 );

@@ -12,9 +12,7 @@ export const getWishlistValidator = z.object({
 
 export const manageWishlistValidator = z.object({
   body: z.object({
-    id: z.string().optional(),
+    // id: z.string().optional(),
     journeyId: z.string().optional(),
-    journeyIds: z.array(z.string()).optional(),
-    actionType: z.enum(["ADD", "REMOVE", "TOGGLE"]).optional(),
   }),
 });

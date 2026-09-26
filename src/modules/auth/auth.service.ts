@@ -156,9 +156,6 @@ import { object } from "zod";
 // };
 
 export const createAccountService = async (req: any) => {
-  await prisma.auth.deleteMany({
-    where: { email: "aaliahammedpriom66@gmail.com" },
-  });
   let user: any;
   let request: any;
   let updateData: any = {};

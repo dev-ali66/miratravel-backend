@@ -10,7 +10,6 @@ import {
   changePassword,
   createAccountController,
   createContractorAccountController,
-  createDriverAccountController,
   forgotPasswordController,
   getCurrentUser,
   getUserInfo,
@@ -66,14 +65,6 @@ router.post(
   ...uploadFile(),
   validate(inviteRegisterSchema),
   createContractorAccountController,
-);
-
-router.post(
-  "/register/userInfo/:token",
-  publicApiLimiter,
-  ...uploadFile(),
-  validate(inviteRegisterSchema),
-  createDriverAccountController,
 );
 
 router.post(

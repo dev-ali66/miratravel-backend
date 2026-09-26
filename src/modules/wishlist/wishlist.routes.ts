@@ -11,6 +11,7 @@ import {
   getWishlistValidator,
   manageWishlistValidator,
 } from "./wishlist.validator.js";
+import { accessMiddleware } from "../../middlewares/accessControl.middleware.js";
 
 const router = Router();
 
@@ -18,6 +19,7 @@ router.get(
   "/",
   protect,
   publicApiLimiter,
+  accessMiddleware("Wishlist"),
   validate(getWishlistValidator),
   getWishlistController,
 );
@@ -26,6 +28,7 @@ router.post(
   "/",
   protect,
   publicApiLimiter,
+  accessMiddleware("Wishlist"),
   validate(manageWishlistValidator),
   manageWishlistController,
 );
@@ -34,6 +37,7 @@ router.delete(
   "/",
   protect,
   publicApiLimiter,
+  accessMiddleware("Wishlist"),
   deleteWishlistController,
 );
 

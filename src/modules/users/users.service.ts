@@ -242,7 +242,7 @@ export const updateUserService = async (req: Request) => {
     throw new ApiError("User ID is required", 400);
   }
 
-  const { email, password, firstName, lastName, phone, role, roleId, status, isVerified, termsAccepted } = req.body;
+  const { email, password, firstName, lastName, phone, address, country, state, city, zipCode, zip, nationality, dateOfBirth, about, role, roleId, status, isVerified, termsAccepted } = req.body;
 
   const existing = await prisma.auth.findUnique({
     where: { id: String(id) },
@@ -299,18 +299,49 @@ export const updateUserService = async (req: Request) => {
   }
 
   // Personal info upsert
-  if (firstName !== undefined || lastName !== undefined || phone !== undefined) {
+  const hasPersonalInfoField =
+    firstName !== undefined ||
+    lastName !== undefined ||
+    phone !== undefined ||
+    address !== undefined ||
+    country !== undefined ||
+    state !== undefined ||
+    city !== undefined ||
+    zipCode !== undefined ||
+    zip !== undefined ||
+    nationality !== undefined ||
+    dateOfBirth !== undefined ||
+    about !== undefined;
+
+  if (hasPersonalInfoField) {
+    const effectiveZipCode = zipCode ?? zip;
     updateData.userPersonalInfo = {
       upsert: {
         create: {
           firstName: firstName || null,
           lastName: lastName || null,
           phone: phone || null,
+          address: address || null,
+          country: country || null,
+          state: state || null,
+          city: city || null,
+          zipCode: effectiveZipCode || null,
+          nationality: nationality || null,
+          dateOfBirth: dateOfBirth || null,
+          about: about || null,
         },
         update: {
           ...(firstName !== undefined && { firstName }),
           ...(lastName !== undefined && { lastName }),
           ...(phone !== undefined && { phone }),
+          ...(address !== undefined && { address }),
+          ...(country !== undefined && { country }),
+          ...(state !== undefined && { state }),
+          ...(city !== undefined && { city }),
+          ...(effectiveZipCode !== undefined && { zipCode: effectiveZipCode }),
+          ...(nationality !== undefined && { nationality }),
+          ...(dateOfBirth !== undefined && { dateOfBirth }),
+          ...(about !== undefined && { about }),
         },
       },
     };
@@ -349,6 +380,7 @@ export const updateUserService = async (req: Request) => {
       firstName: updatedUser.userPersonalInfo?.firstName || null,
       lastName: updatedUser.userPersonalInfo?.lastName || null,
       phone: updatedUser.userPersonalInfo?.phone || null,
+      userPersonalInfo: updatedUser.userPersonalInfo,
     },
     message: "User updated successfully",
   };
