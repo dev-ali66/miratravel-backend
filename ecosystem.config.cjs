@@ -1,21 +1,24 @@
 module.exports = {
   apps: [
     {
-      name: "marcus-backend",
+      name: "backend-miratravel",
       script: "./dist/index.js",
       instances: 2,
       exec_mode: "cluster",
       watch: false,
-      max_memory_restart: "500M",
+      max_memory_restart: "512M",
+      node_args: "--max-old-space-size=512 --expose-gc",
+      kill_timeout: 5000,
+      listen_timeout: 10000,
 
       env_production: {
         NODE_ENV: "production",
-        PORT: 5013,
+        PORT: 5011,
       },
 
       env_development: {
         NODE_ENV: "development",
-        PORT: 5013,
+        PORT: 5011,
       },
 
       error_file: "./logs/err.log",

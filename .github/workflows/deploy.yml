@@ -1,13 +1,19 @@
-name: Backend CI/CD
+name: MiraTravel Backend CI/CD
 
 on:
   push:
     branches:
       - main
 
+env:
+  VPS_HOST: ${{ secrets.VPS_HOST }}
+  VPS_USER: ${{ secrets.VPS_USER }}
+  VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+  VPS_APP_PATH: ${{ secrets.VPS_APP_PATH }}
+
 jobs:
   build:
-    name: Build Backend
+    name: Build MiraTravel Backend
     runs-on: ubuntu-latest
 
     steps:
@@ -29,51 +35,86 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Create deployment package
+        run: |
+          zip -r backend-build.zip \
+            dist \
+            node_modules \
+            prisma \
+            package.json \
+            package-lock.json \
+            ecosystem.config.cjs
+
+      - name: Upload deployment package
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build
+          path: backend-build.zip
+
   deploy:
     name: Deploy to Hostinger
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy via SSH
+      - name: Download deployment package
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-build
+
+      - name: Create backend directory on VPS
         uses: appleboy/ssh-action@v1.2.2
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          host: ${{ env.VPS_HOST }}
+          username: ${{ env.VPS_USER }}
+          key: ${{ env.VPS_SSH_KEY }}
 
           script: |
             set -e
 
-            # Load NVM
-            export NVM_DIR="/root/.nvm"
-            source "$NVM_DIR/nvm.sh"
+            echo "=== Creating backend directory ==="
 
-            # Use Node.js 24
-            nvm use 24
+            mkdir -p "${{ env.VPS_APP_PATH }}"
+
+            echo "Backend path:"
+            echo "${{ env.VPS_APP_PATH }}"
+
+      - name: Copy package to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ env.VPS_HOST }}
+          username: ${{ env.VPS_USER }}
+          key: ${{ env.VPS_SSH_KEY }}
+          source: "backend-build.zip"
+          target: ${{ env.VPS_APP_PATH }}
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ env.VPS_HOST }}
+          username: ${{ env.VPS_USER }}
+          key: ${{ env.VPS_SSH_KEY }}
+
+          script: |
+            set -e
 
             echo "Node: $(node -v)"
             echo "NPM: $(npm -v)"
-            echo "NPX: $(npx -v)"
             echo "PM2: $(pm2 -v)"
 
-            # Go to project
-            cd ${{ secrets.VPS_APP_PATH }}
+            cd "${{ env.VPS_APP_PATH }}"
 
-            # Pull latest code
-            git pull origin main
+            echo "=== Extracting deployment package ==="
+            unzip -o backend-build.zip
 
-            # Install dependencies
-            npm ci
+            echo "=== Removing deployment package ==="
+            rm -f backend-build.zip
 
-            # Generate Prisma Client
-            npx prisma generate
+            echo "=== Reloading PM2 ==="
+            pm2 reload ecosystem.config.cjs --update-env --env development || \
+            pm2 start ecosystem.config.cjs --env development
 
-            # Build application
-            npm run build
-
-            # Restart application
-            pm2 reload ecosystem.config.cjs --env development --update-env
-
-            # Save PM2 process list
+            echo "=== Saving PM2 process list ==="
             pm2 save
+
+            echo "=== Deployment completed successfully ==="
