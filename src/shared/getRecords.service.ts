@@ -1,6 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import ApiError from "../utils/api.error.js";
 import { redisManager } from "../config/redis.js";
+import { l1Cache } from "../utils/l1Cache.helper.js";
 import { autoParseJSON } from "./manageRecordWithFiles.service.js";
 import { auditLogger } from "../logger/audit.logger.js";
 
@@ -106,34 +107,69 @@ export const getRecords = async ({
   ].join(":");
   const tagKey = `tag:${model.name}`;
 
-  // 🔥 1. CHECK CACHE
-  if (redis) {
-    const cached = await redis.get(cacheKey);
+  // 🔥 1. CHECK L1 CACHE (In-Memory RAM - Ultra fast <0.01ms)
+  const l1Cached = l1Cache.get(cacheKey);
+  if (l1Cached) {
+    if (audit) {
+      await auditLogger({
+        req,
+        action: req.action || "READ",
+        entity: req.modelName || modelName,
+        metadata: {
+          source: "l1-memory-cache",
+          page,
+          limit,
+          filter,
+          orderBy,
+          returned: Array.isArray(l1Cached.data)
+            ? l1Cached.data.length
+            : l1Cached.data
+              ? 1
+              : 0,
+        },
+      }).catch(() => {});
+    }
+    return l1Cached;
+  }
 
-    if (cached) {
-      const cachedResponse = JSON.parse(cached);
+  // 🔥 2. CHECK L2 CACHE (Redis Centralized Cache)
+  if (redis && redisManager.isReady()) {
+    try {
+      const cached = await redis.get(cacheKey);
 
-      if (audit) {
-        await auditLogger({
-          req,
-          action: req.action || "READ",
-          entity: req.modelName || modelName,
-          metadata: {
-            source: "redis-cache",
-            page,
-            limit,
-            filter,
-            orderBy,
-            returned: Array.isArray(cachedResponse.data)
-              ? cachedResponse.data.length
-              : cachedResponse.data
-                ? 1
-                : 0,
-          },
-        });
+      if (cached) {
+        const cachedResponse = JSON.parse(cached);
+
+        // Populate L1 Cache so subsequent requests hit RAM instantly
+        l1Cache.set(cacheKey, cachedResponse, 300);
+
+        if (audit) {
+          await auditLogger({
+            req,
+            action: req.action || "READ",
+            entity: req.modelName || modelName,
+            metadata: {
+              source: "l2-redis-cache",
+              page,
+              limit,
+              filter,
+              orderBy,
+              returned: Array.isArray(cachedResponse.data)
+                ? cachedResponse.data.length
+                : cachedResponse.data
+                  ? 1
+                  : 0,
+            },
+          }).catch(() => {});
+        }
+
+        return cachedResponse;
       }
-
-      return cachedResponse;
+    } catch (redisErr) {
+      console.warn(
+        "Redis L2 GET error in getRecords (falling back to DB):",
+        redisErr,
+      );
     }
   }
 
@@ -191,15 +227,21 @@ export const getRecords = async ({
         filter,
         orderBy,
       },
-    });
+    }).catch(() => {});
   }
 
-  // 🔥 2. SAVE CACHE + TAG
-  if (redis) {
-    await redis.set(cacheKey, JSON.stringify(response), "EX", 60);
+  // 🔥 3. SAVE TO L1 (RAM: 300s TTL) AND L2 (REDIS: 21600s TTL)
+  l1Cache.set(cacheKey, response, 300);
 
-    // attach key to model tag
-    await redis.sadd(tagKey, cacheKey);
+  if (redis && redisManager.isReady()) {
+    try {
+      await redis.set(cacheKey, JSON.stringify(response), "EX", 21600);
+
+      // attach key to model tag
+      await redis.sadd(tagKey, cacheKey);
+    } catch (redisErr) {
+      console.warn("Redis L2 SET error in getRecords:", redisErr);
+    }
   }
 
   return response;

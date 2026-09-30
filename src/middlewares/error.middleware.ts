@@ -93,6 +93,16 @@ export const globalErrorHandler = (
         message = `Resource not found in ${table}.`;
         break;
 
+      case "P1000":
+      case "P1001":
+      case "P1002":
+      case "P1008":
+      case "P1017":
+        statusCode = 503;
+        message =
+          "Database connection is temporarily unavailable. Cached features remain operational.";
+        break;
+
       default:
         statusCode = 400;
         message =
@@ -144,11 +154,19 @@ export const globalErrorHandler = (
 
   // --- Prisma init / Rust errors ---
   else if (err?.name === "PrismaClientInitializationError") {
-    statusCode = 500;
-    message = "Prisma client failed to initialize";
+    statusCode = 503;
+    message =
+      "Database connection is temporarily unavailable. Cached features remain operational.";
   } else if (err?.name === "PrismaClientRustPanicError") {
     statusCode = 500;
     message = "Internal database error (Prisma Rust panic)";
+  } else if (
+    ["ECONNREFUSED", "ETIMEDOUT", "EHOSTUNREACH", "ENOTFOUND"].includes(
+      err?.code,
+    )
+  ) {
+    statusCode = 503;
+    message = "Database or network service temporarily unreachable.";
   }
 
   // --- Mongoose / MongoDB validation errors ---

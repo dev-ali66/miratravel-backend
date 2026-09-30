@@ -1,4 +1,5 @@
 import { logger } from "./logger.logger.js";
+import config from "../config/index.js";
 
 export const redisLogger = {
   connecting() {
@@ -44,7 +45,7 @@ export const redisLogger = {
       name: error?.name,
       message: error?.message,
       code: error?.code ?? null,
-      stack: process.env.NODE_ENV === "development" ? error?.stack : undefined,
+      stack: config.NODE_ENV === "development" ? error?.stack : undefined,
     });
   },
 

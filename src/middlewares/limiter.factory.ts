@@ -7,6 +7,7 @@ export const createLimiter = (options: any) => {
     windowMs: options.windowMs,
     max: options.max,
     skip: options.skip || (() => false),
+    passOnStoreError: true,
 
     keyGenerator: (req: any) =>
       req.auth?.id ||
@@ -30,8 +31,13 @@ export const createLimiter = (options: any) => {
       ...baseConfig,
       store: new RedisStore({
         // safer ioredis compatibility
-        sendCommand: (command: string, ...args: string[]) => {
-          return (client as any).call(command, ...args);
+        sendCommand: async (command: string, ...args: string[]) => {
+          try {
+            return await (client as any).call(command, ...args);
+          } catch (err) {
+            console.warn("Redis rate-limiter store command error:", err);
+            throw err;
+          }
         },
         prefix: options.prefix || "rl",
       }),

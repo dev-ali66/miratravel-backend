@@ -63,10 +63,14 @@ export const getCountUtils = async ({
   const tagKey = `tag:${model.name}`;
 
   // 🔥 1. CHECK CACHE
-  if (redis) {
-    const cached = await redis.get(cacheKey);
-    if (cached) {
-      return JSON.parse(cached);
+  if (redis && redisManager.isReady()) {
+    try {
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    } catch (redisErr) {
+      console.warn("Redis GET error in getCountUtils:", redisErr);
     }
   }
 
@@ -81,9 +85,13 @@ export const getCountUtils = async ({
   };
 
   // 🔥 2. SAVE CACHE + TAG
-  if (redis) {
-    await redis.set(cacheKey, JSON.stringify(response), "EX", 60);
-    await redis.sadd(tagKey, cacheKey);
+  if (redis && redisManager.isReady()) {
+    try {
+      await redis.set(cacheKey, JSON.stringify(response), "EX", 60);
+      await redis.sadd(tagKey, cacheKey);
+    } catch (redisErr) {
+      console.warn("Redis SET error in getCountUtils:", redisErr);
+    }
   }
 
   return response;

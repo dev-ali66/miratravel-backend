@@ -1,6 +1,8 @@
 import { httpServer, io, PORT } from "./app.js";
 import config from "./src/config/index.js";
 import { redisManager } from "./src/config/redis.js";
+import { rabbitMQManager } from "./src/config/rabbitmq.js";
+import { nodeCacheManager } from "./src/config/nodecache.js";
 import { logger } from "./src/logger/logger.logger.js";
 import prisma from "./src/config/prisma.js";
 
@@ -51,14 +53,15 @@ const gracefulShutdown = async (signal: ShutdownSignal) => {
     await prisma.$disconnect();
     logger.success("Database connection closed");
 
-    const redis = redisManager.getClient();
-
-    if (redis) {
-      await redis.quit();
+    if (config.USE_REDIS) {
+      await redisManager.disconnect();
       logger.success("Redis connection closed");
     }
 
-    // await rabbit.disconnect();
+    if (config.USE_RABBITMQ) {
+      await rabbitMQManager.disconnect();
+      logger.success("RabbitMQ connection closed");
+    }
 
     clearTimeout(shutdownTimer);
 
@@ -78,13 +81,48 @@ const startServer = async () => {
   try {
     logger.info("Connecting to database...");
 
-    await prisma.$connect();
-    await prisma.$queryRaw`SELECT 1`;
+    try {
+      await prisma.$connect();
+      await prisma.$queryRaw`SELECT 1`;
+      logger.success("Database connected successfully");
+    } catch (dbError: any) {
+      logger.error(
+        "Database connection failed during startup. Server running in degraded mode.",
+        dbError?.message || dbError,
+      );
+    }
 
-    await redisManager.connect();
-    // await rabbit.connect();
+    if (config.USE_REDIS) {
+      try {
+        await redisManager.connect();
+      } catch (redisError: any) {
+        logger.error(
+          "Redis connection failed during startup.",
+          redisError?.message || redisError,
+        );
+      }
+    } else {
+      logger.info("Redis is disabled (USE_REDIS=false)");
+    }
 
-    logger.success("Database connected successfully");
+    if (config.USE_RABBITMQ) {
+      try {
+        await rabbitMQManager.connect();
+      } catch (rabbitError: any) {
+        logger.error(
+          "RabbitMQ connection failed during startup.",
+          rabbitError?.message || rabbitError,
+        );
+      }
+    } else {
+      logger.info("RabbitMQ is disabled (USE_RABBITMQ=false)");
+    }
+
+    if (config.USE_NODE_CACHE) {
+      logger.success("NodeCache in-memory cache is enabled (USE_NODE_CACHE=true)");
+    } else {
+      logger.info("NodeCache is disabled (USE_NODE_CACHE=false)");
+    }
 
     httpServer.listen(PORT, "127.0.0.1", () => {
       logger.success("Server started successfully", {
@@ -123,27 +161,22 @@ const startServer = async () => {
   }
 };
 
-process.on("uncaughtException", (error) => {
+process.on("uncaughtException", (error: any) => {
   logger.error("UNCAUGHT EXCEPTION", error);
 
-  if (isDevelopment) {
-    if (error.stack) logger.debug(error.stack);
-    logger.warn("Server kept running in development mode after uncaught exception.");
-    return;
+  if (error?.stack) {
+    logger.debug(error.stack);
   }
-
-  gracefulShutdown("Uncaught Exception");
+  logger.warn("Server kept running after uncaught exception.");
 });
 
-process.on("unhandledRejection", (reason) => {
+process.on("unhandledRejection", (reason: any) => {
   logger.error("UNHANDLED REJECTION", reason);
 
-  if (isDevelopment) {
-    logger.warn("Server kept running in development mode after unhandled rejection.");
-    return;
+  if (reason?.stack) {
+    logger.debug(reason.stack);
   }
-
-  gracefulShutdown("Unhandled Rejection");
+  logger.warn("Server kept running after unhandled rejection.");
 });
 
 const signals: ShutdownSignal[] = ["SIGINT", "SIGTERM", "SIGHUP"];

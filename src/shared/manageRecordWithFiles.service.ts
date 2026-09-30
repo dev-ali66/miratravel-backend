@@ -6,6 +6,7 @@ import { deleteFromCloudinary } from "./delete_cloudinary.service.js";
 import { uploadFilesToCloudinary } from "./upload_cloudinary.service.js";
 import ApiError from "../utils/api.error.js";
 import { redisManager } from "../config/redis.js";
+import { l1Cache } from "../utils/l1Cache.helper.js";
 import { auditLogger } from "../logger/audit.logger.js";
 
 type DeleteFn = (url: string) => Promise<any>;
@@ -271,19 +272,25 @@ export const manageRecordWithFiles = async ({
           },
         });
       }
-      // 🔥 CACHE INVALIDATION
+      // 🔥 CACHE INVALIDATION (L1 RAM + L2 REDIS)
+      l1Cache.clear();
+
       const redis = redisManager.getClient();
 
-      if (redis) {
-        const tagKey = `tag:${model.name}`;
+      if (redis && redisManager.isReady()) {
+        try {
+          const tagKey = `tag:${model.name}`;
 
-        const keys = await redis.smembers(tagKey);
+          const keys = await redis.smembers(tagKey);
 
-        if (keys.length) {
-          await redis.del(...keys);
+          if (keys.length) {
+            await redis.del(...keys);
+          }
+
+          await redis.del(tagKey);
+        } catch (redisErr) {
+          console.warn("Redis cache invalidation error in manageRecordWithFiles:", redisErr);
         }
-
-        await redis.del(tagKey);
       }
     } catch (dbErr) {
       // Rollback newly uploaded files

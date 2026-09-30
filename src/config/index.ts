@@ -58,9 +58,28 @@ const config = {
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || "",
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || "",
 
+  USE_REDIS:
+    (process.env.USE_REDIS || process.env.REDIS_ENABLED)?.toLowerCase() ===
+    "true",
+  USE_RABBITMQ:
+    (process.env.USE_RABBITMQ || process.env.RABBITMQ_ENABLED)?.toLowerCase() ===
+    "true",
+  USE_NODE_CACHE:
+    (process.env.USE_NODE_CACHE || process.env.NODE_CACHE_ENABLED)?.toLowerCase() ===
+    "true",
+
   REDIS_HOST: process.env.REDIS_HOST || "127.0.0.1",
   REDIS_PORT: Number(process.env.REDIS_PORT) || 6379,
   REDIS_TIMEOUT: Number(process.env.REDIS_TIMEOUT) || 500,
+
+  RABBITMQ_HOST: process.env.RABBITMQ_HOST || "127.0.0.1",
+  RABBITMQ_PORT: Number(process.env.RABBITMQ_PORT) || 5672,
+  RABBITMQ_USER: process.env.RABBITMQ_USER || "guest",
+  RABBITMQ_PASS: process.env.RABBITMQ_PASS || "guest",
+  RABBITMQ_VHOST: process.env.RABBITMQ_VHOST || "/",
+  RABBITMQ_URL:
+    process.env.RABBITMQ_URL ||
+    `amqp://${process.env.RABBITMQ_USER || "guest"}:${process.env.RABBITMQ_PASS || "guest"}@${process.env.RABBITMQ_HOST || "127.0.0.1"}:${process.env.RABBITMQ_PORT || "5672"}${process.env.RABBITMQ_VHOST || "/"}`,
 
   API_VERSION: process.env.API_VERSION || "v1",
   OTP_EXPIRE_MINUTE: Number(process.env.OTP_EXPIRE_MINUTE) || 10,

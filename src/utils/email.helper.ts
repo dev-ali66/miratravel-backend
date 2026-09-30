@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import { logConsole } from "./log.console.js";
 import { logError } from "./log.error.js";
+import config from "../config/index.js";
 
 export const emailHelper = async ({
   to,
@@ -14,13 +15,13 @@ export const emailHelper = async ({
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: config.EMAIL_USER,
+        pass: config.EMAIL_PASS,
       },
     });
 
     const mailOptions = {
-      from: process.env.EMAIL_FROM || `"No Reply" <${process.env.EMAIL_USER}>`,
+      from: config.EMAIL_FROM || `"No Reply" <${config.EMAIL_USER}>`,
       replyTo: replyTo,
       to,
       subject,

@@ -20,9 +20,13 @@ import { requestProfilerMiddleware } from "./src/utils/perfomance.tester.js";
 import { bootStapHttps } from "./bootStrapsHttp.js";
 import { bootStapSocket } from "./bootsStrapsSocket.js";
 import { redisManager } from "./src/config/redis.js";
+import { rabbitMQManager } from "./src/config/rabbitmq.js";
+import { nodeCacheManager } from "./src/config/nodecache.js";
 import { setupSwagger } from "./src/docs/swagger/swagger.js";
 import { responseLogger } from "./src/logger/response.logger.js";
 import { requestLogger } from "./src/logger/request.logger.js";
+
+import prisma from "./src/config/prisma.js";
 
 dotenv.config({ quiet: true });
 
@@ -101,13 +105,37 @@ app.get("/favicon.ico", (_req, res) => {
   res.status(204).end();
 });
 
-app.get("/api/v1/health", (req, res) => {
+app.get("/api/v1/health", async (_req, res) => {
+  let dbStatus = "disconnected";
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    dbStatus = "connected";
+  } catch {
+    dbStatus = "disconnected";
+  }
+
+  const isServerHealthy =
+    dbStatus === "connected" &&
+    (!config.USE_REDIS || redisManager.isReady()) &&
+    (!config.USE_RABBITMQ || rabbitMQManager.isReady());
+
   const healthData = {
     code: 200,
     success: true,
-    status: "UP",
+    status: isServerHealthy ? "UP" : "DEGRADED",
     service: "Poli Server",
-    redis: redisManager.isReady() ? "connected" : "disconnected",
+    database: dbStatus,
+    redis: config.USE_REDIS
+      ? redisManager.isReady()
+        ? "connected"
+        : "disconnected"
+      : "disabled",
+    rabbitmq: config.USE_RABBITMQ
+      ? rabbitMQManager.isReady()
+        ? "connected"
+        : "disconnected"
+      : "disabled",
+    nodecache: config.USE_NODE_CACHE ? "enabled" : "disabled",
     uptime: Math.floor(process.uptime()),
     timestamp: new Date().toISOString(),
     hostname: os.hostname(),

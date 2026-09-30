@@ -1,5 +1,6 @@
 import { Request } from "express";
 import { logger } from "./logger.logger.js";
+import config from "../config/index.js";
 
 export const errorLogger = (req: Request, err: any) => {
   logger.error("Request Failed", {
@@ -33,7 +34,7 @@ export const errorLogger = (req: Request, err: any) => {
       name: err.name,
       message: err.message,
       code: err.code ?? null,
-      stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+      stack: config.NODE_ENV === "development" ? err.stack : undefined,
     },
   });
 };

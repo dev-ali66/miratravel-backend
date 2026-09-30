@@ -1,5 +1,6 @@
 import chalk from "chalk";
 import util from "util";
+import config from "../config/index.js";
 
 export type LogLevel = "INFO" | "SUCCESS" | "WARN" | "ERROR" | "DEBUG";
 
@@ -12,7 +13,9 @@ const levelColor = {
 };
 
 class Logger {
-  private isDevelopment = process.env.NODE_ENV === "development";
+  private get isDevelopment() {
+    return config.NODE_ENV === "development";
+  }
 
   private format(args: any[]) {
     return args.map((arg) => {
@@ -45,7 +48,7 @@ class Logger {
 
     const prefix = levelColor[level](`[${timestamp}] ${level.padEnd(7)}`);
 
-    // console.log(prefix, ...this.format(args));
+    console.log(prefix, ...this.format(args));
   }
 
   info(...args: any[]) {

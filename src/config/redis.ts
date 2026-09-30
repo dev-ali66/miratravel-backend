@@ -8,6 +8,14 @@ class RedisManager {
 
   connect(): void {
     if (this.initialized) return;
+
+    if (!config.USE_REDIS) {
+      redisLogger.disabled(
+        "Redis service is disabled via config (USE_REDIS=false)",
+      );
+      return;
+    }
+
     this.initialized = true;
 
     if (!config.REDIS_HOST || !config.REDIS_PORT) {
@@ -23,9 +31,18 @@ class RedisManager {
       host: config.REDIS_HOST,
       port: Number(config.REDIS_PORT),
       connectTimeout: config.REDIS_TIMEOUT || 5000,
+      maxRetriesPerRequest: 3,
 
       retryStrategy: (times: number) => {
-        // Retry every 1s, max 5s
+        // Stop reconnecting after 5 attempts to prevent infinite log spamming
+        if (times > 5) {
+          redisLogger.error(
+            new Error(
+              "Redis retry limit reached (5 attempts). Stopping reconnection loop.",
+            ),
+          );
+          return null; // Returning null stops ioredis from retrying endlessly
+        }
         return Math.min(times * 1000, 5000);
       },
     });
@@ -56,15 +73,15 @@ class RedisManager {
     });
 
     this.client.on("error", (err) => {
-      // শুধু log করবে, app crash করবে না
+      // Log error cleanly, do not crash application
       redisLogger.error(err);
     });
   }
 
   getClient(): InstanceType<typeof Redis.default> | null {
-    if (!this.client) return null;
+    if (!config.USE_REDIS || !this.client) return null;
 
-    // শুধু ready হলে client return করবে
+    // Return client only when status is ready
     if (this.client.status !== "ready") {
       return null;
     }
@@ -73,7 +90,7 @@ class RedisManager {
   }
 
   isReady(): boolean {
-    return this.client?.status === "ready";
+    return Boolean(config.USE_REDIS && this.client?.status === "ready");
   }
 
   async disconnect(): Promise<void> {

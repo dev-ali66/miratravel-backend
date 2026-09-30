@@ -2,6 +2,7 @@ import { extractIds } from "../utils/extractIds.js";
 import { StatusCodes } from "http-status-codes";
 import ApiError from "../utils/api.error.js";
 import { redisManager } from "../config/redis.js";
+import { l1Cache } from "../utils/l1Cache.helper.js";
 import { auditLogger } from "../logger/audit.logger.js";
 
 export const deleteRecordsSafely = async ({
@@ -98,19 +99,25 @@ export const deleteRecordsSafely = async ({
     });
   });
 
-  // 🚀 CACHE INVALIDATION (MAIN PART)
+  // 🚀 CACHE INVALIDATION (L1 RAM + L2 REDIS)
+  l1Cache.clear();
+
   const redis = redisManager.getClient();
 
-  if (redis) {
-    const tagKey = `tag:${model.name}`;
+  if (redis && redisManager.isReady()) {
+    try {
+      const tagKey = `tag:${model.name}`;
 
-    const keys = await redis.smembers(tagKey);
+      const keys = await redis.smembers(tagKey);
 
-    if (keys.length) {
-      await redis.del(...keys);
+      if (keys.length) {
+        await redis.del(...keys);
+      }
+
+      await redis.del(tagKey);
+    } catch (redisErr) {
+      console.warn("Redis cache invalidation error in deleteRecordsSafely:", redisErr);
     }
-
-    await redis.del(tagKey);
   }
   // ===========================
   // AUDIT LOG (OPTIONAL)
