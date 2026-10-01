@@ -1,0 +1,443 @@
+model Auth {
+  id                     String                 @id
+  email                  String                 @unique
+  password               String
+  isVerified             Boolean                @default(false)
+  status                 Status                 @default(ACTIVE)
+  otp                    String?
+  otpExpiresAt           DateTime?
+  passwordResetToken     String?
+  passwordResetExpiresAt DateTime?
+  emailToken             String?
+  failedLoginAttempts    Int                    @default(0)
+  lockUntil              DateTime?
+  isDeleted              Boolean                @default(false)
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime
+  deletedAt              DateTime?
+  termsAccepted          Boolean                @default(false)
+  termsAcceptedAt        DateTime?
+  Booking                Booking[]
+  ConciergeLead          ConciergeLead[]
+  Session                Session[]
+  UserPersonalInfo       UserPersonalInfo?
+  UserSettings           UserSettings?
+  UserTravelPreferences  UserTravelPreferences?
+  Wishlist               Wishlist[]
+  Role                   Role[]                 @relation("RoleToUser")
+}
+
+model Booking {
+  id                                                                 String            @id
+  journeyId                                                          String
+  travelerEmail                                                      String
+  travelerPhone                                                      String?
+  addOnIds                                                           String[]
+  createdAt                                                          DateTime          @default(now())
+  updatedAt                                                          DateTime
+  approvalDate                                                       DateTime?
+  bookingNumber                                                      String            @unique
+  bookingStatus                                                      BookingStatus     @default(REQUEST_SUBMITTED)
+  confirmedTotal                                                     Decimal?          @db.Decimal(10, 2)
+  currency                                                           String            @default("EUR")
+  outstandingAmount                                                  Decimal           @default(0) @db.Decimal(10, 2)
+  paidAmount                                                         Decimal           @default(0) @db.Decimal(10, 2)
+  paymentStatus                                                      PaymentStatus     @default(UNPAID)
+  selectedPaymentScheduleId                                          String?
+  acknowledgedRequestOnly                                            Boolean           @default(false)
+  adults                                                             Int               @default(0)
+  agreedToPrivacyPolicy                                              Boolean           @default(false)
+  agreedToTerms                                                      Boolean           @default(false)
+  children                                                           Int               @default(0)
+  childrenAges                                                       Int[]
+  consentTimestamp                                                   DateTime?
+  createdBy                                                          String
+  travelArrivalDate                                                  DateTime
+  travelDepartureDate                                                DateTime
+  travelerBirthDate                                                  DateTime?
+  travelerFirstName                                                  String
+  travelerLastName                                                   String
+  travelerMessage                                                    String?
+  travelerNationality                                                String?
+  travelerType                                                       TravelerType      @default(SOLO)
+  deletedAt                                                          DateTime?
+  Auth                                                               Auth              @relation(fields: [createdBy], references: [id])
+  Journey                                                            Journey           @relation(fields: [journeyId], references: [id])
+  PaymentSchedule_Booking_selectedPaymentScheduleIdToPaymentSchedule PaymentSchedule?  @relation("Booking_selectedPaymentScheduleIdToPaymentSchedule", fields: [selectedPaymentScheduleId], references: [id])
+  PaymentRecord                                                      PaymentRecord[]
+  PaymentSchedule_PaymentSchedule_bookingIdToBooking                 PaymentSchedule[] @relation("PaymentSchedule_bookingIdToBooking")
+
+  @@index([bookingStatus])
+  @@index([journeyId])
+  @@index([paymentStatus])
+  @@index([travelDepartureDate])
+}
+
+model CmsPage {
+  id        String    @id
+  name      String
+  slug      String
+  metadata  Json?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  data      Json?
+
+  @@unique([deletedAt, slug])
+  @@index([deletedAt])
+}
+
+model ConciergeLead {
+  id              String              @id
+  firstName       String
+  lastName        String
+  email           String
+  phone           String?
+  partySize       Int                 @default(2)
+  travelStyle     TravelStyle         @default(LUXURY)
+  budgetRange     BudgetRange         @default(UNDECIDED)
+  specialRequests String?
+  status          ConciergeLeadStatus @default(NEW)
+  assignedToId    String?
+  deletedAt       DateTime?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime
+  Auth            Auth?               @relation(fields: [assignedToId], references: [id])
+
+  @@index([email])
+  @@index([status])
+}
+
+model Journey {
+  id             String        @id
+  slug           String
+  title          String
+  subtitle       String?
+  price          Decimal       @db.Decimal(10, 2)
+  currency       String        @default("EUR")
+  minDays        Int
+  maxDays        Int
+  journeyType    JourneyType[]
+  travelStyle    TravelStyle[]
+  perfectFor     PerfectFor[]
+  pace           Pace
+  comfortLevel   ComfortLevel
+  status         JourneyStatus @default(DRAFT)
+  featured       Boolean       @default(false)
+  metadata       Json?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime
+  deletedAt      DateTime?
+  accommodations Json?
+  addOns         Json?
+  hero           Json?
+  itinerary      Json?
+  overview       Json?
+  whatsIncluded  Json?
+  Booking        Booking[]
+  Wishlist       Wishlist[]
+
+  @@unique([deletedAt, slug])
+  @@index([minDays, maxDays])
+  @@index([status])
+}
+
+model Location {
+  id                   String       @id
+  name                 String
+  slug                 String       @unique
+  type                 LocationType
+  parentId             String?
+  geoData              Json?
+  metadata             Json?
+  data                 Json?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime
+  deletedAt            DateTime?
+  accommodation        Json?
+  card                 Json?
+  character            Json?
+  cta                  Json?
+  essence              Json?
+  experience           Json?
+  explore              Json?
+  faq                  Json?
+  glance               Json?
+  hero                 Json?
+  infoCard             Json?
+  journeyList          Json?
+  sharedInfo           Json?
+  signatureExperiences Json?
+  stories              Json?
+  travelInfo           Json?
+  travelInsight        Json?
+  why                  Json?
+  highlights           Json?
+  statistics           Json?
+  regionExperiences    Json?
+  practicalInfo        Json?
+  featured             Boolean      @default(false)
+  Location             Location?    @relation("LocationToLocation", fields: [parentId], references: [id])
+  other_Location       Location[]   @relation("LocationToLocation")
+
+  @@index([parentId])
+  @@index([type])
+}
+
+model PaymentConfig {
+  id                                 String      @id
+  scope                              String      @unique @default("global")
+  depositEnabled                     Boolean     @default(true)
+  depositType                        DepositType @default(PERCENTAGE)
+  depositValue                       Decimal     @default(30) @db.Decimal(10, 2)
+  finalPaymentDueDaysBeforeDeparture Int         @default(60)
+  fullPaymentRequiredIfWithinDays    Int         @default(60)
+  allowAdminOverride                 Boolean     @default(true)
+  reservationWithoutPayment          Boolean     @default(false)
+  updatedAt                          DateTime
+  deletedAt                          DateTime?
+}
+
+model PaymentRecord {
+  id                  String               @id
+  bookingId           String
+  scheduleItemId      String?
+  paymentDate         DateTime             @default(now())
+  amount              Decimal              @db.Decimal(10, 2)
+  currency            String
+  method              String?
+  pspTransactionRef   String?
+  status              PaymentRecordStatus  @default(PENDING)
+  refundAmount        Decimal              @default(0) @db.Decimal(10, 2)
+  adminNotes          String?
+  recordedBy          String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime
+  deletedAt           DateTime?
+  Booking             Booking              @relation(fields: [bookingId], references: [id])
+  PaymentScheduleItem PaymentScheduleItem? @relation(fields: [scheduleItemId], references: [id])
+
+  @@index([bookingId])
+  @@index([scheduleItemId])
+  @@index([status])
+}
+
+model PaymentSchedule {
+  id                                                         String                @id
+  templateType                                               DepositTemplateType   @default(STANDARD_30_70)
+  totalScheduledAmount                                       Decimal               @db.Decimal(10, 2)
+  overrideReason                                             String?
+  createdAt                                                  DateTime              @default(now())
+  createdBy                                                  String?
+  bookingId                                                  String
+  status                                                     PaymentScheduleStatus @default(ACTIVE)
+  deletedAt                                                  DateTime?
+  Booking_Booking_selectedPaymentScheduleIdToPaymentSchedule Booking[]             @relation("Booking_selectedPaymentScheduleIdToPaymentSchedule")
+  Booking_PaymentSchedule_bookingIdToBooking                 Booking               @relation("PaymentSchedule_bookingIdToBooking", fields: [bookingId], references: [id])
+  PaymentScheduleItem                                        PaymentScheduleItem[]
+
+  @@index([status])
+}
+
+model PaymentScheduleItem {
+  id               String               @id
+  scheduleId       String
+  sequence         Int
+  label            String
+  calculationType  ScheduleItemCalcType
+  ruleValue        Decimal?             @db.Decimal(10, 2)
+  dueRule          ScheduleItemDueRule
+  dueValue         Int?
+  dueDate          DateTime?
+  calculatedAmount Decimal              @db.Decimal(10, 2)
+  paidAmount       Decimal              @default(0) @db.Decimal(10, 2)
+  status           ScheduleItemStatus   @default(SCHEDULED)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime
+  deletedAt        DateTime?
+  PaymentRecord    PaymentRecord[]
+  PaymentSchedule  PaymentSchedule      @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@unique([scheduleId, sequence])
+  @@index([dueDate])
+  @@index([status])
+}
+
+model Permission {
+  id        String    @id @unique
+  action    Action
+  resource  String?
+  scope     Scope
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  deletedAt DateTime?
+  Role      Role[]
+}
+
+model Role {
+  id         String       @id @unique
+  name       String       @unique
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime
+  deletedAt  DateTime?
+  Permission Permission[]
+  Auth       Auth[]       @relation("RoleToUser")
+}
+
+model Session {
+  id               String    @id
+  authId           String
+  refreshTokenHash String
+  tokenFamily      String
+  deviceName       String?
+  userAgent        String?
+  ipAddress        String?
+  fingerprintHash  String?
+  isRevoked        Boolean   @default(false)
+  revokeReason     String?
+  expiresAt        DateTime
+  lastUsedAt       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime
+  deletedAt        DateTime?
+  rememberMe       Boolean   @default(false)
+  Auth             Auth      @relation(fields: [authId], references: [id], onDelete: Cascade)
+
+  @@index([authId])
+  @@index([expiresAt])
+  @@index([tokenFamily])
+}
+
+model SiteSettings {
+  id                    String   @id @default("global")
+  siteName              String?
+  siteTagline           String?
+  siteDescription       String?
+  siteLogo              String?
+  siteLogoLight         String?
+  siteLogoDark          String?
+  siteFavicon           String?
+  siteUrl               String?
+  defaultLanguage       String?  @default("en")
+  defaultTimezone       String?  @default("UTC")
+  contactEmail          String?
+  supportEmail          String?
+  phoneNumber           String?
+  secondaryPhoneNumber  String?
+  businessName          String?
+  businessAddress       String?
+  copyrightText         String?
+  seoDefaultTitle       String?
+  seoTitleTemplate      String?
+  seoMetaDescription    String?
+  seoKeywords           String?
+  seoCanonicalUrl       String?
+  seoOgTitle            String?
+  seoOgDescription      String?
+  seoOgImage            String?
+  seoTwitterTitle       String?
+  seoTwitterDescription String?
+  seoTwitterImage       String?
+  seoTwitterCard        String?
+  seoRobots             String?  @default("index, follow")
+  seoAuthor             String?
+  seoGoogleVerification String?
+  seoBingVerification   String?
+  seoSchemaEnabled      Boolean  @default(true)
+  updatedAt             DateTime
+  createdAt             DateTime @default(now())
+  socialLinks           Json?    @default("[]")
+}
+
+model Story {
+  id           String    @id
+  slug         String    @unique
+  category     String    @default("Culture & Heritage")
+  title        String
+  description  String
+  readTime     String?
+  image        String?
+  templateType String    @default("long-story")
+  detail       Json?
+  deletedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime
+  categories   String[]  @default([])
+}
+
+model StoryCategory {
+  id        String   @id
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model StoryType {
+  id        String   @id
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model UserPersonalInfo {
+  id          String    @id
+  authId      String    @unique
+  firstName   String?   @db.VarChar(100)
+  lastName    String?   @db.VarChar(50)
+  phone       String?   @db.VarChar(50)
+  country     String?   @db.VarChar(100)
+  state       String?   @db.VarChar(100)
+  city        String?   @db.VarChar(100)
+  zipCode     String?   @db.VarChar(30)
+  about       String?   @db.VarChar(500)
+  photoUrl    String[]
+  deletedAt   DateTime?
+  address     String?   @db.VarChar(255)
+  dateOfBirth String?   @db.VarChar(50)
+  nationality String?   @db.VarChar(100)
+  Auth        Auth      @relation(fields: [authId], references: [id], onDelete: Cascade)
+}
+
+model UserSettings {
+  id        String    @id
+  authId    String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  deletedAt DateTime?
+  Auth      Auth      @relation(fields: [authId], references: [id], onDelete: Cascade)
+}
+
+model UserTravelPreferences {
+  id             String    @id
+  authId         String    @unique
+  accommodations String[]
+  foodDietary    String[]
+  foodNotes      String?   @db.VarChar(500)
+  interests      String[]
+  practicalNeeds String[]
+  practicalNotes String?   @db.VarChar(500)
+  generalNotes   String?   @db.VarChar(1000)
+  deletedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  pace           Pace?     @default(BALANCED)
+  Auth           Auth      @relation(fields: [authId], references: [id], onDelete: Cascade)
+}
+
+model Wishlist {
+  id        String    @id
+  authId    String
+  createdBy String?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  journeyId String
+  Auth      Auth      @relation(fields: [authId], references: [id], onDelete: Cascade)
+  Journey   Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+
+  @@unique([authId, journeyId])
+  @@index([authId])
+  @@index([journeyId])
+}

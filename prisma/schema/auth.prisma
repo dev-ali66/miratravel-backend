@@ -1,32 +1,3 @@
-model Auth {
-  id                     String            @id @default(cuid())
-  email                  String            @unique
-  password               String
-  isVerified             Boolean           @default(false)
-  status                 Status            @default(ACTIVE)
-  termsAccepted          Boolean           @default(false)
-  termsAcceptedAt        DateTime?
-  otp                    String?
-  otpExpiresAt           DateTime?
-  passwordResetToken     String?
-  passwordResetExpiresAt DateTime?
-  emailToken             String?
-  failedLoginAttempts    Int               @default(0)
-  lockUntil              DateTime?
-  isDeleted              Boolean           @default(false)
-  deletedAt              DateTime?
-  createdAt              DateTime          @default(now())
-  updatedAt              DateTime          @updatedAt
-  sessions               Session[]
-  roles                  Role[]            @relation("RoleToUser")
-  userPersonalInfo       UserPersonalInfo?
-  userSettings           UserSettings?
-  userTravelPreferences  UserTravelPreferences?
-  bookings               Booking[]
-  conciergeLeads         ConciergeLead[]   @relation("ConciergeDesigner")
-  wishlists              Wishlist[]
-}
-
 enum Status {
   ACTIVE
   INACTIVE

@@ -1,14 +1,3 @@
-model Permission {
-  id        String   @id @unique @default(cuid())
-  action    Action
-  resource  String?
-  scope     Scope
-  roles     Role[]   @relation("PermissionToRole")
-  deletedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 enum Action {
   CREATE
   READ
