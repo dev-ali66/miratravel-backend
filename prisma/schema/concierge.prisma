@@ -1,14 +1,42 @@
 enum ConciergeLeadStatus {
-  NEW
-  IN_REVIEW
-  ASSIGNED
-  CLOSED
+    NEW
+    IN_REVIEW
+    ASSIGNED
+    CLOSED
 }
 
+
+
 enum BudgetRange {
-  UNDER_5K
-  FROM_5K_TO_10K
-  FROM_10K_TO_20K
-  OVER_20K
-  UNDECIDED
+    UNDER_5K
+    FROM_5K_TO_10K
+    FROM_10K_TO_20K
+    OVER_20K
+    UNDECIDED
+}
+
+model ConciergeLead {
+    id              String               @id @default(cuid())
+    firstName       String
+    lastName        String
+    email           String
+    phone           String?
+    
+    partySize       Int                  @default(2)
+    travelStyle     TravelStyle          @default(LUXURY)
+    budgetRange     BudgetRange          @default(UNDECIDED)
+    
+    specialRequests String?              @db.Text
+    
+    status          ConciergeLeadStatus  @default(NEW)
+    assignedToId    String?              // Auth ID of the assigned designer
+    
+    assignedTo      Auth?                @relation("ConciergeDesigner", fields: [assignedToId], references: [id])
+    
+    deletedAt       DateTime?
+    createdAt       DateTime             @default(now())
+    updatedAt       DateTime             @updatedAt
+
+    @@index([status])
+    @@index([email])
 }

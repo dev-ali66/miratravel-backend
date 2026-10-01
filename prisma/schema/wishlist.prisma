@@ -1,1 +1,15 @@
+model Wishlist {
+  id        String    @id @default(cuid())
+  authId    String
+  auth      Auth      @relation(fields: [authId], references: [id], onDelete: Cascade)
+  journeyId String
+  journey   Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  createdBy String?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
+  @@unique([authId, journeyId])
+  @@index([authId])
+  @@index([journeyId])
+}

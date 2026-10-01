@@ -1,9 +1,53 @@
+model Location {
+    id       String       @id @default(cuid())
+    name     String
+    slug     String       @unique
+    type     LocationType
+    featured Boolean      @default(false)
+    parentId String?
+    parent   Location?    @relation("LocationHierarchy", fields: [parentId], references: [id])
+    children Location[]   @relation("LocationHierarchy")
+    geoData  Json?
+    metadata Json?
+    data     Json?
+
+    // Section Specific Structured Fields
+    hero                 Json?
+    card                 Json?
+    essence              Json?
+    infoCard             Json?
+    highlights           Json?
+    statistics           Json?
+    why                  Json?
+    explore              Json?
+    glance               Json?
+    experience           Json?
+    regionExperiences    Json?
+    character            Json?
+    travelInsight        Json?
+    journeyList          Json?
+    sharedInfo           Json?
+    signatureExperiences Json?
+    stories              Json?
+    accommodation        Json?
+    faq                  Json?
+    travelInfo           Json?
+    practicalInfo        Json?
+    cta                  Json?
+
+    deletedAt        DateTime?
+    createdAt        DateTime           @default(now())
+    updatedAt        DateTime           @updatedAt
+    @@index([parentId])
+    @@index([type])
+}
+
 enum LocationType {
-  CONTINENT
-  COUNTRY
-  REGION
-  PLACE
-  LANDMARK
-  ACCOMMODATION
-  TEST
+    CONTINENT
+    COUNTRY
+    REGION
+    PLACE
+    LANDMARK
+    ACCOMMODATION
+    TEST
 }

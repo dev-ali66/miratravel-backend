@@ -50,3 +50,37 @@ enum JourneyStatus {
   PUBLISHED
   ARCHIVED
 }
+
+model Journey {
+  id             String        @id @default(cuid())
+  slug           String
+  title          String
+  subtitle       String?
+  price          Decimal       @db.Decimal(10, 2)
+  currency       String        @default("EUR")
+  minDays        Int
+  maxDays        Int
+  pace           Pace
+  comfortLevel   ComfortLevel
+  status         JourneyStatus @default(DRAFT)
+  featured       Boolean       @default(false)
+  journeyType    JourneyType[]
+  travelStyle    TravelStyle[]
+  perfectFor     PerfectFor[]
+  hero           Json?
+  overview       Json?
+  itinerary      Json?
+  accommodations Json?
+  whatsIncluded  Json?
+  addOns         Json?
+  metadata       Json?
+  bookings       Booking[]
+  wishlists      Wishlist[]
+  deletedAt      DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@unique([deletedAt, slug])
+  @@index([status])
+  @@index([minDays, maxDays])
+}

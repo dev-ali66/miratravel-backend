@@ -1,80 +1,225 @@
+// NEW — matches the doc's booking-status table (section 8 + table)
 enum BookingStatus {
-  REQUEST_SUBMITTED
-  UNDER_REVIEW
-  APPROVED
-  AWAITING_DEPOSIT
-  DEPOSIT_PAID_TENTATIVE
-  AWAITING_FINAL_PAYMENT
-  FULLY_PAID
-  CONFIRMED
-  CANCELLED
-  REJECTED
+    REQUEST_SUBMITTED
+    UNDER_REVIEW
+    APPROVED
+    AWAITING_DEPOSIT
+    DEPOSIT_PAID_TENTATIVE
+    AWAITING_FINAL_PAYMENT
+    FULLY_PAID
+    CONFIRMED
+    CANCELLED
+    REJECTED
 }
 
+// NEW — payment status is tracked SEPARATELY from booking status
 enum PaymentStatus {
-  UNPAID
-  PARTIALLY_PAID
-  DEPOSIT_PAID
-  BALANCE_DUE
-  FULLY_PAID
-  FAILED
-  REFUNDED
-  PARTIALLY_REFUNDED
+    UNPAID
+    PARTIALLY_PAID
+    DEPOSIT_PAID
+    BALANCE_DUE
+    FULLY_PAID
+    FAILED
+    REFUNDED
+    PARTIALLY_REFUNDED
 }
 
 enum DepositType {
-  PERCENTAGE
-  FIXED
+    PERCENTAGE
+    FIXED
 }
 
 enum ScheduleItemCalcType {
-  PERCENTAGE
-  FIXED
-  REMAINDER
+    PERCENTAGE
+    FIXED
+    REMAINDER
 }
 
 enum ScheduleItemDueRule {
-  IMMEDIATE_AFTER_APPROVAL
-  DAYS_BEFORE_DEPARTURE
-  FIXED_DATE
-  MANUAL
+    IMMEDIATE_AFTER_APPROVAL
+    DAYS_BEFORE_DEPARTURE
+    FIXED_DATE
+    MANUAL
 }
 
 enum ScheduleItemStatus {
-  SCHEDULED
-  DUE
-  PENDING
-  PAID
-  FAILED
-  WAIVED
-  REFUNDED
+    SCHEDULED
+    DUE
+    PENDING
+    PAID
+    FAILED
+    WAIVED
+    REFUNDED
 }
 
 enum PaymentRecordStatus {
-  SUCCEEDED
-  FAILED
-  PENDING
-  REFUNDED
-  PARTIALLY_REFUNDED
+    SUCCEEDED
+    FAILED
+    PENDING
+    REFUNDED
+    PARTIALLY_REFUNDED
 }
 
 enum TravelerType {
-  COUPLE
-  SOLO
-  FAMILY
-  FRIENDS
-  GROUP
+    COUPLE
+    SOLO
+    FAMILY
+    FRIENDS
+    GROUP
 }
 
 enum PaymentScheduleStatus {
-  ACTIVE
-  SUPERSEDED
-  CANCELLED
+    ACTIVE
+    SUPERSEDED
+    CANCELLED
+}
+
+model Booking {
+    id            String @id @default(cuid())
+    bookingNumber String @unique // human-readable ref, e.g. MIRA-2026-00042
+
+    journeyId                 String
+    journey                   Journey           @relation(fields: [journeyId], references: [id])
+    createdBy                 String
+    travelerFirstName         String
+    travelerLastName          String
+    travelerEmail             String
+    travelerPhone             String?
+    travelerNationality       String?
+    travelerBirthDate         DateTime?
+    travelArrivalDate         DateTime
+    travelDepartureDate       DateTime
+    addOnIds                  String[]
+    travelerMessage           String?
+    travelerType              TravelerType      @default(SOLO)
+    adults                    Int               @default(0)
+    children                  Int               @default(0)
+    childrenAges              Int[]
+    confirmedTotal            Decimal?          @db.Decimal(10, 2)
+    currency                  String            @default("EUR")
+    approvalDate              DateTime?
+    paidAmount                Decimal           @default(0) @db.Decimal(10, 2)
+    outstandingAmount         Decimal           @default(0) @db.Decimal(10, 2)
+    agreedToTerms             Boolean           @default(false)
+    agreedToPrivacyPolicy     Boolean           @default(false)
+    acknowledgedRequestOnly   Boolean           @default(false)
+    consentTimestamp          DateTime?
+    bookingStatus             BookingStatus     @default(REQUEST_SUBMITTED)
+    paymentStatus             PaymentStatus     @default(UNPAID)
+    selectedPaymentScheduleId String?
+    auth                      Auth              @relation(fields: [createdBy], references: [id])
+    deletedAt                 DateTime?
+    createdAt                 DateTime          @default(now())
+    updatedAt                 DateTime          @updatedAt
+    selectedPaymentSchedule   PaymentSchedule?  @relation("SelectedSchedule", fields: [selectedPaymentScheduleId], references: [id])
+    paymentRecords            PaymentRecord[]
+    paymentSchedules          PaymentSchedule[] @relation("BookingSchedules")
+
+    @@index([journeyId])
+    @@index([bookingStatus])
+    @@index([paymentStatus])
+    @@index([travelDepartureDate])
+}
+
+model PaymentSchedule {
+    id                   String                @id @default(cuid())
+    bookingId            String
+    templateType         DepositTemplateType   @default(STANDARD_30_70)
+    totalScheduledAmount Decimal               @db.Decimal(10, 2)
+    status               PaymentScheduleStatus @default(ACTIVE)
+    overrideReason       String?
+    deletedAt            DateTime?
+    createdAt            DateTime              @default(now())
+    createdBy            String?
+
+    items             PaymentScheduleItem[]
+    booking           Booking               @relation("BookingSchedules", fields: [bookingId], references: [id])
+    selectedByBooking Booking[]             @relation("SelectedSchedule")
+
+    @@index([status])
 }
 
 enum DepositTemplateType {
-  STANDARD_30_70
-  FULL_PAYMENT
-  FIXED_DEPOSIT
-  INSTALLMENT_PLAN
+    STANDARD_30_70 // launch default deposit template
+    FULL_PAYMENT // <=60 days rule
+    FIXED_DEPOSIT
+    INSTALLMENT_PLAN // P2 — multi-installment
+}
+
+model PaymentScheduleItem {
+    id         String          @id @default(cuid())
+    scheduleId String
+    schedule   PaymentSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+    sequence        Int // 1, 2, 3...
+    label           String // "Deposit", "Second installment", "Final balance"
+    calculationType ScheduleItemCalcType
+    ruleValue       Decimal?             @db.Decimal(10, 2) // e.g. 30.00 (%) or 500.00 (currency) — null for remainder
+
+    dueRule  ScheduleItemDueRule
+    dueValue Int? // e.g. 60 (days before departure) — null for immediate/manual
+    dueDate  DateTime? // resolved calendar date, computed & stored
+
+    calculatedAmount Decimal @db.Decimal(10, 2) // frozen amount from confirmedTotal at generation time
+    paidAmount       Decimal @default(0) @db.Decimal(10, 2)
+
+    status ScheduleItemStatus @default(SCHEDULED)
+
+    paymentRecords PaymentRecord[]
+
+    deletedAt DateTime?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([scheduleId, sequence])
+    @@index([status])
+    @@index([dueDate])
+}
+
+// ---------- 5. NEW: Payment Record (actual transactions) ----------
+model PaymentRecord {
+    id                String               @id @default(cuid())
+    bookingId         String
+    scheduleItemId    String?
+    paymentDate       DateTime             @default(now())
+    amount            Decimal              @db.Decimal(10, 2)
+    currency          String
+    method            String?
+    pspTransactionRef String?
+    status            PaymentRecordStatus  @default(PENDING)
+    refundAmount      Decimal              @default(0) @db.Decimal(10, 2)
+    adminNotes        String?
+    recordedBy        String?
+    deletedAt        DateTime?
+    createdAt         DateTime             @default(now())
+    updatedAt         DateTime             @updatedAt
+    booking           Booking              @relation(fields: [bookingId], references: [id])
+    scheduleItem      PaymentScheduleItem? @relation(fields: [scheduleItemId], references: [id])
+
+    @@index([bookingId])
+    @@index([status])
+    @@index([scheduleItemId])
+}
+
+// ---------- 6. NEW: Config / Settings (so rules aren't hardcoded) ----------
+// Global defaults; optionally add productId/journeyId nullable FK later
+// for per-product overrides (spec explicitly asks for this to be possible).
+model PaymentConfig {
+    id    String @id @default(cuid())
+    scope String @default("global") // "global" or e.g. "journey:<id>" for overrides
+
+    depositEnabled Boolean     @default(true)
+    depositType    DepositType @default(PERCENTAGE)
+    depositValue   Decimal     @default(30) @db.Decimal(10, 2) // % or fixed currency amount
+
+    finalPaymentDueDaysBeforeDeparture Int @default(60)
+    fullPaymentRequiredIfWithinDays    Int @default(60)
+
+    allowAdminOverride        Boolean @default(true)
+    reservationWithoutPayment Boolean @default(false)
+
+    deletedAt DateTime?
+    updatedAt DateTime @updatedAt
+
+    @@unique([scope])
 }
