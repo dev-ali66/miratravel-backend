@@ -49,5 +49,6 @@ enum LocationType {
     PLACE
     LANDMARK
     ACCOMMODATION
+    OTHER
     TEST
 }

@@ -1,7 +1,9 @@
 export const extractDomains = (input: unknown): string[] => {
+  if (!input) return [];
   const result = new Set<string>(); // using Set to automatically remove duplicates
 
   const flatten = (item: unknown) => {
+    if (!item) return;
     if (Array.isArray(item)) {
       item.forEach(flatten);
     } else if (item && typeof item === "object") {
@@ -15,8 +17,6 @@ export const extractDomains = (input: unknown): string[] => {
         // Not a URL, treat as plain domain
         result.add(item);
       }
-    } else {
-      throw new Error("Invalid input format");
     }
   };
 

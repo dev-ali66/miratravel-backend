@@ -21,6 +21,8 @@ import paymentsRoutes from "./src/modules/payments/payments.routes.js";
 import conciergeRoutes from "./src/modules/concierge/concierge.routes.js";
 import settingsRoutes from "./src/modules/settings/settings.routes.js";
 import wishlistRoutes from "./src/modules/wishlist/wishlist.routes.js";
+import journeyWizardRoutes from "./src/modules/journeyWizard/journeyWizard.routes.js";
+import newsletterRoutes from "./src/modules/newsletter/newsletter.routes.js";
 
 export const bootStapHttps = (app: any) => {
   mount(app, "/api/v1/audit", auditRoutes);
@@ -46,7 +48,9 @@ export const bootStapHttps = (app: any) => {
   mount(app, "/api/v1/story-types", storyTypeRoutes);
   mount(app, "/api/v1/payments", paymentsRoutes);
   mount(app, "/api/v1/concierge/leads", conciergeRoutes);
+  mount(app, "/api/v1/journey-wizard", journeyWizardRoutes);
   mount(app, "/api/v1/settings", settingsRoutes);
+  mount(app, "/api/v1/newsletter", newsletterRoutes);
 };
 
 export const bootstraps = bootStapHttps;

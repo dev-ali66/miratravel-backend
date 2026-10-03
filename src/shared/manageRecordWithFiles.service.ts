@@ -86,9 +86,10 @@ export const manageRecordWithFiles = async ({
       if (!req.matchedPermissions) {
         return {};
       }
+      const reqActionStr = (req.action || "").toLowerCase();
       const permission = req.matchedPermissions.find(
         (p: any) =>
-          p.action.toLowerCase() === req.action.toLowerCase() ||
+          p.action.toLowerCase() === reqActionStr ||
           p.action === "*",
       );
 
@@ -105,7 +106,7 @@ export const manageRecordWithFiles = async ({
       if (scope === "OWN" && dbField) {
         if (data.id) {
           if (typeof dbField === "string")
-            return { [dbField]: ownerField ? ownerField : req.auth.id };
+            return { [dbField]: ownerField ? ownerField : req.auth?.id };
         } else {
           updateData[dbField] = ownerField;
         }
@@ -118,7 +119,7 @@ export const manageRecordWithFiles = async ({
 
         return {
           [dbField]: {
-            not: ownerField ? ownerField : req.auth.id,
+            not: ownerField ? ownerField : req.auth?.id,
           },
         };
       }
@@ -127,16 +128,6 @@ export const manageRecordWithFiles = async ({
       return {};
     };
     whereClause = { ...whereClause, ...manageScopeFilter() };
-    // console.log(!!dbField)
-    // console.log(dbField)
-    // console.log(scope)
-
-    // Permission + Scope check
-    // const matchedPermission = req.matchedPermissions?.find(
-    //     p => p.action.toLowerCase() === req.action.toLowerCase() || p.action === "*"
-    // );
-    // if (!matchedPermission) throw new ApiError("No permission for this action");
-    // const scope = matchedPermission.scope; // OWN, OTHER, ANY
 
     // Check existing record if UPDATE
     if (data.id) {
@@ -144,22 +135,22 @@ export const manageRecordWithFiles = async ({
         where: whereClause,
         include,
       });
-      const currentUserId = ownerField || req.auth.id;
+      const currentUserId = ownerField || req.auth?.id;
       if (previousRecord && previousRecord[dbField] === currentUserId) {
         isOwner = true;
       }
     }
     // Apply scope rules
-    if (req.action.toUpperCase() === "CREATE") {
-      if (attachUser && dbField) updateData[dbField] = ownerField || req.auth.id;
-      if (scope === "OWN" && attachUser) updateData.createdBy = req.auth.id;
-      // if (scope === "OWN" && !attachUser) throw new ApiError("Cannot create this record");
-    } else if (req.action.toUpperCase() === "UPDATE") {
+    const reqActionUpper = (req.action || (data.id ? "UPDATE" : "CREATE")).toUpperCase();
+    if (reqActionUpper === "CREATE") {
+      if (attachUser && dbField) updateData[dbField] = ownerField || req.auth?.id;
+      if (scope === "OWN" && attachUser) updateData.createdBy = req.auth?.id;
+    } else if (reqActionUpper === "UPDATE") {
       if (scope === "OWN" && !isOwner)
         throw new ApiError("You can only update your own authorized records");
 
       if (scope === "OWN" && isOwner && attachUser)
-        updateData.createdBy = req.auth.id;
+        updateData.createdBy = req.auth?.id;
 
       if (scope === "OTHER") {
         if (!previousRecord)
@@ -176,7 +167,7 @@ export const manageRecordWithFiles = async ({
     }
 
     //  Normalize externalDomain to array
-    const domains = extractDomains(externalDomain) as string[];
+    const domains = externalDomain ? (extractDomains(externalDomain) as string[]) : [];
     //  Handle fileRemove (dynamic & universal)
     const filesToRemove = [req.body?.fileRemove];
     const externalUrls = new Set();

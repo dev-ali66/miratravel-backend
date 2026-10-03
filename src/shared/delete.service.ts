@@ -28,9 +28,10 @@ export const deleteRecordsSafely = async ({
   const getScopeFilter = () => {
     if (!req.matchedPermissions) return {};
 
+    const reqActionStr = (req.action || "DELETE").toLowerCase();
     const permission = req.matchedPermissions.find(
       (p: any) =>
-        p.action.toLowerCase() === req.action.toLowerCase() || p.action === "*",
+        p.action.toLowerCase() === reqActionStr || p.action === "*",
     );
 
     if (!permission) throw new ApiError("No permission for this action");

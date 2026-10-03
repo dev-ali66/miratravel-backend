@@ -44,6 +44,10 @@ const normalizeCmsPageData = (page: any) => {
       "faq_cta",
       "faq",
       "topics",
+      "editorial_highlight",
+      "shared_info",
+      "signature_journeys",
+      "all_journeys",
       "seo",
     ];
     for (const key of knownKeys) {
@@ -78,7 +82,19 @@ const normalizeCmsPageData = (page: any) => {
     }
   });
 
-  dataObj.sections = sections;
+  if (
+    dataObj.page === "journey" ||
+    page?.slug === "journey" ||
+    dataObj.page === "stories" ||
+    page?.slug === "stories" ||
+    dataObj.page === "newsletter" ||
+    page?.slug === "newsletter"
+  ) {
+    delete dataObj.sections;
+    delete dataObj.seo;
+  } else {
+    dataObj.sections = sections;
+  }
 
   return {
     ...page,
