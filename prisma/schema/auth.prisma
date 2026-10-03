@@ -23,7 +23,6 @@ model Auth {
   userSettings           UserSettings?
   userTravelPreferences  UserTravelPreferences?
   bookings               Booking[]
-  conciergeLeads         ConciergeLead[]   @relation("ConciergeDesigner")
   wishlists              Wishlist[]
 }
 

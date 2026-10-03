@@ -18,7 +18,7 @@ import statisticsRoutes from "./src/modules/statistics/statistics.routes.js";
 import systemRoutes from "./src/modules/system/system.routes.js";
 import auditRoutes from "./src/modules/audit/audit.routes.js";
 import paymentsRoutes from "./src/modules/payments/payments.routes.js";
-import conciergeRoutes from "./src/modules/concierge/concierge.routes.js";
+import inquiryRoutes from "./src/modules/inquiry/inquiry.routes.js";
 import settingsRoutes from "./src/modules/settings/settings.routes.js";
 import wishlistRoutes from "./src/modules/wishlist/wishlist.routes.js";
 import journeyWizardRoutes from "./src/modules/journeyWizard/journeyWizard.routes.js";
@@ -47,7 +47,8 @@ export const bootStapHttps = (app: any) => {
   mount(app, "/api/v1/story-categories", storyCategoryRoutes);
   mount(app, "/api/v1/story-types", storyTypeRoutes);
   mount(app, "/api/v1/payments", paymentsRoutes);
-  mount(app, "/api/v1/concierge/leads", conciergeRoutes);
+  mount(app, "/api/v1/inquiry", inquiryRoutes);
+  mount(app, "/api/v1/concierge/leads", inquiryRoutes);
   mount(app, "/api/v1/journey-wizard", journeyWizardRoutes);
   mount(app, "/api/v1/settings", settingsRoutes);
   mount(app, "/api/v1/newsletter", newsletterRoutes);

@@ -1,17 +1,13 @@
 model Location {
-    id       String       @id @default(cuid())
-    name     String
-    slug     String       @unique
-    type     LocationType
-    featured Boolean      @default(false)
-    parentId String?
-    parent   Location?    @relation("LocationHierarchy", fields: [parentId], references: [id])
-    children Location[]   @relation("LocationHierarchy")
-    geoData  Json?
-    metadata Json?
-    data     Json?
-
-    // Section Specific Structured Fields
+    id                   String       @id @default(cuid())
+    name                 String
+    slug                 String       @unique
+    type                 LocationType
+    featured             Boolean      @default(false)
+    parentId             String?
+    geoData              Json?
+    metadata             Json?
+    data                 Json?
     hero                 Json?
     card                 Json?
     essence              Json?
@@ -34,10 +30,13 @@ model Location {
     travelInfo           Json?
     practicalInfo        Json?
     cta                  Json?
+    parent               Location?    @relation("LocationHierarchy", fields: [parentId], references: [id])
+    children             Location[]   @relation("LocationHierarchy")
+    story                Story[]
+    deletedAt            DateTime?
+    createdAt            DateTime     @default(now())
+    updatedAt            DateTime     @updatedAt
 
-    deletedAt        DateTime?
-    createdAt        DateTime           @default(now())
-    updatedAt        DateTime           @updatedAt
     @@index([parentId])
     @@index([type])
 }

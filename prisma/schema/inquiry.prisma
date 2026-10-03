@@ -1,0 +1,29 @@
+enum InquiryStatus {
+    NEW
+    IN_REVIEW
+    CONTACTED
+    CLOSED
+}
+
+model Inquiry {
+    id            String        @id @default(cuid())
+    inquiryNumber String?       @unique
+    fullName      String
+    email         String
+    phone         String?
+    destination   String?
+    travelDate    String?
+    travelers     String?
+    journeyTypes  String[]      @default([])
+    message       String?       @db.Text
+    
+    status        InquiryStatus @default(NEW)
+    adminNotes    String?       @db.Text
+    
+    deletedAt     DateTime?
+    createdAt     DateTime      @default(now())
+    updatedAt     DateTime      @updatedAt
+
+    @@index([status])
+    @@index([email])
+}

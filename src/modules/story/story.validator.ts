@@ -15,63 +15,27 @@ export const getStoryValidator = z.object({
 });
 
 export const manageStoryValidator = z.object({
-  body: z
-    .object({
-      id: z.string().optional(),
-      title: z.string().trim().min(1, "Title cannot be empty").optional(),
-      slug: z.string().trim().optional(),
-      category: z.string().trim().optional(),
-      categories: z.array(z.string()).optional(),
-      description: z.string().optional(),
-      readTime: z.string().optional(),
-      image: z.string().optional(),
-      templateType: z.string().optional(),
-      detail: z.any().optional(),
-    })
-    .transform((data) => {
-      // Auto-generate slug from title if not provided
-      if (data.title && !data.slug) {
-        data.slug = data.title
-          .trim()
-          .toLowerCase()
-          .replace(/\s+/g, "-")
-          .replace(/[^a-z0-9-]/g, "")
-          .replace(/-+/g, "-")
-          .replace(/^-|-$/g, "");
-      }
-      return data;
-    })
-    .superRefine((data, ctx) => {
-      // CREATE rules
-      if (!data.id) {
-        if (!data.title) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ["title"],
-            message: "title is required when creating",
-          });
-        }
-        if (!data.category) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ["category"],
-            message: "category is required when creating",
-          });
-        }
-        if (!data.description) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              path: ["description"],
-              message: "description is required when creating",
-            });
-        }
-        if (!data.slug) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ["slug"],
-            message: "Unable to generate slug from title",
-          });
-        }
-      }
-    }),
+  body: z.object({
+    id: z.string().optional(),
+    title: z.string().min(1, "Title is required"),
+    slug: z.string().min(1, "Slug is required"),
+    category: z.string().optional(),
+    categories: z.array(z.string()).optional(),
+    type: z.enum(["short_story", "long_story", "guidance"]).optional(),
+    status: z.enum(["DRAFT", "PUBLISHED"]).optional(),
+    readTime: z.string().optional(),
+    authorName: z.string().optional(),
+    authorRole: z.string().optional(),
+    description: z.string().optional(),
+    featured: z.boolean().optional(),
+    recommended: z.boolean().optional(),
+    templateType: z.string().optional(),
+    detail: z.record(z.string(), z.any()).optional(),
+  }),
+});
+
+export const deleteStoryValidator = z.object({
+  query: z.object({
+    id: z.string().min(1, "Story ID is required"),
+  }),
 });

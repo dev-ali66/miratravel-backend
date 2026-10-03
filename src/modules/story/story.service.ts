@@ -12,8 +12,11 @@ export const getStoryService = async (req: Request) => {
     if (id) filter.id = String(id);
     if (slug) filter.slug = String(slug);
 
-    const story = await prisma.story.findFirst({
+    const story = await (prisma as any).story.findFirst({
       where: filter,
+      include: {
+        manualRelatedStories: true,
+      },
     });
     if (!story) {
       throw new ApiError("Story not found", 404);
@@ -23,27 +26,34 @@ export const getStoryService = async (req: Request) => {
 
   // Related Stories Algorithm endpoint query
   if (relatedToId) {
-    const targetStory = await prisma.story.findUnique({
+    const targetStory = await (prisma as any).story.findUnique({
       where: { id: String(relatedToId) },
+      include: {
+        manualRelatedStories: true,
+      },
     });
     if (!targetStory) {
       throw new ApiError("Target story not found for related calculation", 404);
     }
 
-    const targetDetail: any = targetStory.detail || {};
-    const manualIds: string[] = targetDetail.manualRelatedStoryIds || [];
+    const manualStories: any[] = targetStory.manualRelatedStories || [];
+    const manualIds: string[] = manualStories.map((s: any) => s.id);
+    const targetDetail: any = (targetStory as any).detail || {};
     const tPlace = targetDetail.tagPlace?.toLowerCase() || "";
     const tTheme = targetDetail.tagTheme?.toLowerCase() || "";
     const tLens = targetDetail.tagLens?.toLowerCase() || "";
 
-    const allOtherStories = await prisma.story.findMany({
+    const allOtherStories = await (prisma as any).story.findMany({
       where: {
         id: { not: targetStory.id },
+      },
+      include: {
+        manualRelatedStories: true,
       },
       orderBy: { createdAt: "desc" },
     });
 
-    const scored = allOtherStories.map((story) => {
+    const scored = allOtherStories.map((story: any) => {
       const sDetail: any = story.detail || {};
       let score = 0;
 
@@ -65,9 +75,9 @@ export const getStoryService = async (req: Request) => {
     });
 
     const filteredAndSorted = scored
-      .filter((item) => item.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .map((item) => item.story)
+      .filter((item: any) => item.score > 0)
+      .sort((a: any, b: any) => b.score - a.score)
+      .map((item: any) => item.story)
       .slice(0, 3);
 
     return { data: filteredAndSorted, meta: { total: filteredAndSorted.length } };
@@ -77,8 +87,11 @@ export const getStoryService = async (req: Request) => {
   const filter: any = {};
   if (category) filter.category = String(category);
 
-  let stories = await prisma.story.findMany({
+  let stories = await (prisma as any).story.findMany({
     where: filter,
+    include: {
+      manualRelatedStories: true,
+    },
     orderBy: { createdAt: "desc" },
   });
 
@@ -90,13 +103,13 @@ export const getStoryService = async (req: Request) => {
     const lensLower = tagLens ? String(tagLens).toLowerCase() : "";
     const targetJourneyId = journeyId ? String(journeyId) : "";
 
-    stories = stories.filter((story) => {
+    stories = stories.filter((story: any) => {
       const detail: any = story.detail || {};
 
       if (searchLower) {
-        const matchesTitle = story.title.toLowerCase().includes(searchLower);
-        const matchesDesc = story.description.toLowerCase().includes(searchLower);
-        const matchesSlug = story.slug.toLowerCase().includes(searchLower);
+        const matchesTitle = (story.title || "").toLowerCase().includes(searchLower);
+        const matchesDesc = (story.description || "").toLowerCase().includes(searchLower);
+        const matchesSlug = (story.slug || "").toLowerCase().includes(searchLower);
         if (!matchesTitle && !matchesDesc && !matchesSlug) return false;
       }
 
@@ -130,7 +143,7 @@ export const manageStoryService = async (req: Request, res: Response) => {
   let story;
   if (id) {
     // UPDATE
-    const existing = await prisma.story.findUnique({ where: { id } });
+    const existing = await (prisma as any).story.findUnique({ where: { id } });
     if (!existing) {
       throw new ApiError("Story not found", 404);
     }
@@ -148,12 +161,30 @@ export const manageStoryService = async (req: Request, res: Response) => {
     if (data.description !== undefined) updateData.description = data.description;
     if (data.readTime !== undefined) updateData.readTime = data.readTime;
     if (data.image !== undefined) updateData.image = data.image;
+    if (data.featured !== undefined) updateData.featured = Boolean(data.featured);
+    if (data.recommended !== undefined) updateData.recommended = Boolean(data.recommended);
     if (data.templateType !== undefined) updateData.templateType = data.templateType;
     if (data.detail !== undefined) updateData.detail = data.detail;
 
-    story = await prisma.story.update({
+    // Connect/Set manualRelatedStories relation if passed as array of IDs
+    const relIds = Array.isArray(data.manualRelatedStoryIds)
+      ? data.manualRelatedStoryIds
+      : Array.isArray(data.detail?.manualRelatedStoryIds)
+      ? data.detail.manualRelatedStoryIds
+      : null;
+
+    if (relIds !== null) {
+      updateData.manualRelatedStories = {
+        set: relIds.map((rId: string) => ({ id: rId })),
+      };
+    }
+
+    story = await (prisma as any).story.update({
       where: { id },
       data: updateData,
+      include: {
+        manualRelatedStories: true,
+      },
     });
 
     // Audit Log: Story Updated
@@ -169,7 +200,7 @@ export const manageStoryService = async (req: Request, res: Response) => {
     });
   } else {
     // CREATE
-    const existingSlug = await prisma.story.findUnique({
+    const existingSlug = await (prisma as any).story.findUnique({
       where: { slug: data.slug },
     });
     if (existingSlug) {
@@ -184,17 +215,36 @@ export const manageStoryService = async (req: Request, res: Response) => {
         : ["Culture & Heritage"];
     const primaryCat = data.category || cats[0];
 
-    story = await prisma.story.create({
-      data: {
-        title: data.title,
-        slug: data.slug,
-        category: primaryCat,
-        categories: cats,
-        description: data.description,
-        readTime: data.readTime,
-        image: data.image,
-        templateType: data.templateType || "long-story",
-        detail: data.detail || {},
+    const relIds = Array.isArray(data.manualRelatedStoryIds)
+      ? data.manualRelatedStoryIds
+      : Array.isArray(data.detail?.manualRelatedStoryIds)
+      ? data.detail.manualRelatedStoryIds
+      : [];
+
+    const createPayload: any = {
+      title: data.title,
+      slug: data.slug,
+      category: primaryCat,
+      categories: cats,
+      description: data.description,
+      readTime: data.readTime,
+      image: data.image,
+      featured: Boolean(data.featured),
+      recommended: Boolean(data.recommended),
+      templateType: data.templateType || "long-story",
+      detail: data.detail || {},
+    };
+
+    if (relIds.length > 0) {
+      createPayload.manualRelatedStories = {
+        connect: relIds.map((rId: string) => ({ id: rId })),
+      };
+    }
+
+    story = await (prisma as any).story.create({
+      data: createPayload,
+      include: {
+        manualRelatedStories: true,
       },
     });
 
@@ -220,12 +270,12 @@ export const deleteStoryService = async (req: Request, res: Response) => {
     throw new ApiError("Story ID is required", 400);
   }
 
-  const existing = await prisma.story.findUnique({ where: { id: String(id) } });
+  const existing = await (prisma as any).story.findUnique({ where: { id: String(id) } });
   if (!existing) {
     throw new ApiError("Story not found", 404);
   }
 
-  await prisma.story.delete({
+  await (prisma as any).story.delete({
     where: { id: String(id) },
   });
 

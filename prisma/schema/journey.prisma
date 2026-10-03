@@ -64,9 +64,6 @@ model Journey {
   comfortLevel   ComfortLevel
   status         JourneyStatus @default(DRAFT)
   featured       Boolean       @default(false)
-  journeyType    JourneyType[]
-  travelStyle    TravelStyle[]
-  perfectFor     PerfectFor[]
   hero           Json?
   overview       Json?
   itinerary      Json?
@@ -74,11 +71,15 @@ model Journey {
   whatsIncluded  Json?
   addOns         Json?
   metadata       Json?
-  bookings       Booking[]
-  wishlists      Wishlist[]
   deletedAt      DateTime?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+  bookings       Booking[]
+  wishlists      Wishlist[]
+  story          Story[]
+  journeyType    JourneyType[]
+  travelStyle    TravelStyle[]
+  perfectFor     PerfectFor[]
 
   @@unique([deletedAt, slug])
   @@index([status])
