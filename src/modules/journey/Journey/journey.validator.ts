@@ -7,6 +7,7 @@ const JourneyTypeEnum = z.enum([
   "LUXURY_ESCAPE",
   "FAMILY_JOURNEY",
   "SIGNATURE_JOURNEY",
+  "MIRA_COLLECTION",
 ]);
 
 const TravelStyleEnum = z.enum([

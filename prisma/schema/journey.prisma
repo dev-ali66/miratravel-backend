@@ -5,6 +5,7 @@ enum JourneyType {
   LUXURY_ESCAPE
   FAMILY_JOURNEY
   SIGNATURE_JOURNEY
+  MIRA_COLLECTION
 }
 
 enum TravelStyle {

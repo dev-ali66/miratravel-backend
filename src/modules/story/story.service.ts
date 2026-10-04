@@ -2,6 +2,14 @@ import { Request, Response } from "express";
 import prisma from "../../config/prisma.js";
 import ApiError from "../../utils/api.error.js";
 import { auditLogger } from "../../logger/audit.logger.js";
+import { getRecords } from "../../shared/getRecords.service.js";
+
+const storyInclude = {
+  categories: true,
+  locations: true,
+  journeys: true,
+  manualRelatedStories: true,
+};
 
 const slugify = (text: string): string =>
   text
@@ -23,39 +31,27 @@ const cleanJson = (val: any) => {
 };
 
 export const getStoryService = async (req: Request) => {
-  const { id, slug, category, tagPlace, tagTheme, tagLens, search, journeyId, relatedToId } = req.query;
+  const {
+    id,
+    slug,
+    category,
+    type,
+    status,
+    featured,
+    recommended,
+    search,
+    journeyId,
+    locationId,
+    relatedToId,
+  } = (req as any).validated?.query || (req.query as any) || {};
 
-  // Single story fetch
-  if (id || slug) {
-    const filter: any = {};
-    if (id) filter.id = String(id);
-    if (slug) filter.slug = String(slug);
-
-    const story = await (prisma as any).story.findFirst({
-      where: filter,
-      include: {
-        categories: true,
-        locations: true,
-        journeys: true,
-        manualRelatedStories: true,
-      },
-    });
-    if (!story) {
-      throw new ApiError("Story not found", 404);
-    }
-    return { data: story };
-  }
-
+  // -------------------------
   // Related Stories Algorithm endpoint query
+  // -------------------------
   if (relatedToId) {
     const targetStory = await (prisma as any).story.findUnique({
       where: { id: String(relatedToId) },
-      include: {
-        categories: true,
-        locations: true,
-        journeys: true,
-        manualRelatedStories: true,
-      },
+      include: storyInclude,
     });
     if (!targetStory) {
       throw new ApiError("Target story not found for related calculation", 404);
@@ -71,13 +67,9 @@ export const getStoryService = async (req: Request) => {
     const allOtherStories = await (prisma as any).story.findMany({
       where: {
         id: { not: targetStory.id },
+        deletedAt: null,
       },
-      include: {
-        categories: true,
-        locations: true,
-        journeys: true,
-        manualRelatedStories: true,
-      },
+      include: storyInclude,
       orderBy: { createdAt: "desc" },
     });
 
@@ -108,70 +100,125 @@ export const getStoryService = async (req: Request) => {
       .map((item: any) => item.story)
       .slice(0, 3);
 
-    return { data: filteredAndSorted, meta: { total: filteredAndSorted.length } };
+    return {
+      code: 200,
+      success: true,
+      message: `${filteredAndSorted.length} : Related stories fetched successfully`,
+      meta: { total: filteredAndSorted.length, page: 1, limit: 3, totalPages: 1 },
+      data: filteredAndSorted,
+    };
   }
 
-  // General list query with filters
-  const filter: any = {};
+  const customWhere: any = {};
+
+  // -------------------------
+  // Existing Filters
+  // -------------------------
+
+  // Exact ID match
+  if (id) {
+    customWhere.id = String(id);
+  }
+
+  // Exact Slug match
+  if (slug) {
+    customWhere.slug = String(slug);
+  }
+
+  // Story Type match
+  if (type) {
+    customWhere.type = String(type);
+  }
+
+  // Story Status match
+  if (status) {
+    customWhere.status = String(status).toUpperCase();
+  }
+
+  // Featured Filter - boolean match
+  if (featured !== undefined && featured !== null && featured !== "") {
+    customWhere.featured = String(featured).toLowerCase() === "true";
+  }
+
+  // Recommended Filter - boolean match
+  if (recommended !== undefined && recommended !== null && recommended !== "") {
+    customWhere.recommended = String(recommended).toLowerCase() === "true";
+  }
+
+  // Category Filter - match category by name or slug
   if (category) {
-    filter.categories = {
+    customWhere.categories = {
       some: {
-        name: String(category),
+        OR: [
+          { name: { contains: String(category), mode: "insensitive" } },
+          { slug: { contains: String(category), mode: "insensitive" } },
+        ],
       },
     };
   }
 
-  let stories = await (prisma as any).story.findMany({
-    where: filter,
-    include: {
-      categories: true,
-      locations: true,
-      journeys: true,
-      manualRelatedStories: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
-
-  // Perform memory/JSON property filter if advanced filters are present
-  if (search || tagPlace || tagTheme || tagLens || journeyId) {
-    const searchLower = search ? String(search).toLowerCase() : "";
-    const placeLower = tagPlace ? String(tagPlace).toLowerCase() : "";
-    const themeLower = tagTheme ? String(tagTheme).toLowerCase() : "";
-    const lensLower = tagLens ? String(tagLens).toLowerCase() : "";
-    const targetJourneyId = journeyId ? String(journeyId) : "";
-
-    stories = stories.filter((story: any) => {
-      const detail: any = story.detail || story.data || {};
-
-      if (searchLower) {
-        const matchesTitle = (story.title || "").toLowerCase().includes(searchLower);
-        const matchesDesc = (story.description || "").toLowerCase().includes(searchLower);
-        const matchesSlug = (story.slug || "").toLowerCase().includes(searchLower);
-        if (!matchesTitle && !matchesDesc && !matchesSlug) return false;
-      }
-
-      if (placeLower && (detail.tagPlace || "").toLowerCase() !== placeLower) {
-        return false;
-      }
-
-      if (themeLower && (detail.tagTheme || "").toLowerCase() !== themeLower) {
-        return false;
-      }
-
-      if (lensLower && (detail.tagLens || "").toLowerCase() !== lensLower) {
-        return false;
-      }
-
-      if (targetJourneyId) {
-        const jIds: string[] = detail.journeyIds || (story.journeys ? story.journeys.map((j: any) => j.id) : []);
-        if (!jIds.includes(targetJourneyId)) return false;
-      }
-
-      return true;
-    });
+  // Relation filtering by Journey ID
+  if (journeyId) {
+    customWhere.journeys = {
+      some: { id: String(journeyId) },
+    };
   }
 
-  return { data: stories, meta: { total: stories.length } };
+  // Relation filtering by Location ID
+  if (locationId) {
+    customWhere.locations = {
+      some: { id: String(locationId) },
+    };
+  }
+
+  // -------------------------
+  // Global Search
+  // -------------------------
+  if (search) {
+    const tokens: string[] = [
+      ...new Set((search as string).trim().split(/\s+/)),
+    ];
+
+    customWhere.OR = tokens.map((token) => ({
+      OR: [
+        { title: { contains: token, mode: "insensitive" } },
+        { slug: { contains: token, mode: "insensitive" } },
+        { authorName: { contains: token, mode: "insensitive" } },
+        { authorRole: { contains: token, mode: "insensitive" } },
+      ],
+    }));
+  }
+
+  // -------------------------
+  // Get Records
+  // -------------------------
+  const result = await getRecords({
+    req,
+    model: (prisma as any).story,
+    customWhere,
+    modelName: "Story",
+    include: storyInclude,
+    excludeFilterKeys: [
+      "page",
+      "limit",
+      "id",
+      "slug",
+      "category",
+      "type",
+      "status",
+      "featured",
+      "recommended",
+      "search",
+      "journeyId",
+      "locationId",
+      "relatedToId",
+      "tagPlace",
+      "tagTheme",
+      "tagLens",
+    ],
+  });
+
+  return result;
 };
 
 export const manageStoryService = async (req: Request, res: Response) => {
@@ -193,8 +240,8 @@ export const manageStoryService = async (req: Request, res: Response) => {
   // 2. Sanitize rich JSON objects
   const hero = cleanJson(data.hero) || {};
   const intro = cleanJson(data.intro) || {};
-  const blocks = cleanJson(Array.isArray(data.blocks) ? data.blocks : []) || [];
-  const practicalNotes = cleanJson(Array.isArray(data.practicalNotes) ? data.practicalNotes : []) || [];
+  const blocks = cleanJson(data.blocks) || [];
+  const practicalNotes = cleanJson(data.practicalNotes !== undefined ? data.practicalNotes : data.practicalNotesData) || [];
   const seo = cleanJson(data.seo) || {};
 
   // 3. Extract & sanitize relation string arrays
@@ -208,16 +255,38 @@ export const manageStoryService = async (req: Request, res: Response) => {
     .map((c: any) => (typeof c === "string" ? c : c?.name || c?.id || ""))
     .filter((c: string) => typeof c === "string" && c.trim() !== "");
 
-  const locationIds: string[] = (Array.isArray(data.locationIds) ? data.locationIds : [])
+  const rawLocations = Array.isArray(data.locations) && data.locations.length > 0
+    ? data.locations
+    : Array.isArray(data.locationIds)
+    ? data.locationIds
+    : Array.isArray(data.locations)
+    ? data.locations
+    : [];
+
+  const locationIds: string[] = rawLocations
     .map((l: any) => (typeof l === "string" ? l : l?.id || ""))
     .filter((l: string) => typeof l === "string" && l.trim() !== "");
 
-  const journeyIds: string[] = (Array.isArray(data.journeyIds) ? data.journeyIds : [])
+  const rawJourneys = Array.isArray(data.journeys) && data.journeys.length > 0
+    ? data.journeys
+    : Array.isArray(data.journeyIds)
+    ? data.journeyIds
+    : Array.isArray(data.journeys)
+    ? data.journeys
+    : [];
+
+  const journeyIds: string[] = rawJourneys
     .map((j: any) => (typeof j === "string" ? j : j?.id || ""))
     .filter((j: string) => typeof j === "string" && j.trim() !== "");
 
-  const rawRelIds = Array.isArray(data.manualRelatedStoryIds)
+  const rawRelIds = Array.isArray(data.manualRelatedStories) && data.manualRelatedStories.length > 0
+    ? data.manualRelatedStories
+    : Array.isArray(data.manualRelatedStoryIds)
     ? data.manualRelatedStoryIds
+    : Array.isArray(data.manualRelatedStories)
+    ? data.manualRelatedStories
+    : Array.isArray(data.relatedStories)
+    ? data.relatedStories
     : Array.isArray(data.detail?.manualRelatedStoryIds)
     ? data.detail.manualRelatedStoryIds
     : [];

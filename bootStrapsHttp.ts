@@ -23,6 +23,7 @@ import settingsRoutes from "./src/modules/settings/settings.routes.js";
 import wishlistRoutes from "./src/modules/wishlist/wishlist.routes.js";
 import journeyWizardRoutes from "./src/modules/journeyWizard/journeyWizard.routes.js";
 import newsletterRoutes from "./src/modules/newsletter/newsletter.routes.js";
+import enumRoutes from "./src/modules/enum/enum.routes.js";
 
 export const bootStapHttps = (app: any) => {
   mount(app, "/api/v1/audit", auditRoutes);
@@ -52,6 +53,8 @@ export const bootStapHttps = (app: any) => {
   mount(app, "/api/v1/journey-wizard", journeyWizardRoutes);
   mount(app, "/api/v1/settings", settingsRoutes);
   mount(app, "/api/v1/newsletter", newsletterRoutes);
+  mount(app, "/api/v1/enum", enumRoutes);
+  mount(app, "/api/v1/enums", enumRoutes);
 };
 
 export const bootstraps = bootStapHttps;

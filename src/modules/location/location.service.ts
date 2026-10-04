@@ -127,13 +127,6 @@ export const getLocationService = async (req: any) => {
     model: prisma.location,
     customWhere,
     modelName: "Location",
-    // select: {
-    //   id: true,
-    //   name: true,
-    //   type: true,
-    //   slug: true,
-    //   parentId:true
-    // }
     include: {
       parent: true,
       journeys: {

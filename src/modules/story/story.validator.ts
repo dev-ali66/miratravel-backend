@@ -5,12 +5,19 @@ export const getStoryValidator = z.object({
     id: z.string().optional(),
     slug: z.string().optional(),
     category: z.string().optional(),
+    type: z.string().optional(),
+    status: z.string().optional(),
+    featured: z.enum(["true", "false"]).optional(),
+    recommended: z.enum(["true", "false"]).optional(),
     tagPlace: z.string().optional(),
     tagTheme: z.string().optional(),
     tagLens: z.string().optional(),
     search: z.string().optional(),
     journeyId: z.string().optional(),
+    locationId: z.string().optional(),
     relatedToId: z.string().optional(),
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().max(100).optional(),
   }),
 });
 
@@ -32,10 +39,14 @@ export const manageStoryValidator = z.object({
       intro: z.any().optional(),
       blocks: z.any().optional(),
       practicalNotes: z.any().optional(),
+      practicalNotesData: z.any().optional(),
       seo: z.any().optional(),
       journeys: z.any().optional(),
+      journeyIds: z.any().optional(),
       locations: z.any().optional(),
+      locationIds: z.any().optional(),
       manualRelatedStories: z.any().optional(),
+      manualRelatedStoryIds: z.any().optional(),
     })
     .passthrough()
     .transform((data) => {
