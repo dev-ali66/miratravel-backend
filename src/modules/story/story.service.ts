@@ -3,6 +3,25 @@ import prisma from "../../config/prisma.js";
 import ApiError from "../../utils/api.error.js";
 import { auditLogger } from "../../logger/audit.logger.js";
 
+const slugify = (text: string): string =>
+  text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+const cleanJson = (val: any) => {
+  if (val === undefined || val === null) return null;
+  try {
+    return JSON.parse(JSON.stringify(val));
+  } catch {
+    return null;
+  }
+};
+
 export const getStoryService = async (req: Request) => {
   const { id, slug, category, tagPlace, tagTheme, tagLens, search, journeyId, relatedToId } = req.query;
 
@@ -15,6 +34,9 @@ export const getStoryService = async (req: Request) => {
     const story = await (prisma as any).story.findFirst({
       where: filter,
       include: {
+        categories: true,
+        locations: true,
+        journeys: true,
         manualRelatedStories: true,
       },
     });
@@ -29,6 +51,9 @@ export const getStoryService = async (req: Request) => {
     const targetStory = await (prisma as any).story.findUnique({
       where: { id: String(relatedToId) },
       include: {
+        categories: true,
+        locations: true,
+        journeys: true,
         manualRelatedStories: true,
       },
     });
@@ -38,7 +63,7 @@ export const getStoryService = async (req: Request) => {
 
     const manualStories: any[] = targetStory.manualRelatedStories || [];
     const manualIds: string[] = manualStories.map((s: any) => s.id);
-    const targetDetail: any = (targetStory as any).detail || {};
+    const targetDetail: any = (targetStory as any).detail || (targetStory as any).data || {};
     const tPlace = targetDetail.tagPlace?.toLowerCase() || "";
     const tTheme = targetDetail.tagTheme?.toLowerCase() || "";
     const tLens = targetDetail.tagLens?.toLowerCase() || "";
@@ -48,13 +73,16 @@ export const getStoryService = async (req: Request) => {
         id: { not: targetStory.id },
       },
       include: {
+        categories: true,
+        locations: true,
+        journeys: true,
         manualRelatedStories: true,
       },
       orderBy: { createdAt: "desc" },
     });
 
     const scored = allOtherStories.map((story: any) => {
-      const sDetail: any = story.detail || {};
+      const sDetail: any = story.detail || story.data || {};
       let score = 0;
 
       // Check manual override
@@ -67,7 +95,7 @@ export const getStoryService = async (req: Request) => {
       const sTheme = sDetail.tagTheme?.toLowerCase() || "";
       const sLens = sDetail.tagLens?.toLowerCase() || "";
 
-      if (tPlace && sPlace === tPlace) score += 2; // Extra weight for geography place
+      if (tPlace && sPlace === tPlace) score += 2;
       if (tTheme && sTheme === tTheme) score += 1;
       if (tLens && sLens === tLens) score += 1;
 
@@ -85,11 +113,20 @@ export const getStoryService = async (req: Request) => {
 
   // General list query with filters
   const filter: any = {};
-  if (category) filter.category = String(category);
+  if (category) {
+    filter.categories = {
+      some: {
+        name: String(category),
+      },
+    };
+  }
 
   let stories = await (prisma as any).story.findMany({
     where: filter,
     include: {
+      categories: true,
+      locations: true,
+      journeys: true,
       manualRelatedStories: true,
     },
     orderBy: { createdAt: "desc" },
@@ -104,7 +141,7 @@ export const getStoryService = async (req: Request) => {
     const targetJourneyId = journeyId ? String(journeyId) : "";
 
     stories = stories.filter((story: any) => {
-      const detail: any = story.detail || {};
+      const detail: any = story.detail || story.data || {};
 
       if (searchLower) {
         const matchesTitle = (story.title || "").toLowerCase().includes(searchLower);
@@ -126,7 +163,7 @@ export const getStoryService = async (req: Request) => {
       }
 
       if (targetJourneyId) {
-        const jIds: string[] = detail.journeyIds || [];
+        const jIds: string[] = detail.journeyIds || (story.journeys ? story.journeys.map((j: any) => j.id) : []);
         if (!jIds.includes(targetJourneyId)) return false;
       }
 
@@ -138,51 +175,152 @@ export const getStoryService = async (req: Request) => {
 };
 
 export const manageStoryService = async (req: Request, res: Response) => {
-  const { id, ...data } = req.body;
+  const body = (req as any).validated?.body || req.body || {};
+  const { id, ...data } = body;
+
+  // 1. Sanitize & extract primitive field values
+  const titleToUse = data.title ? String(data.title).trim() : "Untitled Story";
+  const baseSlug = data.slug || slugify(titleToUse) || "untitled-story";
+
+  const typeToUse = data.type || data.templateType || "short_story";
+  const statusToUse = data.status ? String(data.status).toUpperCase() : "PUBLISH";
+  const readTime = data.readTime !== undefined ? String(data.readTime) : "";
+  const authorName = data.authorName !== undefined ? String(data.authorName) : "";
+  const authorRole = data.authorRole !== undefined ? String(data.authorRole) : "";
+  const featured = Boolean(data.featured);
+  const recommended = Boolean(data.recommended);
+
+  // 2. Sanitize rich JSON objects
+  const hero = cleanJson(data.hero) || {};
+  const intro = cleanJson(data.intro) || {};
+  const blocks = cleanJson(Array.isArray(data.blocks) ? data.blocks : []) || [];
+  const practicalNotes = cleanJson(Array.isArray(data.practicalNotes) ? data.practicalNotes : []) || [];
+  const seo = cleanJson(data.seo) || {};
+
+  // 3. Extract & sanitize relation string arrays
+  const rawCategories = Array.isArray(data.categories)
+    ? data.categories
+    : data.category
+    ? [data.category]
+    : [];
+
+  const categoryNames: string[] = rawCategories
+    .map((c: any) => (typeof c === "string" ? c : c?.name || c?.id || ""))
+    .filter((c: string) => typeof c === "string" && c.trim() !== "");
+
+  const locationIds: string[] = (Array.isArray(data.locationIds) ? data.locationIds : [])
+    .map((l: any) => (typeof l === "string" ? l : l?.id || ""))
+    .filter((l: string) => typeof l === "string" && l.trim() !== "");
+
+  const journeyIds: string[] = (Array.isArray(data.journeyIds) ? data.journeyIds : [])
+    .map((j: any) => (typeof j === "string" ? j : j?.id || ""))
+    .filter((j: string) => typeof j === "string" && j.trim() !== "");
+
+  const rawRelIds = Array.isArray(data.manualRelatedStoryIds)
+    ? data.manualRelatedStoryIds
+    : Array.isArray(data.detail?.manualRelatedStoryIds)
+    ? data.detail.manualRelatedStoryIds
+    : [];
+
+  const relIds: string[] = rawRelIds
+    .map((r: any) => (typeof r === "string" ? r : r?.id || ""))
+    .filter((r: string) => typeof r === "string" && r.trim() !== "");
+
+  // 4. Pre-resolve Categories
+  const resolvedCategoryConnects: { id: string }[] = [];
+  for (const catName of categoryNames) {
+    const catSlug = slugify(catName);
+    if (!catSlug) continue;
+
+    const existingCat = await (prisma as any).storyCategory.findFirst({
+      where: {
+        OR: [{ name: catName }, { slug: catSlug }],
+      },
+    });
+
+    if (existingCat) {
+      resolvedCategoryConnects.push({ id: existingCat.id });
+    } else {
+      const createdCat = await (prisma as any).storyCategory.create({
+        data: {
+          name: catName,
+          slug: catSlug,
+        },
+      });
+      resolvedCategoryConnects.push({ id: createdCat.id });
+    }
+  }
+
+  // 5. Pre-validate existing Location, Journey, and Story IDs
+  const validLocations = locationIds.length > 0
+    ? await (prisma as any).location.findMany({
+        where: { id: { in: locationIds } },
+        select: { id: true },
+      })
+    : [];
+  const locationConnects = validLocations.map((l: any) => ({ id: l.id }));
+
+  const validJourneys = journeyIds.length > 0
+    ? await (prisma as any).journey.findMany({
+        where: { id: { in: journeyIds } },
+        select: { id: true },
+      })
+    : [];
+  const journeyConnects = validJourneys.map((j: any) => ({ id: j.id }));
+
+  const validStories = relIds.length > 0
+    ? await (prisma as any).story.findMany({
+        where: { id: { in: relIds } },
+        select: { id: true },
+      })
+    : [];
+  const storyConnects = validStories.map((s: any) => ({ id: s.id }));
 
   let story;
   if (id) {
     // UPDATE
-    const existing = await (prisma as any).story.findUnique({ where: { id } });
+    const existing = await (prisma as any).story.findUnique({ where: { id: String(id) } });
     if (!existing) {
       throw new ApiError("Story not found", 404);
     }
 
+    // Ensure unique slug for update
+    let finalSlug = baseSlug;
+    const existingOtherSlug = await (prisma as any).story.findFirst({
+      where: { slug: finalSlug, id: { not: String(id) } },
+    });
+    if (existingOtherSlug) {
+      finalSlug = `${baseSlug}-${Date.now().toString(36)}`;
+    }
+
     const updateData: any = {};
-    if (data.title !== undefined) updateData.title = data.title;
-    if (data.slug !== undefined) updateData.slug = data.slug;
-    if (data.category !== undefined) updateData.category = data.category;
-    if (data.categories !== undefined) {
-      updateData.categories = data.categories;
-      if (data.categories.length > 0 && !data.category) {
-        updateData.category = data.categories[0];
-      }
-    }
-    if (data.description !== undefined) updateData.description = data.description;
-    if (data.readTime !== undefined) updateData.readTime = data.readTime;
-    if (data.image !== undefined) updateData.image = data.image;
-    if (data.featured !== undefined) updateData.featured = Boolean(data.featured);
-    if (data.recommended !== undefined) updateData.recommended = Boolean(data.recommended);
-    if (data.templateType !== undefined) updateData.templateType = data.templateType;
-    if (data.detail !== undefined) updateData.detail = data.detail;
+    if (data.title !== undefined) updateData.title = titleToUse;
+    updateData.slug = finalSlug;
+    if (data.type !== undefined || data.templateType !== undefined) updateData.type = typeToUse;
+    if (data.status !== undefined) updateData.status = statusToUse;
+    if (data.readTime !== undefined) updateData.readTime = readTime;
+    if (data.authorName !== undefined) updateData.authorName = authorName;
+    if (data.authorRole !== undefined) updateData.authorRole = authorRole;
+    if (data.featured !== undefined) updateData.featured = featured;
+    if (data.recommended !== undefined) updateData.recommended = recommended;
+    if (data.hero !== undefined) updateData.hero = hero;
+    if (data.intro !== undefined) updateData.intro = intro;
+    if (data.blocks !== undefined) updateData.blocks = blocks;
+    if (data.practicalNotes !== undefined) updateData.practicalNotes = practicalNotes;
+    if (data.seo !== undefined) updateData.seo = seo;
 
-    // Connect/Set manualRelatedStories relation if passed as array of IDs
-    const relIds = Array.isArray(data.manualRelatedStoryIds)
-      ? data.manualRelatedStoryIds
-      : Array.isArray(data.detail?.manualRelatedStoryIds)
-      ? data.detail.manualRelatedStoryIds
-      : null;
-
-    if (relIds !== null) {
-      updateData.manualRelatedStories = {
-        set: relIds.map((rId: string) => ({ id: rId })),
-      };
-    }
+    updateData.categories = { set: resolvedCategoryConnects };
+    updateData.locations = { set: locationConnects };
+    updateData.journeys = { set: journeyConnects };
+    updateData.manualRelatedStories = { set: storyConnects };
 
     story = await (prisma as any).story.update({
-      where: { id },
+      where: { id: String(id) },
       data: updateData,
       include: {
+        categories: true,
+        locations: true,
+        journeys: true,
         manualRelatedStories: true,
       },
     });
@@ -200,50 +338,46 @@ export const manageStoryService = async (req: Request, res: Response) => {
     });
   } else {
     // CREATE
-    const existingSlug = await (prisma as any).story.findUnique({
-      where: { slug: data.slug },
+    if (!titleToUse) {
+      throw new ApiError("Title is required to create a story", 400);
+    }
+
+    // Ensure unique slug for create
+    let finalSlug = baseSlug;
+    const existingSlug = await (prisma as any).story.findFirst({
+      where: { slug: finalSlug },
     });
     if (existingSlug) {
-      throw new ApiError("Story with this slug already exists", 400);
+      finalSlug = `${baseSlug}-${Date.now().toString(36)}`;
     }
-
-    const cats =
-      Array.isArray(data.categories) && data.categories.length > 0
-        ? data.categories
-        : data.category
-        ? [data.category]
-        : ["Culture & Heritage"];
-    const primaryCat = data.category || cats[0];
-
-    const relIds = Array.isArray(data.manualRelatedStoryIds)
-      ? data.manualRelatedStoryIds
-      : Array.isArray(data.detail?.manualRelatedStoryIds)
-      ? data.detail.manualRelatedStoryIds
-      : [];
 
     const createPayload: any = {
-      title: data.title,
-      slug: data.slug,
-      category: primaryCat,
-      categories: cats,
-      description: data.description,
-      readTime: data.readTime,
-      image: data.image,
-      featured: Boolean(data.featured),
-      recommended: Boolean(data.recommended),
-      templateType: data.templateType || "long-story",
-      detail: data.detail || {},
+      title: titleToUse,
+      slug: finalSlug,
+      type: typeToUse,
+      status: statusToUse,
+      readTime,
+      authorName,
+      authorRole,
+      featured,
+      recommended,
+      hero,
+      intro,
+      blocks,
+      practicalNotes,
+      seo,
+      categories: { connect: resolvedCategoryConnects },
+      locations: { connect: locationConnects },
+      journeys: { connect: journeyConnects },
+      manualRelatedStories: { connect: storyConnects },
     };
-
-    if (relIds.length > 0) {
-      createPayload.manualRelatedStories = {
-        connect: relIds.map((rId: string) => ({ id: rId })),
-      };
-    }
 
     story = await (prisma as any).story.create({
       data: createPayload,
       include: {
+        categories: true,
+        locations: true,
+        journeys: true,
         manualRelatedStories: true,
       },
     });

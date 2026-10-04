@@ -147,8 +147,20 @@ export const globalErrorHandler = (
       // Join all messages into a single string
       message = messages.join("; ");
     } else {
-      // fallback if no lines found
-      message = "Validation failed";
+      // Extract non-empty detail lines from Prisma error for meaningful feedback
+      const nonZeroLines = lines
+        .map((l: string) => l.trim())
+        .filter(
+          (l: string) =>
+            l.length > 0 &&
+            !l.startsWith("Invalid `prisma.") &&
+            !l.startsWith("-->") &&
+            l !== "Validation failed"
+        );
+      message =
+        nonZeroLines.length > 0
+          ? nonZeroLines.slice(0, 3).join("; ")
+          : err.message || "Database validation failed";
     }
   }
 

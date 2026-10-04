@@ -7,11 +7,9 @@ model Story {
   readTime             String?
   authorName           String?
   authorRole           String?
-  authorAvatar         Json? // Universal Multimedia Object
   status               String          @default("DRAFT") // DRAFT, PUBLISHED
   featured             Boolean         @default(false)
   recommended          Boolean         @default(false)
-  data                 Json? // Combined/legacy payload fallback
   hero                 Json?
   intro                Json?
   blocks               Json? // Dynamic blocks (paragraph, quote, image, etc.)
