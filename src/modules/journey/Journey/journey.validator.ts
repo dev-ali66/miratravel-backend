@@ -113,6 +113,7 @@ export const manageJourneyValidator = z.object({
       whatsIncluded: z.any().optional(),
       addOns: z.any().optional(),
       gallery: z.any().optional(),
+      locations: z.any().optional(),
       metadata: z.any().optional(),
       data: z.any().optional(),
     })

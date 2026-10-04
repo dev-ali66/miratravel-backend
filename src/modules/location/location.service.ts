@@ -136,7 +136,21 @@ export const getLocationService = async (req: any) => {
     // }
     include: {
       parent: true,
-      // children: true,
+      journeys: {
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          status: true,
+          featured: true,
+          price: true,
+          minDays: true,
+          maxDays: true,
+          pace: true,
+          comfortLevel: true,
+          hero: true,
+        },
+      },
     },
   });
 
