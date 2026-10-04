@@ -105,7 +105,7 @@ jobs:
 
             cd "${{ env.VPS_APP_PATH }}"
 
-            echo "=== Extracting deployment package ==="
+            echo "==== Extracting deployment package ==="
             unzip -o backend-build.zip
 
             echo "=== Removing deployment package ==="
