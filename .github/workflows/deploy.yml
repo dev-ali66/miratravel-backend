@@ -118,7 +118,7 @@ jobs:
             echo "=== Saving PM2 process list ==="
             pm2 save
 
-            echo "=== Deployment completed successfully ==="
+            echo "=== Deployment completed successfully ===="
 
       - name: Delete deployment artifact from GitHub Actions
         uses: geekyeggo/delete-artifact@v5
