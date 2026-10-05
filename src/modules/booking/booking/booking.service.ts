@@ -150,6 +150,37 @@ export const createBookingRequestService = async (req: any) => {
     // Addons are stored in journey JSON data
   }
 
+  // Fetch logged-in user Auth & PersonalInfo for fallbacks
+  const userAuth = await prisma.auth.findUnique({
+    where: { id: req.auth.id },
+    include: { userPersonalInfo: true },
+  });
+
+  const travelerEmail =
+    data.travelerEmail && data.travelerEmail.trim() !== ""
+      ? data.travelerEmail
+      : userAuth?.email || req.auth?.email || "";
+
+  const travelerFirstName =
+    data.travelerFirstName && data.travelerFirstName.trim() !== ""
+      ? data.travelerFirstName
+      : userAuth?.userPersonalInfo?.firstName || "Traveler";
+
+  const travelerLastName =
+    data.travelerLastName && data.travelerLastName.trim() !== ""
+      ? data.travelerLastName
+      : userAuth?.userPersonalInfo?.lastName || "";
+
+  const travelerPhone =
+    data.travelerPhone && data.travelerPhone.trim() !== ""
+      ? data.travelerPhone
+      : userAuth?.userPersonalInfo?.phone || undefined;
+
+  const travelerNationality =
+    data.travelerNationality && data.travelerNationality.trim() !== ""
+      ? data.travelerNationality
+      : userAuth?.userPersonalInfo?.nationality || undefined;
+
   const bookingNumber = await generateBookingNumber();
 
   const booking = await prisma.booking.create({
@@ -157,11 +188,11 @@ export const createBookingRequestService = async (req: any) => {
       bookingNumber,
       journeyId: journey.id,
       createdBy: req.auth.id,
-      travelerFirstName: data.travelerFirstName,
-      travelerLastName: data.travelerLastName,
-      travelerEmail: data.travelerEmail,
-      travelerPhone: data.travelerPhone,
-      travelerNationality: data.travelerNationality,
+      travelerFirstName,
+      travelerLastName,
+      travelerEmail,
+      travelerPhone,
+      travelerNationality,
       travelerBirthDate: data.travelerBirthDate,
       travelArrivalDate: data.travelArrivalDate,
       travelDepartureDate: data.travelDepartureDate,
