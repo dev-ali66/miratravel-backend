@@ -24,8 +24,8 @@ export const getRecords = async ({
 }: any) => {
   const redis = redisManager.getClient();
 
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || limitDefault;
+  const page = parseInt(req.query?.page || req.validated?.query?.page || req.body?.page) || 1;
+  const limit = parseInt(req.query?.limit || req.validated?.query?.limit || req.body?.limit) || limitDefault;
 
   const readScopeFilter = () => {
     if (!req.matchedPermissions) return {};
@@ -62,11 +62,23 @@ export const getRecords = async ({
     ...readScopeFilter(),
   };
 
-  // for conver number fields in filter, we can use autoParseJSON function
+  // for convert number fields in filter, we can use autoParseJSON function
   filter = autoParseJSON(filter, convertNumber);
 
+  const defaultExcludeKeys = [
+    "page",
+    "limit",
+    "sort",
+    "sortBy",
+    "order",
+    "orderBy",
+    "fields",
+    "search",
+  ];
+  const allExcludedKeys = [...defaultExcludeKeys, ...excludeFilterKeys];
+
   filter = Object.keys(filter).reduce((acc: any, key) => {
-    if (excludeFilterKeys.includes(key)) return acc;
+    if (allExcludedKeys.includes(key)) return acc;
 
     const value = filter[key];
     if (value === undefined || value === null) return acc;
@@ -88,6 +100,7 @@ export const getRecords = async ({
 
     return acc;
   }, {});
+
 
   // const cacheKey = `cache:${modelName}:${page}:${limit}:${JSON.stringify(filter)}:${JSON.stringify(customWhere)}`;
 

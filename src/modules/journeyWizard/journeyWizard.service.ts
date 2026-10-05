@@ -30,12 +30,29 @@ export const getJourneyWizardRequests = async (reqOrQuery: any) => {
     ? reqOrQuery
     : { validated: { query: reqOrQuery || {} }, query: reqOrQuery || {} };
 
+  const search = req.query?.search || req.validated?.query?.search;
+  const customWhere: any = {};
+
+  if (search && typeof search === "string" && search.trim() !== "") {
+    const term = search.trim();
+    customWhere.OR = [
+      { name: { contains: term, mode: "insensitive" } },
+      { email: { contains: term, mode: "insensitive" } },
+      { phone: { contains: term, mode: "insensitive" } },
+      { notes: { contains: term, mode: "insensitive" } },
+      { budgetText: { contains: term, mode: "insensitive" } },
+      { duration: { contains: term, mode: "insensitive" } },
+    ];
+  }
+
   return await getRecords({
     req,
     model: getModel(),
     modelName: "JourneyWizardRequest",
+    customWhere,
   });
 };
+
 
 export const updateJourneyWizardRequest = async (idOrReq: any, dataOrRes?: any, res?: any) => {
   if (typeof idOrReq === "string") {
