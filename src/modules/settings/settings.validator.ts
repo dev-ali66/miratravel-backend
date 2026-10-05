@@ -29,10 +29,14 @@ export const updateSettingsValidator = z.object({
     copyrightText: z.string().trim().max(255).nullish(),
 
     // 2. Brand
-    siteLogo: z.string().nullish(),
-    siteLogoLight: z.string().nullish(),
-    siteLogoDark: z.string().nullish(),
-    siteFavicon: z.string().nullish(),
+    siteLogo: z.any().nullish(),
+    siteLogoLight: z.any().nullish(),
+    siteLogoDark: z.any().nullish(),
+    siteFavicon: z.any().nullish(),
+    navbarLogo: z.any().nullish(),
+    footerLogo: z.any().nullish(),
+    authLogo: z.any().nullish(),
+    loadingVideo: z.any().nullish(),
 
     // 3. Social
     socialLinks: z.array(socialLinkItemSchema).or(z.any()).nullish(),

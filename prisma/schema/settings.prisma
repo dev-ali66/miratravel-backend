@@ -5,10 +5,14 @@ model SiteSettings {
   siteName              String?
   siteTagline           String?
   siteDescription       String?   @db.Text
-  siteLogo              String?
-  siteLogoLight         String?
-  siteLogoDark          String?
-  siteFavicon           String?
+  siteLogo              Json?
+  siteLogoLight         Json?
+  siteLogoDark          Json?
+  siteFavicon           Json?
+  navbarLogo            Json?
+  footerLogo            Json?
+  authLogo              Json?
+  loadingVideo          Json?
   siteUrl               String?
   defaultLanguage       String?   @default("en")
   defaultTimezone       String?   @default("UTC")

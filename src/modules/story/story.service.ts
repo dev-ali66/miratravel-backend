@@ -120,9 +120,9 @@ export const getStoryService = async (req: Request) => {
     customWhere.id = String(id);
   }
 
-  // Exact Slug match
+  // Exact / Case-insensitive Slug match
   if (slug) {
-    customWhere.slug = String(slug);
+    customWhere.slug = { equals: String(slug), mode: "insensitive" };
   }
 
   // Story Type match
@@ -192,12 +192,15 @@ export const getStoryService = async (req: Request) => {
   // -------------------------
   // Get Records
   // -------------------------
+  const isSingleQuery = Boolean(id || slug);
+
   const result = await getRecords({
     req,
     model: (prisma as any).story,
     customWhere,
     modelName: "Story",
     include: storyInclude,
+    singleRecordAsArray: !isSingleQuery,
     excludeFilterKeys: [
       "page",
       "limit",
