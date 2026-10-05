@@ -80,7 +80,7 @@ model Booking {
 
     journeyId                 String
     journey                   Journey           @relation(fields: [journeyId], references: [id])
-    createdBy                 String
+    createdBy                 String?
     travelerFirstName         String
     travelerLastName          String
     travelerEmail             String
@@ -107,7 +107,7 @@ model Booking {
     bookingStatus             BookingStatus     @default(REQUEST_SUBMITTED)
     paymentStatus             PaymentStatus     @default(UNPAID)
     selectedPaymentScheduleId String?
-    auth                      Auth              @relation(fields: [createdBy], references: [id])
+    auth                      Auth?             @relation(fields: [createdBy], references: [id])
     deletedAt                 DateTime?
     createdAt                 DateTime          @default(now())
     updatedAt                 DateTime          @updatedAt

@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { protect } from "../../../middlewares/auth.middleware.js";
+import { protect, preDecode } from "../../../middlewares/auth.middleware.js";
 import { publicApiLimiter } from "../../../middlewares/limiter.middleware.js";
 import { accessMiddleware } from "../../../middlewares/accessControl.middleware.js";
 import { validate } from "../../../middlewares/zod.middleware.js";
@@ -39,11 +39,10 @@ router.get(
 );
 
 // CREATE Booking request — "Reserve your journey" form (spec §11: no payment taken here).
-// Booking rows require an authenticated owner (createdBy → Auth), so the traveler must be logged in;
-// any account holder may create their own request without extra RBAC permissions.
+// Public endpoint — unauthenticated travelers may submit requests (if logged in, auth ID is recorded).
 router.post(
   "/",
-  protect,
+  preDecode,
   publicApiLimiter,
   validate(createBookingRequestValidator),
   createBookingController,

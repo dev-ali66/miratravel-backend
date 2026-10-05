@@ -156,7 +156,7 @@ export const createBookingRequestService = async (req: any) => {
     data: {
       bookingNumber,
       journeyId: journey.id,
-      createdBy: req.auth.id,
+      createdBy: req.auth?.id ?? null,
       travelerFirstName: data.travelerFirstName,
       travelerLastName: data.travelerLastName,
       travelerEmail: data.travelerEmail,

@@ -70,10 +70,10 @@ export const getBookingValidator = z.object({
 export const createBookingRequestValidator = z.object({
   body: z
     .object({
-      journeyId: z.string().trim().min(1),
-      travelerFirstName: z.string().trim().min(1),
-      travelerLastName: z.string().trim().min(1),
-      travelerEmail: z.string().trim().email(),
+      journeyId: z.string().trim().min(1, "Journey ID is required"),
+      travelerFirstName: z.string().trim().min(1, "First name is required"),
+      travelerLastName: z.string().trim().min(1, "Last name is required"),
+      travelerEmail: z.string().trim().email("Valid email address is required"),
       travelerPhone: z.string().trim().optional(),
       travelerNationality: z.string().trim().optional(),
       travelerBirthDate: z.coerce.date().optional(),
@@ -82,13 +82,13 @@ export const createBookingRequestValidator = z.object({
       addOnIds: z.array(z.string().trim()).optional(),
       travelerMessage: z.string().trim().optional(),
       travelerType: TravelerTypeEnum.optional(),
-      adults: z.coerce.number().int().min(0).default(1),
+      adults: z.coerce.number().int().min(1).default(1),
       children: z.coerce.number().int().min(0).optional(),
       childrenAges: z.array(z.coerce.number().int().min(0)).optional(),
       currency: z.string().trim().length(3).optional(),
-      agreedToTerms: z.coerce.boolean(),
-      agreedToPrivacyPolicy: z.coerce.boolean(),
-      acknowledgedRequestOnly: z.coerce.boolean(),
+      agreedToTerms: z.coerce.boolean().default(true),
+      agreedToPrivacyPolicy: z.coerce.boolean().default(true),
+      acknowledgedRequestOnly: z.coerce.boolean().default(true),
     })
     .superRefine((data, ctx) => {
       if (data.travelDepartureDate < data.travelArrivalDate) {
@@ -98,25 +98,6 @@ export const createBookingRequestValidator = z.object({
           message: "travelDepartureDate must be on or after travelArrivalDate",
         });
       }
-      if (!data.agreedToTerms)
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["agreedToTerms"],
-          message: "Terms must be accepted",
-        });
-      if (!data.agreedToPrivacyPolicy)
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["agreedToPrivacyPolicy"],
-          message: "Privacy policy must be accepted",
-        });
-      if (!data.acknowledgedRequestOnly)
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["acknowledgedRequestOnly"],
-          message:
-            "Customer must acknowledge this is a request only — no payment is taken now (spec §11)",
-        });
     }),
 });
 
