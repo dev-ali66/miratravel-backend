@@ -112,6 +112,7 @@ export const getBookingService = async (req: any) => {
     model: prisma.booking,
     customWhere,
     modelName: "Booking",
+    dbField: "createdBy",
     include: bookingInclude,
     orderBy: { createdAt: "desc" },
     excludeFilterKeys: [
