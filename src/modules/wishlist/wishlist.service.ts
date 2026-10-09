@@ -7,17 +7,110 @@ import ApiError from "../../utils/api.error.js";
 
 export const getWishlistService = async (req: Request) => {
   const authId = (req as any).auth?.id;
-  const targetAuthId = authId || req.query.authId;
+  const query = req.validated?.query || req.query || {};
+
+  const targetAuthId = authId || query.authId;
+
+  const {
+    sortBy,
+    order,
+    sortOrder,
+    sort,
+    journeyType,
+    type,
+    minPrice,
+    maxPrice,
+    search,
+  } = query;
+
+  // Determine sort direction (default 'desc')
+  const rawOrder = (sortOrder || order || sort || "desc").toString().toLowerCase();
+  const finalSortOrder: "asc" | "desc" = rawOrder === "asc" ? "asc" : "desc";
+
+  // Determine order criteria
+  let orderBy: any = { createdAt: finalSortOrder };
+
+  if (sortBy === "price") {
+    orderBy = { journey: { price: finalSortOrder } };
+  } else if (sortBy === "journeyCreatedAt") {
+    orderBy = { journey: { createdAt: finalSortOrder } };
+  } else if (sortBy === "createdAt" || sortBy === "time" || sortBy === "date") {
+    orderBy = { createdAt: finalSortOrder };
+  }
+
+  // Build customWhere for journey filter conditions
+  const customWhere: any = {};
+  const journeyWhere: any = {};
+
+  // journeyType filtering
+  const targetType = journeyType || type;
+  if (targetType) {
+    let typesArray: string[] = [];
+    if (Array.isArray(targetType)) {
+      typesArray = targetType
+        .flatMap((t) => String(t).split(","))
+        .map((t) => t.trim().toUpperCase());
+    } else if (typeof targetType === "string") {
+      typesArray = targetType
+        .split(",")
+        .map((t) => t.trim().toUpperCase());
+    }
+    typesArray = typesArray.filter(Boolean);
+    if (typesArray.length > 0) {
+      journeyWhere.journeyType = {
+        hasSome: typesArray,
+      };
+    }
+  }
+
+  // Price range filtering
+  if (minPrice !== undefined || maxPrice !== undefined) {
+    journeyWhere.price = {};
+    if (minPrice !== undefined && minPrice !== null && minPrice !== "") {
+      journeyWhere.price.gte = Number(minPrice);
+    }
+    if (maxPrice !== undefined && maxPrice !== null && maxPrice !== "") {
+      journeyWhere.price.lte = Number(maxPrice);
+    }
+  }
+
+  // Search filtering
+  if (search && typeof search === "string" && search.trim() !== "") {
+    journeyWhere.OR = [
+      { title: { contains: search.trim(), mode: "insensitive" } },
+      { subtitle: { contains: search.trim(), mode: "insensitive" } },
+    ];
+  }
+
+  if (Object.keys(journeyWhere).length > 0) {
+    customWhere.journey = journeyWhere;
+  }
 
   const result = await getRecords({
     req,
-    model: (prisma as any).wishlist,
+    model: prisma.wishlist,
     modelName: "Wishlist",
     dbField: "authId",
     ownerField: targetAuthId,
+    orderBy,
+    customWhere,
     include: {
       journey: true,
     },
+    excludeFilterKeys: [
+      "authId",
+      "sortBy",
+      "sort_by",
+      "order",
+      "sortOrder",
+      "sort",
+      "orderBy",
+      "journeyType",
+      "type",
+      "minPrice",
+      "maxPrice",
+      "search",
+    ],
     singleRecordAsArray: true,
     audit: false,
   });
