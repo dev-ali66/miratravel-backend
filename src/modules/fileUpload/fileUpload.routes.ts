@@ -13,7 +13,7 @@ router.post(
   protect,
   publicApiLimiter,
   // accessMiddleware("beach"),
-  ...uploadFile(["image", "video", "file"], [10, 100, 10], 10),
+  ...uploadFile(["image", "video", "file"], [30, 500, 30], 10),
   // validate(manageBeachSchemaValidator),
   manageAllFileUploadController,
 );
