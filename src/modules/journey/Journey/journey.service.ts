@@ -15,6 +15,17 @@ const journeyInclude = {
       card: true,
     },
   },
+  addOns: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      primaryType: true,
+      featured: true,
+      price: true,
+      hero: true,
+    },
+  },
 };
 
 const toArray = (value: unknown): string[] =>
@@ -236,6 +247,8 @@ export const getJourneyService = async (req: any) => {
       "locationId",
       "locationSlug",
       "search",
+      "addOns",
+      "experiences",
     ],
   });
 
@@ -245,6 +258,8 @@ export const getJourneyService = async (req: any) => {
 export const manageJourneyService = async (req: any, res: any) => {
   if (req.validated?.body) {
     const body = req.validated.body;
+    const sanitizedBody = { ...body };
+
     const hasLocationField =
       "locations" in body ||
       "itinerary" in body ||
@@ -262,14 +277,37 @@ export const manageJourneyService = async (req: any, res: any) => {
         validLocationIds = existingLocations.map((loc) => loc.id);
       }
 
-      const sanitizedBody = { ...body };
-
       sanitizedBody.locations = {
         set: validLocationIds.map((id) => ({ id })),
       };
-
-      req.validated.body = sanitizedBody;
     }
+
+    if ("addOns" in body) {
+      let candidateExpIds: string[] = [];
+      if (Array.isArray(body.addOns)) {
+        candidateExpIds = body.addOns.filter(
+          (id: any) => typeof id === "string" && id.trim().length > 0
+        );
+      }
+
+      if (candidateExpIds.length > 0) {
+        const existingExps = await prisma.experience.findMany({
+          where: { id: { in: candidateExpIds }, deletedAt: null },
+          select: { id: true },
+        });
+        const validExpIds = existingExps.map((e) => e.id);
+        sanitizedBody.addOns = {
+          set: validExpIds.map((id) => ({ id })),
+        };
+      } else {
+        sanitizedBody.addOns = {
+          set: [],
+        };
+      }
+      delete (sanitizedBody as any).experiences;
+    }
+
+    req.validated.body = sanitizedBody;
   }
 
   const result = await manageRecordWithFiles({

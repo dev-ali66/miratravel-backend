@@ -56,7 +56,13 @@ export const manageExperienceValidator = z.object({
       currency: z.string().trim().default("EUR").optional(),
       priceType: z.string().trim().optional().nullable(),
 
-      // Geography Linking
+      // Geography Linking (Multi-Location Support)
+      countries: z.array(z.string()).optional(),
+      regions: z.array(z.string()).optional(),
+      places: z.array(z.string()).optional(),
+      countryIds: z.array(z.string()).optional(),
+      regionIds: z.array(z.string()).optional(),
+      placeIds: z.array(z.string()).optional(),
       countryId: z.string().optional().nullable(),
       regionId: z.string().optional().nullable(),
       placeId: z.string().optional().nullable(),

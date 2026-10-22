@@ -1460,7 +1460,6 @@ async function seedAllFrontendJourneys() {
       itinerary: masterPayload.itinerary,
       accommodations: masterPayload.accommodations,
       whatsIncluded: masterPayload.whatsIncluded,
-      addOns: masterPayload.addOns,
       metadata: masterPayload.metadata,
     };
 

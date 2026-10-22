@@ -44,6 +44,9 @@ export const manageLocationValidator = z.object({
       featured: z.boolean().optional(),
 
       parentId: z.string().optional().nullable(),
+      countryExperiences: z.array(z.string()).optional(),
+      regionExperienceList: z.array(z.string()).optional(),
+      placeExperiences: z.array(z.string()).optional(),
 
       geoData: z.any().optional(),
 
@@ -60,7 +63,6 @@ export const manageLocationValidator = z.object({
       why: z.any().optional(),
       explore: z.any().optional(),
       glance: z.any().optional(),
-      experience: z.any().optional(),
       regionExperiences: z.any().optional(),
       character: z.any().optional(),
       travelInsight: z.any().optional(),

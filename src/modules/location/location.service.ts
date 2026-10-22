@@ -144,6 +144,39 @@ export const getLocationService = async (req: any) => {
           hero: true,
         },
       },
+      countryExperiences: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          primaryType: true,
+          featured: true,
+          price: true,
+          hero: true,
+        },
+      },
+      regionExperienceList: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          primaryType: true,
+          featured: true,
+          price: true,
+          hero: true,
+        },
+      },
+      placeExperiences: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          primaryType: true,
+          featured: true,
+          price: true,
+          hero: true,
+        },
+      },
     },
   });
 
@@ -152,7 +185,16 @@ export const getLocationService = async (req: any) => {
 
 export const manageLocationService = async (req: any, res: any) => {
   if (req.validated?.body) {
-    const { parent, children, parentId, ...rest } = req.validated.body;
+    const {
+      parent,
+      children,
+      parentId,
+      experience,
+      countryExperiences,
+      regionExperienceList,
+      placeExperiences,
+      ...rest
+    } = req.validated.body;
 
     const sanitizedBody: any = { ...rest };
 
@@ -165,6 +207,32 @@ export const manageLocationService = async (req: any, res: any) => {
       sanitizedBody.parent = {
         disconnect: true,
       };
+    }
+
+    const formatExperienceRelation = (ids: any) => {
+      if (!Array.isArray(ids)) return undefined;
+      const validIds = ids.filter((id) => typeof id === "string" && id.trim() !== "");
+      if (req.validated.body.id) {
+        return { set: validIds.map((id: string) => ({ id })) };
+      } else if (validIds.length > 0) {
+        return { connect: validIds.map((id: string) => ({ id })) };
+      }
+      return undefined;
+    };
+
+    if (countryExperiences !== undefined) {
+      const rel = formatExperienceRelation(countryExperiences);
+      if (rel) sanitizedBody.countryExperiences = rel;
+    }
+
+    if (regionExperienceList !== undefined) {
+      const rel = formatExperienceRelation(regionExperienceList);
+      if (rel) sanitizedBody.regionExperienceList = rel;
+    }
+
+    if (placeExperiences !== undefined) {
+      const rel = formatExperienceRelation(placeExperiences);
+      if (rel) sanitizedBody.placeExperiences = rel;
     }
 
     req.validated.body = sanitizedBody;
@@ -181,6 +249,9 @@ export const manageLocationService = async (req: any, res: any) => {
     include: {
       parent: true,
       children: true,
+      countryExperiences: true,
+      regionExperienceList: true,
+      placeExperiences: true,
     },
   });
 

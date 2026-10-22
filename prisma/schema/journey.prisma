@@ -70,7 +70,6 @@ model Journey {
   itinerary      Json?
   accommodations Json?
   whatsIncluded  Json?
-  addOns         Json?
   metadata       Json?
   deletedAt      DateTime?
   createdAt      DateTime      @default(now())
@@ -79,7 +78,7 @@ model Journey {
   wishlists      Wishlist[]
   story          Story[]
   locations      Location[]
-  experiences    Experience[]
+  addOns         Experience[]  @relation("JourneyAddOns")
   journeyType    JourneyType[]
   travelStyle    TravelStyle[]
   perfectFor     PerfectFor[]

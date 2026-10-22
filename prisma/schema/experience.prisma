@@ -26,13 +26,10 @@ model Experience {
     currency       String           @default("EUR")
     priceType      String?
 
-    // Geography Linking (Country, Region, Place)
-    countryId      String?
-    country        Location?        @relation("ExperienceCountry", fields: [countryId], references: [id])
-    regionId       String?
-    region         Location?        @relation("ExperienceRegion", fields: [regionId], references: [id])
-    placeId        String?
-    place          Location?        @relation("ExperiencePlace", fields: [placeId], references: [id])
+    // Geography Linking (Countries, Regions, Places)
+    countries      Location[]       @relation("ExperienceCountry")
+    regions        Location[]       @relation("ExperienceRegion")
+    places         Location[]       @relation("ExperiencePlace")
 
     // Content Sections & Editorial Detail
     subtitle       String?
@@ -52,16 +49,13 @@ model Experience {
     gallery        Json?
 
     // Relations
-    journeys       Journey[]
+    journeys       Journey[]        @relation("JourneyAddOns")
     stories        Story[]
 
     deletedAt      DateTime?
     createdAt      DateTime         @default(now())
     updatedAt      DateTime         @updatedAt
 
-    @@index([countryId])
-    @@index([regionId])
-    @@index([placeId])
     @@index([price])
     @@index([status])
     @@index([primaryType])

@@ -32,19 +32,15 @@ export const getExperienceService = async (req: any) => {
   }
 
   if (countryId) {
-    customWhere.countryId = countryId;
+    customWhere.countries = { some: { id: countryId } };
   }
 
   if (regionId) {
-    customWhere.regionId = regionId;
+    customWhere.regions = { some: { id: regionId } };
   }
 
   if (placeId) {
-    customWhere.placeId = placeId;
-  }
-
-  if (parentId) {
-    customWhere.parentId = parentId;
+    customWhere.places = { some: { id: placeId } };
   }
 
   // Featured Filter - boolean match
@@ -117,7 +113,7 @@ export const getExperienceService = async (req: any) => {
     customWhere,
     modelName: "Experience",
     include: {
-      country: {
+      countries: {
         select: {
           id: true,
           name: true,
@@ -125,7 +121,7 @@ export const getExperienceService = async (req: any) => {
           type: true,
         },
       },
-      region: {
+      regions: {
         select: {
           id: true,
           name: true,
@@ -133,7 +129,7 @@ export const getExperienceService = async (req: any) => {
           type: true,
         },
       },
-      place: {
+      places: {
         select: {
           id: true,
           name: true,
@@ -176,6 +172,13 @@ export const getExperienceService = async (req: any) => {
       "countryId",
       "regionId",
       "placeId",
+      "locationId",
+      "countries",
+      "regions",
+      "places",
+      "countryIds",
+      "regionIds",
+      "placeIds",
       "parentId",
       "priceType",
       "currency",
@@ -195,10 +198,16 @@ export const manageExperienceService = async (req: any, res: any) => {
       parentId,
       country,
       countryId,
+      countries,
+      countryIds,
       region,
       regionId,
+      regions,
+      regionIds,
       place,
       placeId,
+      places,
+      placeIds,
       journeys,
       stories,
       ...rest
@@ -211,10 +220,39 @@ export const manageExperienceService = async (req: any, res: any) => {
       sanitizedBody.price = Number(Number(sanitizedBody.price).toFixed(2));
     }
 
-    // Set foreign key scalar IDs
-    sanitizedBody.countryId = countryId && countryId.trim() !== "" ? countryId.trim() : null;
-    sanitizedBody.regionId = regionId && regionId.trim() !== "" ? regionId.trim() : null;
-    sanitizedBody.placeId = placeId && placeId.trim() !== "" ? placeId.trim() : null;
+    // Helper for many-to-many location relations
+    const formatLocationRelation = (items: any, fallbackSingle?: any) => {
+      let ids: string[] = [];
+      if (Array.isArray(items)) {
+        ids = items.filter((id) => typeof id === "string" && id.trim() !== "");
+      } else if (typeof fallbackSingle === "string" && fallbackSingle.trim() !== "") {
+        ids = [fallbackSingle.trim()];
+      }
+      if (req.validated.body.id) {
+        return { set: ids.map((id) => ({ id })) };
+      } else if (ids.length > 0) {
+        return { connect: ids.map((id) => ({ id })) };
+      }
+      return undefined;
+    };
+
+    const countriesInput = countries ?? countryIds;
+    if (countriesInput !== undefined || countryId !== undefined) {
+      const rel = formatLocationRelation(countriesInput, countryId);
+      if (rel) sanitizedBody.countries = rel;
+    }
+
+    const regionsInput = regions ?? regionIds;
+    if (regionsInput !== undefined || regionId !== undefined) {
+      const rel = formatLocationRelation(regionsInput, regionId);
+      if (rel) sanitizedBody.regions = rel;
+    }
+
+    const placesInput = places ?? placeIds;
+    if (placesInput !== undefined || placeId !== undefined) {
+      const rel = formatLocationRelation(placesInput, placeId);
+      if (rel) sanitizedBody.places = rel;
+    }
 
     // Many-to-Many Journeys
     if (Array.isArray(journeys)) {
@@ -254,9 +292,9 @@ export const manageExperienceService = async (req: any, res: any) => {
     externalDomain: ["res.cloudinary.com"],
     attachUser: false,
     include: {
-      country: true,
-      region: true,
-      place: true,
+      countries: true,
+      regions: true,
+      places: true,
       journeys: {
         select: {
           id: true,
@@ -375,7 +413,7 @@ export const searchExperienceOptionsService = async (req: any) => {
       priceType: true,
       hero: true,
       essence: true,
-      country: {
+      countries: {
         select: {
           id: true,
           name: true,
@@ -383,7 +421,7 @@ export const searchExperienceOptionsService = async (req: any) => {
           type: true,
         },
       },
-      region: {
+      regions: {
         select: {
           id: true,
           name: true,
@@ -391,7 +429,7 @@ export const searchExperienceOptionsService = async (req: any) => {
           type: true,
         },
       },
-      place: {
+      places: {
         select: {
           id: true,
           name: true,
