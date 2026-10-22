@@ -34,7 +34,6 @@ model Location {
     children             Location[]   @relation("LocationHierarchy")
     story                Story[]
     journeys             Journey[]
-    experiences          Experience[] @relation("ExperienceParent")
     countryExperiences   Experience[] @relation("ExperienceCountry")
     regionExperienceList Experience[] @relation("ExperienceRegion")
     placeExperiences     Experience[] @relation("ExperiencePlace")

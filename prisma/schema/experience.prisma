@@ -62,7 +62,6 @@ model Experience {
     @@index([countryId])
     @@index([regionId])
     @@index([placeId])
-    @@index([parentId])
     @@index([price])
     @@index([status])
     @@index([primaryType])

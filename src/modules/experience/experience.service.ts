@@ -141,15 +141,6 @@ export const getExperienceService = async (req: any) => {
           type: true,
         },
       },
-      parent: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          type: true,
-          hero: true,
-        },
-      },
       journeys: {
         select: {
           id: true,
@@ -227,16 +218,28 @@ export const manageExperienceService = async (req: any, res: any) => {
 
     // Many-to-Many Journeys
     if (Array.isArray(journeys)) {
-      sanitizedBody.journeys = {
-        set: journeys.filter(Boolean).map((jId: string) => ({ id: jId })),
-      };
+      if (req.validated.body.id) {
+        sanitizedBody.journeys = {
+          set: journeys.filter(Boolean).map((jId: string) => ({ id: jId })),
+        };
+      } else if (journeys.filter(Boolean).length > 0) {
+        sanitizedBody.journeys = {
+          connect: journeys.filter(Boolean).map((jId: string) => ({ id: jId })),
+        };
+      }
     }
 
     // Many-to-Many Stories
     if (Array.isArray(stories)) {
-      sanitizedBody.stories = {
-        set: stories.filter(Boolean).map((sId: string) => ({ id: sId })),
-      };
+      if (req.validated.body.id) {
+        sanitizedBody.stories = {
+          set: stories.filter(Boolean).map((sId: string) => ({ id: sId })),
+        };
+      } else if (stories.filter(Boolean).length > 0) {
+        sanitizedBody.stories = {
+          connect: stories.filter(Boolean).map((sId: string) => ({ id: sId })),
+        };
+      }
     }
 
     req.validated.body = sanitizedBody;
@@ -254,7 +257,6 @@ export const manageExperienceService = async (req: any, res: any) => {
       country: true,
       region: true,
       place: true,
-      parent: true,
       journeys: {
         select: {
           id: true,
@@ -390,14 +392,6 @@ export const searchExperienceOptionsService = async (req: any) => {
         },
       },
       place: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          type: true,
-        },
-      },
-      parent: {
         select: {
           id: true,
           name: true,
