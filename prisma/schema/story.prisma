@@ -17,6 +17,7 @@ model Story {
   seo                  Json?
   journeys             Journey[]
   locations            Location[]
+  experiences          Experience[]
   manualRelatedStories Story[]         @relation("StoryToRelatedStories")
   relatedFromStories   Story[]         @relation("StoryToRelatedStories")
   deletedAt            DateTime?

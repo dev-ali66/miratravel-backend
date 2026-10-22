@@ -79,6 +79,7 @@ model Journey {
   wishlists      Wishlist[]
   story          Story[]
   locations      Location[]
+  experiences    Experience[]
   journeyType    JourneyType[]
   travelStyle    TravelStyle[]
   perfectFor     PerfectFor[]

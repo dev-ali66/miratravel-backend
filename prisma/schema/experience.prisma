@@ -1,23 +1,71 @@
-model Experience {
-    id        String    @id @default(cuid())
-    name      String
-    slug      String    @unique
-    featured  Boolean   @default(false)
-    price     Decimal   @default(0.00) @db.Decimal(10, 2)
-    currency  String    @default("EUR")
-    priceType String?
-    parentId  String?
-    geoData   Json?
-    metadata  Json?
-    hero      Json?
-    essence   Json?
-    faq       Json?
-    parent    Location? @relation(fields: [parentId], references: [id])
-    deletedAt DateTime?
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
-
-    @@index([parentId])
-    @@index([price])
+enum ExperienceType {
+    CULTURE_HERITAGE
+    NATURE_WILDLIFE
+    ADVENTURE_OUTDOORS
+    FOOD_WINE
+    LOCAL_LIFE_TRADITIONS
+    ART_ARCHITECTURE
+    COASTAL_MARITIME
+    WELLNESS_SLOW_LIVING
 }
 
+model Experience {
+    id             String           @id @default(cuid())
+    name           String
+    slug           String           @unique
+    status         JourneyStatus    @default(DRAFT)
+    featured       Boolean          @default(false)
+
+    // Classification (Primary Type, Secondary Types, Tags/Attributes)
+    primaryType    ExperienceType   @default(CULTURE_HERITAGE)
+    secondaryTypes ExperienceType[]
+    attributes     String[]
+
+    // Commercial & Pricing
+    price          Decimal          @default(0.00) @db.Decimal(10, 2)
+    currency       String           @default("EUR")
+    priceType      String?
+
+    // Geography Linking (Country, Region, Place)
+    countryId      String?
+    country        Location?        @relation("ExperienceCountry", fields: [countryId], references: [id])
+    regionId       String?
+    region         Location?        @relation("ExperienceRegion", fields: [regionId], references: [id])
+    placeId        String?
+    place          Location?        @relation("ExperiencePlace", fields: [placeId], references: [id])
+    parentId       String?
+    parent         Location?        @relation("ExperienceParent", fields: [parentId], references: [id])
+
+    // Content Sections & Editorial Detail
+    subtitle       String?
+    summary        String?
+    theExperience  Json?
+    highlights     Json?
+    practicalInfo  Json?
+    miraTouch      Json?
+    enquiryCta     Json?
+
+    // Legacy & CMS Modules
+    geoData        Json?
+    metadata       Json?
+    hero           Json?
+    essence        Json?
+    faq            Json?
+    gallery        Json?
+
+    // Relations
+    journeys       Journey[]
+    stories        Story[]
+
+    deletedAt      DateTime?
+    createdAt      DateTime         @default(now())
+    updatedAt      DateTime         @updatedAt
+
+    @@index([countryId])
+    @@index([regionId])
+    @@index([placeId])
+    @@index([parentId])
+    @@index([price])
+    @@index([status])
+    @@index([primaryType])
+}

@@ -4,11 +4,45 @@ import prisma from "../../config/prisma.js";
 import { getRecords } from "../../shared/getRecords.service.js";
 
 export const getExperienceService = async (req: any) => {
-  const { name, slug, search, featured, parentId, priceType, currency, minPrice, maxPrice } = req.query;
+  const {
+    name,
+    slug,
+    search,
+    featured,
+    status,
+    primaryType,
+    countryId,
+    regionId,
+    placeId,
+    parentId,
+    priceType,
+    currency,
+    minPrice,
+    maxPrice,
+  } = req.query;
 
   const customWhere: any = {};
 
-  // Parent Location ID filter
+  if (status) {
+    customWhere.status = status;
+  }
+
+  if (primaryType) {
+    customWhere.primaryType = primaryType;
+  }
+
+  if (countryId) {
+    customWhere.countryId = countryId;
+  }
+
+  if (regionId) {
+    customWhere.regionId = regionId;
+  }
+
+  if (placeId) {
+    customWhere.placeId = placeId;
+  }
+
   if (parentId) {
     customWhere.parentId = parentId;
   }
@@ -76,13 +110,37 @@ export const getExperienceService = async (req: any) => {
     }));
   }
 
-  // Fetch records with parent location details
+  // Fetch records with location details and related entities
   const result = await getRecords({
     req,
     model: prisma.experience,
     customWhere,
     modelName: "Experience",
     include: {
+      country: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          type: true,
+        },
+      },
+      region: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          type: true,
+        },
+      },
+      place: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          type: true,
+        },
+      },
       parent: {
         select: {
           id: true,
@@ -90,6 +148,26 @@ export const getExperienceService = async (req: any) => {
           slug: true,
           type: true,
           hero: true,
+        },
+      },
+      journeys: {
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          price: true,
+          currency: true,
+          hero: true,
+          status: true,
+        },
+      },
+      stories: {
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          hero: true,
+          status: true,
         },
       },
     },
@@ -100,6 +178,13 @@ export const getExperienceService = async (req: any) => {
       "slug",
       "name",
       "featured",
+      "status",
+      "primaryType",
+      "secondaryTypes",
+      "attributes",
+      "countryId",
+      "regionId",
+      "placeId",
       "parentId",
       "priceType",
       "currency",
@@ -114,7 +199,19 @@ export const getExperienceService = async (req: any) => {
 
 export const manageExperienceService = async (req: any, res: any) => {
   if (req.validated?.body) {
-    const { parent, parentId, ...rest } = req.validated.body;
+    const {
+      parent,
+      parentId,
+      country,
+      countryId,
+      region,
+      regionId,
+      place,
+      placeId,
+      journeys,
+      stories,
+      ...rest
+    } = req.validated.body;
 
     const sanitizedBody: any = { ...rest };
 
@@ -123,14 +220,23 @@ export const manageExperienceService = async (req: any, res: any) => {
       sanitizedBody.price = Number(Number(sanitizedBody.price).toFixed(2));
     }
 
-    // Handle Prisma relation for parent location
-    if (parentId && typeof parentId === "string" && parentId.trim() !== "") {
-      sanitizedBody.parent = {
-        connect: { id: parentId.trim() },
+    // Set foreign key scalar IDs
+    sanitizedBody.countryId = countryId && countryId.trim() !== "" ? countryId.trim() : null;
+    sanitizedBody.regionId = regionId && regionId.trim() !== "" ? regionId.trim() : null;
+    sanitizedBody.placeId = placeId && placeId.trim() !== "" ? placeId.trim() : null;
+    sanitizedBody.parentId = parentId && parentId.trim() !== "" ? parentId.trim() : null;
+
+    // Many-to-Many Journeys
+    if (Array.isArray(journeys)) {
+      sanitizedBody.journeys = {
+        set: journeys.filter(Boolean).map((jId: string) => ({ id: jId })),
       };
-    } else if (req.validated.body.id && (parentId === null || parentId === "")) {
-      sanitizedBody.parent = {
-        disconnect: true,
+    }
+
+    // Many-to-Many Stories
+    if (Array.isArray(stories)) {
+      sanitizedBody.stories = {
+        set: stories.filter(Boolean).map((sId: string) => ({ id: sId })),
       };
     }
 
@@ -146,7 +252,26 @@ export const manageExperienceService = async (req: any, res: any) => {
     externalDomain: ["res.cloudinary.com"],
     attachUser: false,
     include: {
+      country: true,
+      region: true,
+      place: true,
       parent: true,
+      journeys: {
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          hero: true,
+        },
+      },
+      stories: {
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          hero: true,
+        },
+      },
     },
   });
 
@@ -171,10 +296,43 @@ export const deleteExperienceService = async (req: any, res: any) => {
 };
 
 export const searchExperienceOptionsService = async (req: any) => {
-  const { search, limit = 50, featured, parentId, priceType, currency } = req.query;
+  const {
+    search,
+    limit = 50,
+    featured,
+    status,
+    primaryType,
+    countryId,
+    regionId,
+    placeId,
+    parentId,
+    priceType,
+    currency,
+  } = req.query;
+
   const where: any = {
     deletedAt: null,
   };
+
+  if (status) {
+    where.status = status;
+  }
+
+  if (primaryType) {
+    where.primaryType = primaryType;
+  }
+
+  if (countryId) {
+    where.countryId = countryId;
+  }
+
+  if (regionId) {
+    where.regionId = regionId;
+  }
+
+  if (placeId) {
+    where.placeId = placeId;
+  }
 
   if (parentId) {
     where.parentId = parentId;
@@ -206,12 +364,40 @@ export const searchExperienceOptionsService = async (req: any) => {
       id: true,
       name: true,
       slug: true,
+      status: true,
+      primaryType: true,
+      secondaryTypes: true,
+      attributes: true,
       featured: true,
       price: true,
       currency: true,
       priceType: true,
       hero: true,
       essence: true,
+      country: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          type: true,
+        },
+      },
+      region: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          type: true,
+        },
+      },
+      place: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          type: true,
+        },
+      },
       parent: {
         select: {
           id: true,
