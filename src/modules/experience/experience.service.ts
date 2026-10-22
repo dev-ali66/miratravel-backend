@@ -4,7 +4,7 @@ import prisma from "../../config/prisma.js";
 import { getRecords } from "../../shared/getRecords.service.js";
 
 export const getExperienceService = async (req: any) => {
-  const { name, slug, search, featured, parentId, priceType, minPrice, maxPrice } = req.query;
+  const { name, slug, search, featured, parentId, priceType, currency, minPrice, maxPrice } = req.query;
 
   const customWhere: any = {};
 
@@ -21,6 +21,11 @@ export const getExperienceService = async (req: any) => {
   // Price Type Filter
   if (priceType) {
     customWhere.priceType = priceType;
+  }
+
+  // Currency Filter
+  if (currency) {
+    customWhere.currency = currency;
   }
 
   // Price Range Filter
@@ -147,7 +152,7 @@ export const deleteExperienceService = async (req: any, res: any) => {
 };
 
 export const searchExperienceOptionsService = async (req: any) => {
-  const { search, limit = 50, featured, parentId, priceType } = req.query;
+  const { search, limit = 50, featured, parentId, priceType, currency } = req.query;
   const where: any = {
     deletedAt: null,
   };
@@ -162,6 +167,10 @@ export const searchExperienceOptionsService = async (req: any) => {
 
   if (priceType) {
     where.priceType = priceType;
+  }
+
+  if (currency) {
+    where.currency = currency;
   }
 
   if (search && typeof search === "string" && search.trim()) {
@@ -180,6 +189,7 @@ export const searchExperienceOptionsService = async (req: any) => {
       slug: true,
       featured: true,
       price: true,
+      currency: true,
       priceType: true,
       hero: true,
       essence: true,

@@ -4,6 +4,7 @@ model Experience {
     slug      String    @unique
     featured  Boolean   @default(false)
     price     Decimal?  @db.Decimal(10, 2)
+    currency  String    @default("EUR")
     priceType String?
     parentId  String?
     geoData   Json?

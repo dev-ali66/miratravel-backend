@@ -10,6 +10,7 @@ export const getExperienceValidator = z.object({
       slug: z.string().trim().optional(),
       search: z.string().trim().optional(),
       priceType: z.string().trim().optional(),
+      currency: z.string().trim().optional(),
       minPrice: z.coerce.number().nonnegative().optional(),
       maxPrice: z.coerce.number().nonnegative().optional(),
     })
@@ -24,6 +25,7 @@ export const manageExperienceValidator = z.object({
       slug: z.string().trim().optional(),
       featured: z.boolean().optional(),
       price: z.coerce.number().nonnegative().optional().nullable(),
+      currency: z.string().trim().default("EUR").optional(),
       priceType: z.string().trim().optional().nullable(),
       parentId: z.string().optional().nullable(),
       geoData: z.any().optional(),
