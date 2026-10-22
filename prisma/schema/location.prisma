@@ -34,6 +34,7 @@ model Location {
     children             Location[]   @relation("LocationHierarchy")
     story                Story[]
     journeys             Journey[]
+    experiences          Experience[]
     deletedAt            DateTime?
     createdAt            DateTime     @default(now())
     updatedAt            DateTime     @updatedAt

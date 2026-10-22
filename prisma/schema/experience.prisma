@@ -1,0 +1,20 @@
+model Experience {
+    id        String    @id @default(cuid())
+    name      String
+    slug      String    @unique
+    featured  Boolean   @default(false)
+    price     Decimal?  @db.Decimal(10, 2)
+    priceType String?
+    parentId  String?
+    geoData   Json?
+    metadata  Json?
+    hero      Json?
+    essence   Json?
+    faq       Json?
+    parent    Location? @relation(fields: [parentId], references: [id])
+    deletedAt DateTime?
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+
+    @@index([parentId])
+}

@@ -5,6 +5,7 @@ import permissionsRoutes from "./src/modules/settings/permissions/permissions.ro
 import fileUploadRoutes from "./src/modules/fileUpload/fileUpload.routes.js";
 import cmsPagesRoutes from "./src/modules/cms/cmspage/cmspage.routes.js";
 import locationRoutes from "./src/modules/location/location.routes.js";
+import experienceRoutes from "./src/modules/experience/experience.routes.js";
 import journeyRoutes from "./src/modules/journey/Journey/journey.routes.js";
 import bookingRoutes from "./src/modules/booking/booking/booking.routes.js";
 import paymentScheduleRoutes from "./src/modules/booking/paymentSchedule/paymentSchedule.routes.js";
@@ -37,6 +38,8 @@ export const bootStapHttps = (app: any) => {
   mount(app, "/api/v1/file-upload", fileUploadRoutes);
   mount(app, "/api/v1/cms-pages", cmsPagesRoutes);
   mount(app, "/api/v1/locations", locationRoutes);
+  mount(app, "/api/v1/experiences", experienceRoutes);
+  mount(app, "/api/v1/experience", experienceRoutes);
   mount(app, "/api/v1/journeys", journeyRoutes);
   mount(app, "/api/v1/wishlist", wishlistRoutes);
   
