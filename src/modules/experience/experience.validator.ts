@@ -43,7 +43,7 @@ export const manageExperienceValidator = z.object({
       id: z.string().optional(),
       name: z.string().trim().min(1, "Name cannot be empty").optional(),
       slug: z.string().trim().optional(),
-      status: journeyStatusEnum.default("DRAFT").optional(),
+      status: journeyStatusEnum.default("PUBLISHED").optional(),
       featured: z.boolean().optional(),
 
       // Classification
