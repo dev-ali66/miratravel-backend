@@ -60,7 +60,6 @@ export const manageExperienceValidator = z.object({
       countryId: z.string().optional().nullable(),
       regionId: z.string().optional().nullable(),
       placeId: z.string().optional().nullable(),
-      parentId: z.string().optional().nullable(),
 
       // Editorial Content Sections
       subtitle: z.string().optional().nullable(),

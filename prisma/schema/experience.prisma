@@ -33,8 +33,6 @@ model Experience {
     region         Location?        @relation("ExperienceRegion", fields: [regionId], references: [id])
     placeId        String?
     place          Location?        @relation("ExperiencePlace", fields: [placeId], references: [id])
-    parentId       String?
-    parent         Location?        @relation("ExperienceParent", fields: [parentId], references: [id])
 
     // Content Sections & Editorial Detail
     subtitle       String?

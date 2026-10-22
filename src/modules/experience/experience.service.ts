@@ -224,7 +224,6 @@ export const manageExperienceService = async (req: any, res: any) => {
     sanitizedBody.countryId = countryId && countryId.trim() !== "" ? countryId.trim() : null;
     sanitizedBody.regionId = regionId && regionId.trim() !== "" ? regionId.trim() : null;
     sanitizedBody.placeId = placeId && placeId.trim() !== "" ? placeId.trim() : null;
-    sanitizedBody.parentId = parentId && parentId.trim() !== "" ? parentId.trim() : null;
 
     // Many-to-Many Journeys
     if (Array.isArray(journeys)) {
