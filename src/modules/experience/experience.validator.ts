@@ -24,7 +24,7 @@ export const manageExperienceValidator = z.object({
       name: z.string().trim().min(1, "Name cannot be empty").optional(),
       slug: z.string().trim().optional(),
       featured: z.boolean().optional(),
-      price: z.coerce.number().nonnegative().optional().nullable(),
+      price: z.coerce.number().nonnegative().default(0).optional(),
       currency: z.string().trim().default("EUR").optional(),
       priceType: z.string().trim().optional().nullable(),
       parentId: z.string().optional().nullable(),

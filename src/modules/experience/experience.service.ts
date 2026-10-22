@@ -93,6 +93,20 @@ export const getExperienceService = async (req: any) => {
         },
       },
     },
+    excludeFilterKeys: [
+      "page",
+      "limit",
+      "id",
+      "slug",
+      "name",
+      "featured",
+      "parentId",
+      "priceType",
+      "currency",
+      "minPrice",
+      "maxPrice",
+      "search",
+    ],
   });
 
   return result;
@@ -103,6 +117,11 @@ export const manageExperienceService = async (req: any, res: any) => {
     const { parent, parentId, ...rest } = req.validated.body;
 
     const sanitizedBody: any = { ...rest };
+
+    // Format Decimal price
+    if (sanitizedBody.price !== undefined && sanitizedBody.price !== null && sanitizedBody.price !== "") {
+      sanitizedBody.price = Number(Number(sanitizedBody.price).toFixed(2));
+    }
 
     // Handle Prisma relation for parent location
     if (parentId && typeof parentId === "string" && parentId.trim() !== "") {
