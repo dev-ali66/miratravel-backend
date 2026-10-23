@@ -76,6 +76,7 @@ jobs:
             echo "=== Creating backend directory ==="
 
             mkdir -p "${{ env.VPS_APP_PATH }}"
+            mkdir -p "${{ env.VPS_APP_PATH }}/multimedia/uploads"
 
             echo "Backend path:"
             echo "${{ env.VPS_APP_PATH }}"

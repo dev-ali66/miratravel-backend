@@ -3,7 +3,10 @@ import { extractDomains } from "../utils/extractDomains.js";
 import { extractExternalUrlsDeep } from "../utils/extractExternalUrls.js";
 import { retryOperation } from "../utils/retryOperation.js";
 import { deleteFromCloudinary } from "./delete_cloudinary.service.js";
-import { uploadFilesToCloudinary } from "./upload_cloudinary.service.js";
+import {
+  uploadFilesToLocalStorage,
+  deleteFromLocalStorage,
+} from "./upload_local.service.js";
 import ApiError from "../utils/api.error.js";
 import { redisManager } from "../config/redis.js";
 import { l1Cache } from "../utils/l1Cache.helper.js";
@@ -12,9 +15,16 @@ import { auditLogger } from "../logger/audit.logger.js";
 type DeleteFn = (url: string) => Promise<any>;
 
 const externalDeleteMap: Record<string, DeleteFn> = {
-  "res.cloudinary.com": deleteFromCloudinary,
-  // "s3.com": deleteFromS3,
-  // "imagebb.com": deleteFromImagebb
+  "res.cloudinary.com": async (url: string) => {
+    try {
+      return await deleteFromCloudinary(url);
+    } catch {
+      // ignore
+    }
+  },
+  "uploads": deleteFromLocalStorage,
+  "api.miratravel.nl": deleteFromLocalStorage,
+  "localhost": deleteFromLocalStorage,
 };
 export const autoParseJSON = (obj: any, convertNumber = true) => {
   for (const key in obj) {
@@ -191,7 +201,16 @@ export const manageRecordWithFiles = async ({
 
         //  Delete from external storage
         await Promise.all(
-          toRemove.map(async (url) => {
+          toRemove.map(async (url: any) => {
+            if (
+              typeof url === "string" &&
+              (url.includes("/multimedia/uploads/") || url.includes("/uploads/"))
+            ) {
+              await deleteFromLocalStorage(url);
+              externalDeletedCount++;
+              return;
+            }
+
             const matchedDomain = domains.find((d) => url.includes(d));
             if (!matchedDomain) return;
 
@@ -201,7 +220,7 @@ export const manageRecordWithFiles = async ({
               return;
             }
 
-            await retryOperation(() => deleteFn(url), 3);
+            await retryOperation(() => deleteFn(url), 2).catch(() => {});
             externalDeletedCount++;
           }),
         );
@@ -216,16 +235,17 @@ export const manageRecordWithFiles = async ({
         updateData[field] = previousRecord?.[field] || [];
       }
 
-      const result: any = await uploadFilesToCloudinary(
+      const result: any = await uploadFilesToLocalStorage(
         file.buffer,
         file.mimetype,
         field,
-        {},
+        file.originalname || "file",
       );
 
-      updateData[field].push(result.secure_url);
+      const uploadedUrl = result.secure_url || result.url;
+      updateData[field].push(uploadedUrl);
       uploadedFilesInfo.push(result);
-      uploadedNewUrls.push(result.secure_url);
+      uploadedNewUrls.push(uploadedUrl);
     }
 
     //  Save to DB with rollback
@@ -287,7 +307,11 @@ export const manageRecordWithFiles = async ({
       // Rollback newly uploaded files
       for (const url of uploadedNewUrls) {
         try {
-          await deleteFromCloudinary(url);
+          if (url.includes("/multimedia/uploads/") || url.includes("/uploads/")) {
+            await deleteFromLocalStorage(url);
+          } else {
+            await deleteFromCloudinary(url);
+          }
         } catch (rollbackErr) {
           console.error("Rollback failed:", rollbackErr);
         }

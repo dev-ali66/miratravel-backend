@@ -2,7 +2,10 @@ import { StatusCodes } from "http-status-codes";
 import { extractDomains } from "../../utils/extractDomains.js";
 import { extractExternalUrlsDeep } from "../../utils/extractExternalUrls.js";
 import { retryOperation } from "../../utils/retryOperation.js";
-import { uploadFilesToCloudinary } from "../../shared/upload_cloudinary.service.js";
+import {
+  uploadFilesToLocalStorage,
+  deleteFromLocalStorage,
+} from "../../shared/upload_local.service.js";
 import { deleteFromCloudinary } from "../../shared/delete_cloudinary.service.js";
 import ApiError from "../../utils/api.error.js";
 
@@ -18,15 +21,25 @@ export const manageFileUploadService = async (req: any, res: any) => {
   const updateData: Record<string, string[]> = {};
 
   const externalDeleteMap: Record<string, (url: string) => Promise<any>> = {
-    "res.cloudinary.com": deleteFromCloudinary,
+    "res.cloudinary.com": async (url: string) => {
+      try {
+        return await deleteFromCloudinary(url);
+      } catch (e) {
+        console.warn("Cloudinary delete ignored:", url);
+      }
+    },
+    "uploads": deleteFromLocalStorage,
+    "api.miratravel.nl": deleteFromLocalStorage,
+    "localhost": deleteFromLocalStorage,
   };
 
-  // ✓ FIXED TYPE
-  const domains: string[] = extractDomains(["res.cloudinary.com"]);
+  const domains: string[] = extractDomains([
+    "res.cloudinary.com",
+    "api.miratravel.nl",
+    "localhost",
+  ]);
 
-  // ✓ FIXED TYPE SAFETY
   const filesToRemove: string[] = req.body?.fileRemove || [];
-
   const externalUrls = new Set<string>();
 
   // -----------------------------
@@ -36,46 +49,46 @@ export const manageFileUploadService = async (req: any, res: any) => {
     extractExternalUrlsDeep(filesToRemove, externalUrls, domains as string[]);
 
     for (const url of externalUrls) {
+      if (url.includes("/multimedia/uploads/") || url.includes("/uploads/")) {
+        await deleteFromLocalStorage(url);
+        continue;
+      }
+
       const matchedDomain = domains.find((d: any) => url.includes(d));
       if (!matchedDomain) continue;
 
       const deleteFn = externalDeleteMap[matchedDomain];
       if (!deleteFn) continue;
 
-      await retryOperation(() => deleteFn(url), 3);
+      await retryOperation(() => deleteFn(url), 2).catch(() => {});
     }
   }
 
-
   // -----------------------------
-  // 2. UPLOAD NEW FILES
+  // 2. UPLOAD NEW FILES (VPS DISK STORAGE)
   // -----------------------------
   let results: any[] = [];
   try {
     results = await Promise.all(
       files.map(async (file: any) => {
-        const result: any = await uploadFilesToCloudinary(
+        const result = await uploadFilesToLocalStorage(
           file.buffer,
           file.mimetype,
           file.fieldname,
-          {},
+          file.originalname || "file",
         );
 
         return {
           field: file.fieldname,
-          url: result?.secure_url || result?.url,
+          url: result.secure_url || result.url,
         };
       }),
     );
   } catch (error: any) {
-    console.error("File upload error caught in service:", error);
-    const isTimeout =
-      error?.name === "TimeoutError" ||
-      error?.http_code === 499 ||
-      error?.message?.toLowerCase().includes("timeout");
+    console.error("Local file upload error in service:", error);
     throw new ApiError(
-      error?.message || "Failed to upload files to Cloudinary",
-      isTimeout ? StatusCodes.GATEWAY_TIMEOUT : StatusCodes.BAD_REQUEST,
+      error?.message || "Failed to upload files to server storage",
+      StatusCodes.INTERNAL_SERVER_ERROR,
       { originalError: error },
     );
   }
@@ -93,7 +106,7 @@ export const manageFileUploadService = async (req: any, res: any) => {
   return {
     code: StatusCodes.CREATED,
     success: true,
-    message: "Image Upload Successful",
+    message: "File Upload Successful",
     data: updateData,
   };
 };

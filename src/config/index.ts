@@ -98,6 +98,13 @@ const config = {
 
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || "",
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || "",
+
+  MEDIA_BASE_URL:
+    process.env.MEDIA_BASE_URL ||
+    (process.env.NODE_ENV === "production"
+      ? "https://api.miratravel.nl"
+      : "http://localhost:5010"),
+  UPLOAD_DIR: process.env.UPLOAD_DIR || "multimedia/uploads",
 };
 
 export default config;

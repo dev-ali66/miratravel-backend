@@ -1,4 +1,6 @@
 import express from "express";
+import fs from "fs";
+import path from "path";
 import dotenv from "dotenv";
 import cors from "cors";
 import hpp from "hpp";
@@ -45,11 +47,32 @@ const socketAllowedOrigins = config.SOCKET_ALLOWED_ORIGINS
 
 app.use(requestProfilerMiddleware);
 // 🔒 CSP-Compliant Architecture
+const uploadsDir = path.resolve(process.cwd(), config.UPLOAD_DIR || "multimedia/uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const staticUploadsMiddleware = [
+  (req: any, res: any, next: any) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    next();
+  },
+  express.static(uploadsDir, {
+    maxAge: "30d",
+  }),
+];
+
+app.use("/multimedia/uploads", ...staticUploadsMiddleware);
+app.use("/uploads", ...staticUploadsMiddleware);
 app.use(express.static("public"));
+
 app.use(
   helmet({
     contentSecurityPolicy: isProduction ? undefined : false,
     crossOriginEmbedderPolicy: isProduction ? undefined : false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
     hsts: isProduction
       ? { maxAge: 31536000, includeSubDomains: true, preload: true }
       : false,
