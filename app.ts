@@ -47,7 +47,19 @@ const socketAllowedOrigins = config.SOCKET_ALLOWED_ORIGINS
 
 app.use(requestProfilerMiddleware);
 // 🔒 CSP-Compliant Architecture
-const uploadsDir = path.resolve(process.cwd(), config.UPLOAD_DIR || "multimedia/uploads");
+let uploadDirEnv =
+  config.UPLOAD_DIR ||
+  (process.platform === "linux"
+    ? "/var/www/miratravel/multimedia/uploads"
+    : "multimedia/uploads");
+
+if (process.platform === "win32" && uploadDirEnv.startsWith("/var/")) {
+  uploadDirEnv = "multimedia/uploads";
+}
+
+const uploadsDir = path.isAbsolute(uploadDirEnv)
+  ? uploadDirEnv
+  : path.resolve(process.cwd(), uploadDirEnv);
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }

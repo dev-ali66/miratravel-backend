@@ -38,8 +38,19 @@ const MIME_EXTENSION_MAP: Record<string, string> = {
  * Ensures the uploads directory exists on disk and returns its absolute path.
  */
 export const getUploadsDir = (): string => {
-  const uploadDirRelative = config.UPLOAD_DIR || "multimedia/uploads";
-  const dir = path.resolve(process.cwd(), uploadDirRelative);
+  let uploadDirEnv =
+    config.UPLOAD_DIR ||
+    (process.platform === "linux"
+      ? "/var/www/miratravel/multimedia/uploads"
+      : "multimedia/uploads");
+
+  if (process.platform === "win32" && uploadDirEnv.startsWith("/var/")) {
+    uploadDirEnv = "multimedia/uploads";
+  }
+
+  const dir = path.isAbsolute(uploadDirEnv)
+    ? uploadDirEnv
+    : path.resolve(process.cwd(), uploadDirEnv);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }

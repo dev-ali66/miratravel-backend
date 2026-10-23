@@ -12,6 +12,8 @@
     "dev": "nodemon --watch dist --ext js --exec node ./dist/index.js",
     "format": " prettier --write .",
     "format:check": "prettier --check .",
+    "backup:cloudinary": "npx tsx scripts/backupCloudinary.ts",
+    "dedupe:cloudinary": "node scripts/deduplicateCloudinary.mjs",
     "test": "node tests/clearTestDb.js && node tests/seedTestUsers.js && npx jest --colors && node tests/clearTestDb.js "
   },
   "keywords": [],

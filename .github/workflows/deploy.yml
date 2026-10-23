@@ -73,13 +73,14 @@ jobs:
           script: |
             set -e
 
-            echo "=== Creating backend directory ==="
+            echo "=== Creating directories on VPS ==="
 
             mkdir -p "${{ env.VPS_APP_PATH }}"
-            mkdir -p "${{ env.VPS_APP_PATH }}/multimedia/uploads"
+            mkdir -p "/var/www/miratravel/multimedia/uploads"
+            chmod -R 755 "/var/www/miratravel/multimedia/uploads" || true
 
-            echo "Backend path:"
-            echo "${{ env.VPS_APP_PATH }}"
+            echo "Backend path: ${{ env.VPS_APP_PATH }}"
+            echo "Multimedia path: /var/www/miratravel/multimedia/uploads"
 
       - name: Copy package to VPS
         uses: appleboy/scp-action@v0.1.7
@@ -111,6 +112,13 @@ jobs:
 
             echo "=== Removing deployment package ==="
             rm -f backend-build.zip
+
+            echo "=== Ensuring symlink for multimedia uploads ==="
+            if [ -d "${{ env.VPS_APP_PATH }}/multimedia/uploads" ] && [ ! -L "${{ env.VPS_APP_PATH }}/multimedia/uploads" ]; then
+              cp -rn "${{ env.VPS_APP_PATH }}/multimedia/uploads/"* "/var/www/miratravel/multimedia/uploads/" 2>/dev/null || true
+              rm -rf "${{ env.VPS_APP_PATH }}/multimedia/uploads"
+            fi
+            ln -sfn /var/www/miratravel/multimedia/uploads "${{ env.VPS_APP_PATH }}/multimedia/uploads" || true
 
             echo "=== Reloading PM2 ==="
             pm2 reload ecosystem.config.cjs --update-env --env development || \

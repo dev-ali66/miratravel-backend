@@ -14,11 +14,15 @@ module.exports = {
       env_production: {
         NODE_ENV: "production",
         PORT: 5011,
+        UPLOAD_DIR: "/var/www/miratravel/multimedia/uploads",
+        MEDIA_BASE_URL: "https://api.miratravel.nl",
       },
 
       env_development: {
         NODE_ENV: "development",
         PORT: 5011,
+        UPLOAD_DIR: "/var/www/miratravel/multimedia/uploads",
+        MEDIA_BASE_URL: "https://api.miratravel.nl",
       },
 
       error_file: "./logs/err.log",

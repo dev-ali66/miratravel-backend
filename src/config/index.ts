@@ -104,7 +104,11 @@ const config = {
     (process.env.NODE_ENV === "production"
       ? "https://api.miratravel.nl"
       : "http://localhost:5010"),
-  UPLOAD_DIR: process.env.UPLOAD_DIR || "multimedia/uploads",
+  UPLOAD_DIR:
+    process.env.UPLOAD_DIR ||
+    (process.platform === "linux"
+      ? "/var/www/miratravel/multimedia/uploads"
+      : "multimedia/uploads"),
 };
 
 export default config;
