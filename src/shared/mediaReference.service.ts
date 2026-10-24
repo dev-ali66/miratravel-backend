@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import prisma from "../config/prisma.js";
 import ApiError from "../utils/api.error.js";
 import { extractMediaReferences } from "../utils/mediaExtractor.js";
+import { notifyJobEnqueued } from "../workers/mediaWorker.js";
 
 export interface PopulatedMediaReference {
   id: string;
@@ -369,6 +370,8 @@ export async function syncEntityMediaReferences(
           },
         });
 
+        notifyJobEnqueued(scheduledFor);
+
         await prisma.mediaAuditLog.create({
           data: {
             mediaId,
@@ -471,6 +474,8 @@ export async function removeEntityMediaReferences(
             status: "PENDING",
           },
         });
+
+        notifyJobEnqueued(scheduledFor);
 
         await prisma.mediaAuditLog.create({
           data: {

@@ -197,3 +197,41 @@ export const checkMediaHashController = catchAsync(
   }
 );
 
+export const getMediaWorkerStatusController = catchAsync(
+  async (_req: Request, res: Response) => {
+    const { getMediaWorkerStatus } = await import("../../workers/mediaWorker.js");
+    const status = await getMediaWorkerStatus();
+    return successResponse({
+      res,
+      message: "Media worker status retrieved successfully",
+      data: status,
+    });
+  }
+);
+
+export const triggerMediaWorkerController = catchAsync(
+  async (req: Request, res: Response) => {
+    const { processPendingMediaDeletionJobs } = await import("../../workers/mediaWorker.js");
+    const batchSize = req.body?.batchSize ? Number(req.body.batchSize) : 50;
+    const result = await processPendingMediaDeletionJobs(batchSize);
+    return successResponse({
+      res,
+      message: "Media cleanup worker cycle executed successfully",
+      data: result,
+    });
+  }
+);
+
+export const triggerMediaReconcilerController = catchAsync(
+  async (_req: Request, res: Response) => {
+    const { runMediaReconciler } = await import("../../jobs/reconcileMedia.job.js");
+    const result = await runMediaReconciler();
+    return successResponse({
+      res,
+      message: "Media self-healing reconciler executed successfully",
+      data: result,
+    });
+  }
+);
+
+

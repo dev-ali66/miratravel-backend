@@ -7,7 +7,20 @@ export const getMediaGalleryValidator = z.object({
     search: z.string().optional(),
     type: z.enum(["all", "image", "video"]).optional(),
     status: z.enum(["ACTIVE", "IN_TRASH", "ALL"]).optional(),
-    sortBy: z.enum(["createdAt", "size", "fileName", "title"]).optional(),
+    inUse: z.union([z.boolean(), z.enum(["all", "true", "false"])]).optional(),
+    sortBy: z
+      .enum([
+        "createdAt",
+        "size",
+        "fileName",
+        "title",
+        "newest",
+        "oldest",
+        "size_desc",
+        "size_asc",
+        "usage_desc",
+      ])
+      .optional(),
     sortOrder: z.enum(["asc", "desc"]).optional(),
   }),
 });

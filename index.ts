@@ -5,6 +5,7 @@ import { rabbitMQManager } from "./src/config/rabbitmq.js";
 import { nodeCacheManager } from "./src/config/nodecache.js";
 import { logger } from "./src/logger/logger.logger.js";
 import prisma from "./src/config/prisma.js";
+import { startMediaCleanupWorker, stopMediaCleanupWorker } from "./src/workers/mediaWorker.js";
 
 const SHUTDOWN_TIMEOUT = 15000;
 const isDevelopment = config.NODE_ENV === "development";
@@ -49,6 +50,13 @@ const gracefulShutdown = async (signal: ShutdownSignal) => {
         resolve();
       });
     });
+
+    try {
+      await stopMediaCleanupWorker();
+      logger.success("Media cleanup worker stopped gracefully");
+    } catch (workerErr: any) {
+      logger.error("Error stopping media cleanup worker", workerErr);
+    }
 
     await prisma.$disconnect();
     logger.success("Database connection closed");
@@ -131,6 +139,11 @@ const startServer = async () => {
         environment: config.NODE_ENV,
         pid: process.pid,
         node: process.version,
+      });
+
+      // Start the Outbox Media Cleanup Worker (Smart Scheduled Wakeup Engine)
+      startMediaCleanupWorker().catch((workerErr) => {
+        logger.error("Failed to start media cleanup worker:", workerErr);
       });
     });
 

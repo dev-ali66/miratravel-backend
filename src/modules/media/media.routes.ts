@@ -14,6 +14,9 @@ import {
   updateMediaMetadataController,
   uploadMediaController,
   checkMediaHashController,
+  getMediaWorkerStatusController,
+  triggerMediaWorkerController,
+  triggerMediaReconcilerController,
 } from "./media.controller.js";
 import { mediaMulterUpload } from "./mediaStorage.util.js";
 import {
@@ -57,6 +60,11 @@ router.post(
   bulkRestoreController
 );
 router.post("/trash/empty", emptyTrashController);
+
+// 3.5. Outbox Worker & Reconciler management endpoints (must precede /:id)
+router.get("/worker/status", getMediaWorkerStatusController);
+router.post("/worker/trigger", triggerMediaWorkerController);
+router.post("/worker/reconcile", triggerMediaReconcilerController);
 
 // 4. Single asset operations
 router.get("/:id", validate(getMediaByIdValidator), getMediaByIdController);

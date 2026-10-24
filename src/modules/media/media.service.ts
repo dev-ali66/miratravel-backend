@@ -20,7 +20,17 @@ interface GetMediaGalleryParams {
   search?: string;
   type?: "all" | "image" | "video";
   status?: "ACTIVE" | "IN_TRASH" | "ALL";
-  sortBy?: "createdAt" | "size" | "fileName" | "title";
+  inUse?: "all" | "true" | "false" | boolean;
+  sortBy?:
+    | "createdAt"
+    | "size"
+    | "fileName"
+    | "title"
+    | "newest"
+    | "oldest"
+    | "size_desc"
+    | "size_asc"
+    | "usage_desc";
   sortOrder?: "asc" | "desc";
 }
 
@@ -87,10 +97,30 @@ export async function getMediaGallery(params: GetMediaGalleryParams) {
     ];
   }
 
+  // In-use filter
+  if (params.inUse === "true" || params.inUse === true) {
+    where.references = { some: {} };
+  } else if (params.inUse === "false" || params.inUse === false) {
+    where.references = { none: {} };
+  }
+
   // Sorting
-  const sortBy = params.sortBy || "createdAt";
-  const sortOrder = params.sortOrder || "desc";
-  const orderBy = { [sortBy]: sortOrder };
+  let orderBy: any;
+  if (params.sortBy === "newest") {
+    orderBy = { createdAt: "desc" };
+  } else if (params.sortBy === "oldest") {
+    orderBy = { createdAt: "asc" };
+  } else if (params.sortBy === "size_desc") {
+    orderBy = { size: "desc" };
+  } else if (params.sortBy === "size_asc") {
+    orderBy = { size: "asc" };
+  } else if (params.sortBy === "usage_desc") {
+    orderBy = { references: { _count: "desc" } };
+  } else {
+    const sortBy = params.sortBy || "createdAt";
+    const sortOrder = params.sortOrder || "desc";
+    orderBy = { [sortBy]: sortOrder };
+  }
 
   const [total, items] = await Promise.all([
     prisma.mediaAsset.count({ where }),
