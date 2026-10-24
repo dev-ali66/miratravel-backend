@@ -1,4 +1,7 @@
+import fs from "fs";
 import { Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
+import ApiError from "../../utils/api.error.js";
 import catchAsync from "../../utils/catch.async.js";
 import successResponse from "../../utils/success.response.js";
 import {
@@ -15,6 +18,8 @@ import {
   updateMediaMetadata,
   uploadMediaAssets,
   checkMediaHash,
+  scanStorageOptimization,
+  executeStorageOptimization,
 } from "./media.service.js";
 
 export const getMediaGalleryController = catchAsync(
@@ -231,6 +236,70 @@ export const triggerMediaReconcilerController = catchAsync(
       message: "Media self-healing reconciler executed successfully",
       data: result,
     });
+  }
+);
+
+export const scanStorageOptimizationController = catchAsync(
+  async (_req: Request, res: Response) => {
+    const result = await scanStorageOptimization();
+    return successResponse({
+      res,
+      message: "Storage optimization scan completed successfully",
+      data: result,
+    });
+  }
+);
+
+export const executeStorageOptimizationController = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await executeStorageOptimization(req.body);
+    return successResponse({
+      res,
+      message: "Storage optimization executed successfully",
+      data: result,
+    });
+  }
+);
+
+export const downloadMediaController = catchAsync(
+  async (req: Request, res: Response) => {
+    const id = String(req.params.id);
+    const asset = await getMediaById(id);
+    if (!asset) {
+      throw new ApiError(StatusCodes.NOT_FOUND, "Media asset not found");
+    }
+
+    const downloadFileName = asset.originalName || asset.fileName || "download";
+
+    // 1. If physical file exists on local disk, stream via res.download
+    if (asset.storagePath && fs.existsSync(asset.storagePath)) {
+      return res.download(asset.storagePath, downloadFileName);
+    }
+
+    // 2. If it's a remote URL, fetch and stream it to response with Content-Disposition
+    if (asset.url && (asset.url.startsWith("http://") || asset.url.startsWith("https://"))) {
+      try {
+        const response = await fetch(asset.url);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch remote asset: ${response.statusText}`);
+        }
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename="${encodeURIComponent(downloadFileName)}"`
+        );
+        res.setHeader("Content-Type", asset.mimeType || "application/octet-stream");
+        if (asset.size) {
+          res.setHeader("Content-Length", asset.size.toString());
+        }
+
+        const arrayBuffer = await response.arrayBuffer();
+        return res.send(Buffer.from(arrayBuffer));
+      } catch (err) {
+        return res.redirect(asset.url);
+      }
+    }
+
+    throw new ApiError(StatusCodes.NOT_FOUND, "Media content unavailable for download");
   }
 );
 

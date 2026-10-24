@@ -6,6 +6,7 @@ import ApiError from "../../utils/api.error.js";
 import {
   assertMediaCanBeDeleted,
   getMediaUsage as getMediaUsageReport,
+  syncEntityMediaReferences,
 } from "../../shared/mediaReference.service.js";
 import { deleteFromLocalStorage } from "../../shared/upload_local.service.js";
 import {
@@ -39,7 +40,7 @@ interface GetMediaGalleryParams {
  */
 async function logMediaAudit(
   mediaId: string,
-  action: "UPLOAD" | "DEDUPLICATED" | "UPDATE" | "MOVE_TO_TRASH" | "RESTORE" | "PURGE",
+  action: string,
   performedBy?: string,
   details?: any
 ) {
@@ -190,6 +191,10 @@ export async function getMediaStats() {
 
   const totalSizeBytes = sizeAggregate._sum.size || 0;
   const totalSizeMB = (totalSizeBytes / (1024 * 1024)).toFixed(2);
+  const totalSizeFormatted =
+    totalSizeBytes >= 1024 * 1024 * 1024
+      ? `${(totalSizeBytes / (1024 * 1024 * 1024)).toFixed(2)} GB`
+      : `${totalSizeMB} MB`;
 
   return {
     totalAssets,
@@ -200,6 +205,14 @@ export async function getMediaStats() {
     totalSizeBytes,
     totalSizeMB,
     unusedAssets,
+
+    // Frontend KPI stats contract keys
+    totalCount: activeAssets,
+    totalSizeFormatted,
+    imageCount: totalImages,
+    videoCount: totalVideos,
+    trashCount: trashedAssets,
+    unusedCount: unusedAssets,
   };
 }
 
@@ -466,6 +479,16 @@ export async function restoreMedia(id: string, userId?: string) {
     },
   });
 
+  // Cancel & delete pending outbox deletion jobs for this asset
+  await prisma.mediaDeletionJob.deleteMany({
+    where: { mediaId: id },
+  });
+
+  try {
+    const { notifyJobRemoved } = await import("../../workers/mediaWorker.js");
+    await notifyJobRemoved();
+  } catch {}
+
   await logMediaAudit(id, "RESTORE", userId);
 
   return updated;
@@ -489,10 +512,20 @@ export async function permanentDeleteMedia(id: string, userId?: string) {
   // Unlink file from disk
   await deleteFromLocalStorage(asset.url);
 
+  // Delete associated deletion jobs first
+  await prisma.mediaDeletionJob.deleteMany({
+    where: { mediaId: id },
+  });
+
   // Delete DB record
   await prisma.mediaAsset.delete({
     where: { id },
   });
+
+  try {
+    const { notifyJobRemoved } = await import("../../workers/mediaWorker.js");
+    await notifyJobRemoved();
+  } catch {}
 
   return { success: true, id, message: "Asset permanently deleted from disk and database" };
 }
@@ -509,6 +542,13 @@ export async function emptyTrash(userId?: string) {
     },
   });
 
+  const trashedIds = trashedAssets.map((a) => a.id);
+  if (trashedIds.length > 0) {
+    await prisma.mediaDeletionJob.deleteMany({
+      where: { mediaId: { in: trashedIds } },
+    });
+  }
+
   let deletedCount = 0;
 
   for (const asset of trashedAssets) {
@@ -520,6 +560,11 @@ export async function emptyTrash(userId?: string) {
       console.warn("Failed to purge asset:", asset.id, err);
     }
   }
+
+  try {
+    const { notifyJobRemoved } = await import("../../workers/mediaWorker.js");
+    await notifyJobRemoved();
+  } catch {}
 
   return {
     deletedCount,
@@ -569,6 +614,16 @@ export async function bulkRestore(ids: string[], userId?: string) {
     where: { id: { in: ids }, deletedAt: { not: null } },
     data: { status: "ACTIVE", deletedAt: null },
   });
+
+  // Cancel & delete pending outbox deletion jobs for these assets
+  await prisma.mediaDeletionJob.deleteMany({
+    where: { mediaId: { in: ids } },
+  });
+
+  try {
+    const { notifyJobRemoved } = await import("../../workers/mediaWorker.js");
+    await notifyJobRemoved();
+  } catch {}
 
   for (const id of ids) {
     await logMediaAudit(id, "RESTORE", userId);
@@ -624,4 +679,466 @@ export async function checkMediaHash(hash: string) {
   }
 
   return { exists: false, url: null };
+}
+
+/**
+ * Helper to recursively replace all old URLs in a JSON structure with canonical master URL.
+ */
+function replaceUrlsInObject(
+  obj: any,
+  urlMap: Map<string, string>
+): { updatedObj: any; replacedCount: number } {
+  let replacedCount = 0;
+  function recurse(current: any): any {
+    if (typeof current === "string") {
+      if (urlMap.has(current)) {
+        replacedCount++;
+        return urlMap.get(current);
+      }
+      return current;
+    }
+    if (Array.isArray(current)) {
+      return current.map(recurse);
+    }
+    if (current !== null && typeof current === "object") {
+      const copy: any = {};
+      for (const key of Object.keys(current)) {
+        copy[key] = recurse(current[key]);
+      }
+      return copy;
+    }
+    return current;
+  }
+  return { updatedObj: recurse(obj), replacedCount };
+}
+
+function formatBytesHelper(bytes: number, decimals = 2): string {
+  if (!bytes || bytes <= 0) return "0 B";
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ["B", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+}
+
+/**
+ * 14. Scan media catalog for identical content (duplicate SHA-256 hashes).
+ * Identifies duplicate groups, designates recommended master assets, populates
+ * all active entity usages, and calculates reclaimable disk storage.
+ */
+export async function scanStorageOptimization() {
+  const duplicateGroups = await prisma.mediaAsset.groupBy({
+    by: ["hash"],
+    where: {
+      hash: { not: null },
+      status: "ACTIVE",
+      deletedAt: null,
+    },
+    _count: {
+      id: true,
+    },
+    having: {
+      id: {
+        _count: { gt: 1 },
+      },
+    },
+  });
+
+  let totalDuplicateAssets = 0;
+  let reclaimableBytes = 0;
+  const groups: any[] = [];
+
+  for (const group of duplicateGroups) {
+    if (!group.hash) continue;
+
+    const assets = await prisma.mediaAsset.findMany({
+      where: {
+        hash: group.hash,
+        status: "ACTIVE",
+        deletedAt: null,
+      },
+      include: {
+        references: true,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    if (assets.length <= 1) continue;
+
+    // Sort: highest usage count first, then oldest created
+    const sortedAssets = [...assets].sort((a, b) => {
+      if (b.references.length !== a.references.length) {
+        return b.references.length - a.references.length;
+      }
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    });
+
+    const masterCandidateAsset = sortedAssets[0];
+    const duplicateAssets = sortedAssets.slice(1);
+
+    async function populateAssetReferences(asset: any) {
+      const report = await getMediaUsageReport(asset.id);
+      return {
+        id: asset.id,
+        fileName: asset.fileName,
+        url: asset.url,
+        mimeType: asset.mimeType,
+        size: asset.size,
+        usageCount: report.usageCount,
+        createdAt: asset.createdAt,
+        references: report.references.map((r) => ({
+          entityType: r.entityType,
+          entityId: r.entityId,
+          entityTitle: r.entityTitle,
+          fieldPath: r.fieldPath,
+          editUrl: r.editUrl,
+        })),
+      };
+    }
+
+    const masterCandidate = await populateAssetReferences(masterCandidateAsset);
+    const duplicates = await Promise.all(duplicateAssets.map(populateAssetReferences));
+
+    const groupReclaimable = duplicateAssets.reduce((sum, d) => sum + (d.size || 0), 0);
+    reclaimableBytes += groupReclaimable;
+    totalDuplicateAssets += duplicateAssets.length;
+
+    groups.push({
+      hash: group.hash,
+      mimeType: masterCandidateAsset.mimeType,
+      fileSize: masterCandidateAsset.size,
+      fileSizeFormatted: formatBytesHelper(masterCandidateAsset.size),
+      reclaimableBytes: groupReclaimable,
+      reclaimableFormatted: formatBytesHelper(groupReclaimable),
+      masterCandidate,
+      duplicates,
+    });
+  }
+
+  return {
+    totalDuplicateGroups: groups.length,
+    totalDuplicateAssets,
+    reclaimableBytes,
+    reclaimableFormatted: formatBytesHelper(reclaimableBytes),
+    groups,
+  };
+}
+
+/**
+ * 15. Execute Storage Optimization.
+ * Atomically re-links all entity references to the chosen master asset,
+ * and moves all redundant duplicate assets to the 30-day trash bin with
+ * automated outbox deletion jobs scheduled.
+ */
+export async function executeStorageOptimization(options?: {
+  overrides?: Array<{ hash: string; masterId: string }>;
+}) {
+  const scan = await scanStorageOptimization();
+  if (scan.totalDuplicateGroups === 0) {
+    return {
+      success: true,
+      groupsProcessed: 0,
+      referencesMigrated: 0,
+      assetsMovedToTrash: 0,
+      freedBytes: 0,
+      freedFormatted: "0 B",
+      trashedAssetNames: [],
+    };
+  }
+
+  const overridesMap = new Map<string, string>();
+  if (options?.overrides && Array.isArray(options.overrides)) {
+    for (const ov of options.overrides) {
+      if (ov.hash && ov.masterId) {
+        overridesMap.set(ov.hash, ov.masterId);
+      }
+    }
+  }
+
+  let referencesMigrated = 0;
+  let assetsMovedToTrash = 0;
+  let freedBytes = 0;
+  const trashedAssetNames: string[] = [];
+  let groupsProcessed = 0;
+
+  for (const group of scan.groups) {
+    let masterId = overridesMap.get(group.hash) || group.masterCandidate.id;
+    let masterAsset = await prisma.mediaAsset.findUnique({
+      where: { id: masterId },
+    });
+
+    if (!masterAsset || masterAsset.status !== "ACTIVE" || masterAsset.hash !== group.hash) {
+      masterId = group.masterCandidate.id;
+      masterAsset = await prisma.mediaAsset.findUnique({ where: { id: masterId } });
+    }
+
+    if (!masterAsset) continue;
+
+    const duplicateAssets = await prisma.mediaAsset.findMany({
+      where: {
+        hash: group.hash,
+        id: { not: masterId },
+        status: "ACTIVE",
+        deletedAt: null,
+      },
+    });
+
+    if (duplicateAssets.length === 0) continue;
+
+    const urlMap = new Map<string, string>();
+    for (const dup of duplicateAssets) {
+      urlMap.set(dup.url, masterAsset.url);
+    }
+
+    const duplicateIds = duplicateAssets.map((d) => d.id);
+    const affectedRefs = await prisma.mediaReference.findMany({
+      where: { mediaId: { in: duplicateIds } },
+    });
+
+    const entityMap = new Map<string, { entityType: string; entityId: string }>();
+    for (const ref of affectedRefs) {
+      const key = `${ref.entityType}:${ref.entityId}`;
+      if (!entityMap.has(key)) {
+        entityMap.set(key, { entityType: ref.entityType, entityId: ref.entityId });
+      }
+    }
+
+    // Re-link URLs and sync references on each referenced entity
+    for (const entity of entityMap.values()) {
+      const { entityType, entityId } = entity;
+      try {
+        switch (entityType.toUpperCase()) {
+          case "JOURNEY": {
+            const journey = await prisma.journey.findUnique({ where: { id: entityId } });
+            if (journey) {
+              const fields = [
+                "hero",
+                "overview",
+                "itinerary",
+                "accommodations",
+                "whatsIncluded",
+                "metadata",
+                "card",
+              ];
+              const updateData: any = {};
+              for (const f of fields) {
+                if ((journey as any)[f]) {
+                  const { updatedObj, replacedCount } = replaceUrlsInObject(
+                    (journey as any)[f],
+                    urlMap
+                  );
+                  if (replacedCount > 0) updateData[f] = updatedObj;
+                }
+              }
+              if (Object.keys(updateData).length > 0) {
+                const updated = await prisma.journey.update({
+                  where: { id: entityId },
+                  data: updateData,
+                });
+                await syncEntityMediaReferences("Journey", entityId, updated);
+                referencesMigrated += affectedRefs.filter((r) => r.entityId === entityId).length;
+              }
+            }
+            break;
+          }
+          case "LOCATION": {
+            const location = await prisma.location.findUnique({ where: { id: entityId } });
+            if (location) {
+              const fields = [
+                "hero",
+                "card",
+                "essence",
+                "character",
+                "stories",
+                "practicalInfo",
+                "regionExperiences",
+                "faq",
+                "why",
+                "explore",
+                "glance",
+                "travelInsight",
+                "sharedInfo",
+                "signatureExperiences",
+                "accommodation",
+                "travelInfo",
+                "cta",
+                "data",
+                "metadata",
+              ];
+              const updateData: any = {};
+              for (const f of fields) {
+                if ((location as any)[f]) {
+                  const { updatedObj, replacedCount } = replaceUrlsInObject(
+                    (location as any)[f],
+                    urlMap
+                  );
+                  if (replacedCount > 0) updateData[f] = updatedObj;
+                }
+              }
+              if (Object.keys(updateData).length > 0) {
+                const updated = await prisma.location.update({
+                  where: { id: entityId },
+                  data: updateData,
+                });
+                await syncEntityMediaReferences("Location", entityId, updated);
+                referencesMigrated += affectedRefs.filter((r) => r.entityId === entityId).length;
+              }
+            }
+            break;
+          }
+          case "EXPERIENCE": {
+            const exp = await prisma.experience.findUnique({ where: { id: entityId } });
+            if (exp) {
+              const fields = [
+                "theExperience",
+                "highlights",
+                "practicalInfo",
+                "miraTouch",
+                "card",
+                "hero",
+              ];
+              const updateData: any = {};
+              for (const f of fields) {
+                if ((exp as any)[f]) {
+                  const { updatedObj, replacedCount } = replaceUrlsInObject(
+                    (exp as any)[f],
+                    urlMap
+                  );
+                  if (replacedCount > 0) updateData[f] = updatedObj;
+                }
+              }
+              if (Object.keys(updateData).length > 0) {
+                const updated = await prisma.experience.update({
+                  where: { id: entityId },
+                  data: updateData,
+                });
+                await syncEntityMediaReferences("Experience", entityId, updated);
+                referencesMigrated += affectedRefs.filter((r) => r.entityId === entityId).length;
+              }
+            }
+            break;
+          }
+          case "STORY": {
+            const story = await prisma.story.findUnique({ where: { id: entityId } });
+            if (story) {
+              const fields = ["hero", "intro", "blocks", "practicalNotes", "seo"];
+              const updateData: any = {};
+              for (const f of fields) {
+                if ((story as any)[f]) {
+                  const { updatedObj, replacedCount } = replaceUrlsInObject(
+                    (story as any)[f],
+                    urlMap
+                  );
+                  if (replacedCount > 0) updateData[f] = updatedObj;
+                }
+              }
+              if (Object.keys(updateData).length > 0) {
+                const updated = await prisma.story.update({
+                  where: { id: entityId },
+                  data: updateData,
+                });
+                await syncEntityMediaReferences("Story", entityId, updated);
+                referencesMigrated += affectedRefs.filter((r) => r.entityId === entityId).length;
+              }
+            }
+            break;
+          }
+          case "SITESETTINGS": {
+            const settings = await prisma.siteSettings.findUnique({ where: { id: entityId } });
+            if (settings) {
+              const fields = [
+                "siteLogo",
+                "siteLogoLight",
+                "siteLogoDark",
+                "siteFavicon",
+                "navbarLogo",
+                "footerLogo",
+                "authLogo",
+                "loadingVideo",
+                "seoOgImage",
+                "seoTwitterImage",
+              ];
+              const updateData: any = {};
+              for (const f of fields) {
+                if ((settings as any)[f]) {
+                  const { updatedObj, replacedCount } = replaceUrlsInObject(
+                    (settings as any)[f],
+                    urlMap
+                  );
+                  if (replacedCount > 0) updateData[f] = updatedObj;
+                }
+              }
+              if (Object.keys(updateData).length > 0) {
+                const updated = await prisma.siteSettings.update({
+                  where: { id: entityId },
+                  data: updateData,
+                });
+                await syncEntityMediaReferences("SiteSettings", "global", updated);
+                referencesMigrated += affectedRefs.filter((r) => r.entityId === entityId).length;
+              }
+            }
+            break;
+          }
+        }
+      } catch (err) {
+        console.warn(`[StorageOptimizer] Failed updating entity ${entityType}:${entityId}:`, err);
+      }
+    }
+
+    // Explicit User Mandate: Move unlinked duplicate assets to Trash Bin!
+    for (const dup of duplicateAssets) {
+      await prisma.mediaReference.deleteMany({
+        where: { mediaId: dup.id },
+      });
+
+      await prisma.mediaAsset.update({
+        where: { id: dup.id },
+        data: {
+          status: "IN_TRASH",
+          deletedAt: new Date(),
+        },
+      });
+
+      await prisma.mediaDeletionJob.create({
+        data: {
+          mediaId: dup.id,
+          filePath: dup.storagePath,
+          scheduledFor: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          status: "PENDING",
+        },
+      });
+
+      await logMediaAudit(dup.id, "STORAGE_OPTIMIZE_TRASHED", "admin", {
+        masterId: masterAsset.id,
+        masterFileName: masterAsset.fileName,
+        freedBytes: dup.size,
+        reason:
+          "Consolidated duplicate into master asset and moved redundant file to 30-day trash grace period.",
+      });
+
+      assetsMovedToTrash++;
+      freedBytes += dup.size || 0;
+      trashedAssetNames.push(dup.fileName);
+    }
+
+    await logMediaAudit(masterAsset.id, "STORAGE_OPTIMIZE_MASTER", "admin", {
+      consolidatedCount: duplicateAssets.length,
+      duplicateFileNames: duplicateAssets.map((d) => d.fileName),
+      inheritedReferencesCount: affectedRefs.length,
+    });
+
+    groupsProcessed++;
+  }
+
+  return {
+    success: true,
+    groupsProcessed,
+    referencesMigrated,
+    assetsMovedToTrash,
+    freedBytes,
+    freedFormatted: formatBytesHelper(freedBytes),
+    trashedAssetNames,
+  };
 }

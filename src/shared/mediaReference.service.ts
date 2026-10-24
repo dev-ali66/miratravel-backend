@@ -1,10 +1,14 @@
 import { StatusCodes } from "http-status-codes";
+import fs from "fs";
+import crypto from "crypto";
 import path from "path";
 import { Prisma } from "@prisma/client";
 import prisma from "../config/prisma.js";
 import ApiError from "../utils/api.error.js";
 import { extractMediaReferences } from "../utils/mediaExtractor.js";
 import { notifyJobEnqueued } from "../workers/mediaWorker.js";
+import { getUploadsDir } from "./upload_local.service.js";
+import { extractImageDimensions } from "../modules/media/mediaStorage.util.js";
 
 export interface PopulatedMediaReference {
   id: string;
@@ -265,13 +269,46 @@ export async function syncEntityMediaReferences(
       (rawUrl.startsWith("http://") || rawUrl.startsWith("https://") || rawUrl.startsWith("/"))
     ) {
       try {
+        let size = 0;
+        let hash: string | null = null;
+        let width: number | null = null;
+        let height: number | null = null;
+        const mimeType = baseName.endsWith(".mp4")
+          ? "video/mp4"
+          : baseName.endsWith(".png")
+          ? "image/png"
+          : baseName.endsWith(".webp")
+          ? "image/webp"
+          : baseName.endsWith(".svg")
+          ? "image/svg+xml"
+          : "image/jpeg";
+
+        const diskPath = path.resolve(getUploadsDir(), baseName);
+        if (fs.existsSync(diskPath)) {
+          try {
+            const buf = fs.readFileSync(diskPath);
+            size = buf.length;
+            hash = crypto.createHash("sha256").update(buf).digest("hex");
+            if (mimeType.startsWith("image/")) {
+              const dims = extractImageDimensions(buf, mimeType);
+              if (dims.width) width = dims.width;
+              if (dims.height) height = dims.height;
+            }
+          } catch {
+            // fallback gracefully
+          }
+        }
+
         asset = await prisma.mediaAsset.create({
           data: {
             fileName: baseName || "media-asset",
             storagePath: rawUrl,
             url: rawUrl,
-            mimeType: baseName.endsWith(".mp4") ? "video/mp4" : "image/jpeg",
-            size: 0,
+            mimeType,
+            size,
+            hash,
+            width,
+            height,
             status: "ACTIVE",
           },
           select: { id: true, status: true },

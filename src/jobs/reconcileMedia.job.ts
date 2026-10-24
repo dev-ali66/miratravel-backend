@@ -96,8 +96,19 @@ export async function runMediaReconciler(): Promise<ReconcileResult> {
       }
     }
 
+    // 3. Purge orphaned deletion jobs whose asset is either deleted or no longer IN_TRASH
+    const trashedIds = trashedAssets.map((a) => a.id);
+    const purgedOrphans = await prisma.mediaDeletionJob.deleteMany({
+      where: {
+        mediaId: { notIn: trashedIds },
+      },
+    });
+    if (purgedOrphans.count > 0) {
+      logger.info(`[MediaReconciler] Purged ${purgedOrphans.count} orphaned deletion jobs.`);
+    }
+
     logger.success(
-      `[MediaReconciler] Integrity scan complete. Rescued: ${result.rescuedStuckJobs}, Missing jobs enqueued: ${result.enqueuedMissingJobs}, Trashed assets audited: ${result.scannedTrashAssets}`
+      `[MediaReconciler] Integrity scan complete. Rescued: ${result.rescuedStuckJobs}, Missing jobs enqueued: ${result.enqueuedMissingJobs}, Trashed assets audited: ${result.scannedTrashAssets}, Orphaned jobs purged: ${purgedOrphans.count}`
     );
   } catch (err: any) {
     logger.error("[MediaReconciler] Integrity scan failed:", err?.message || err);

@@ -17,6 +17,9 @@ import {
   getMediaWorkerStatusController,
   triggerMediaWorkerController,
   triggerMediaReconcilerController,
+  scanStorageOptimizationController,
+  executeStorageOptimizationController,
+  downloadMediaController,
 } from "./media.controller.js";
 import { mediaMulterUpload } from "./mediaStorage.util.js";
 import {
@@ -66,12 +69,21 @@ router.get("/worker/status", getMediaWorkerStatusController);
 router.post("/worker/trigger", triggerMediaWorkerController);
 router.post("/worker/reconcile", triggerMediaReconcilerController);
 
+// 3.6. Universal Storage Optimizer endpoints (must precede /:id)
+router.get("/optimizer/scan", scanStorageOptimizationController);
+router.post("/optimizer/execute", executeStorageOptimizationController);
+
 // 4. Single asset operations
 router.get("/:id", validate(getMediaByIdValidator), getMediaByIdController);
 router.get(
   "/:id/usage",
   validate(getMediaByIdValidator),
   getMediaUsageController
+);
+router.get(
+  "/:id/download",
+  validate(getMediaByIdValidator),
+  downloadMediaController
 );
 router.patch(
   "/:id",

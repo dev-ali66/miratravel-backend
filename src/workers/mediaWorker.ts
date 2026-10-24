@@ -45,19 +45,60 @@ export async function calculateNextDueTime(): Promise<{
   failedCount: number;
 }> {
   try {
+    // 1. Reconcile with active trashed assets: find all assets currently in IN_TRASH
+    const activeTrashedAssets = await prisma.mediaAsset.findMany({
+      where: { status: "IN_TRASH", deletedAt: { not: null } },
+      select: { id: true },
+    });
+    const activeTrashedIds = activeTrashedAssets.map((a) => a.id);
+
+    // 2. If no assets are currently in trash, purge any obsolete pending deletion jobs
+    if (activeTrashedIds.length === 0) {
+      await prisma.mediaDeletionJob.deleteMany({
+        where: { status: { in: ["PENDING", "PROCESSING"] } },
+      });
+      nextScheduledTimestamp = null;
+      return {
+        nextRunAt: null,
+        pendingCount: 0,
+        processingCount: 0,
+        failedCount: 0,
+      };
+    }
+
+    // 3. Purge any orphaned jobs pointing to assets that were deleted or restored
+    await prisma.mediaDeletionJob.deleteMany({
+      where: {
+        status: "PENDING",
+        mediaId: { notIn: activeTrashedIds },
+      },
+    });
+
+    // 4. Find the NEXT EARLIEST due date among valid pending jobs for items currently in trash
     const [earliestJob, pendingCount, processingCount, failedCount] = await Promise.all([
       prisma.mediaDeletionJob.findFirst({
-        where: { status: "PENDING" },
+        where: {
+          status: "PENDING",
+          mediaId: { in: activeTrashedIds },
+        },
         orderBy: { scheduledFor: "asc" },
         select: { scheduledFor: true },
       }),
-      prisma.mediaDeletionJob.count({ where: { status: "PENDING" } }),
+      prisma.mediaDeletionJob.count({
+        where: {
+          status: "PENDING",
+          mediaId: { in: activeTrashedIds },
+        },
+      }),
       prisma.mediaDeletionJob.count({ where: { status: "PROCESSING" } }),
       prisma.mediaDeletionJob.count({ where: { status: "FAILED" } }),
     ]);
 
+    const nextDue = earliestJob ? earliestJob.scheduledFor : null;
+    nextScheduledTimestamp = nextDue;
+
     return {
-      nextRunAt: earliestJob ? earliestJob.scheduledFor : null,
+      nextRunAt: nextDue,
       pendingCount,
       processingCount,
       failedCount,
@@ -408,6 +449,16 @@ export function notifyJobEnqueued(scheduledFor: Date): void {
 }
 
 /**
+ * Notifies the worker that a job was removed or an asset was restored/purged.
+ * Recalculates next wakeup time and adjusts sleeping timer immediately.
+ */
+export async function notifyJobRemoved(): Promise<void> {
+  if (!isWorkerRunning) return;
+  logger.info("[MediaWorker] Job removed or asset cleared from trash. Recalculating next wakeup...");
+  await scheduleNextRun();
+}
+
+/**
  * Returns current health and queue metrics of the worker.
  */
 export async function getMediaWorkerStatus(): Promise<WorkerStatus> {
@@ -417,10 +468,11 @@ export async function getMediaWorkerStatus(): Promise<WorkerStatus> {
   return {
     isRunning: isWorkerRunning,
     lastRunAt: lastRunTimestamp,
-    nextRunAt: nextRunAt || nextScheduledTimestamp,
+    nextRunAt: pendingCount > 0 ? (nextRunAt || nextScheduledTimestamp) : null,
     pendingJobsCount: pendingCount,
     processingJobsCount: processingCount,
     failedJobsCount: failedCount,
     lastResult: lastCycleResult,
   };
 }
+
