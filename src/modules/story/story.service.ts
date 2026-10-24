@@ -3,6 +3,10 @@ import prisma from "../../config/prisma.js";
 import ApiError from "../../utils/api.error.js";
 import { auditLogger } from "../../logger/audit.logger.js";
 import { getRecords } from "../../shared/getRecords.service.js";
+import {
+  syncEntityMediaReferences,
+  removeEntityMediaReferences,
+} from "../../shared/mediaReference.service.js";
 
 const storyInclude = {
   categories: true,
@@ -467,6 +471,15 @@ export const manageStoryService = async (req: Request, res: Response) => {
     });
   }
 
+  // Synchronize media references so editorial story images (hero, blocks, intro) are tracked in MediaAsset
+  if (story && story.id) {
+    try {
+      await syncEntityMediaReferences("Story", story.id, story);
+    } catch (syncErr) {
+      console.warn(`[manageStoryService] syncEntityMediaReferences error for Story:${story.id}`, syncErr);
+    }
+  }
+
   return { data: story };
 };
 
@@ -484,6 +497,13 @@ export const deleteStoryService = async (req: Request, res: Response) => {
   await (prisma as any).story.delete({
     where: { id: String(id) },
   });
+
+  // Remove media references for hard-deleted story
+  try {
+    await removeEntityMediaReferences("Story", String(id));
+  } catch (refErr) {
+    console.warn(`[deleteStoryService] removeEntityMediaReferences error for Story:${id}`, refErr);
+  }
 
   // Audit Log: Story Deleted
   await auditLogger({

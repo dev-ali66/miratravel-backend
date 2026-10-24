@@ -4,6 +4,7 @@ import ApiError from "../utils/api.error.js";
 import { redisManager } from "../config/redis.js";
 import { l1Cache } from "../utils/l1Cache.helper.js";
 import { auditLogger } from "../logger/audit.logger.js";
+import { removeEntityMediaReferences } from "./mediaReference.service.js";
 
 export const deleteRecordsSafely = async ({
   req,
@@ -63,9 +64,20 @@ export const deleteRecordsSafely = async ({
       requestSoftDelete.toLowerCase() === "false");
   const shouldSoftDelete = softDelete && !hardDeleteRequested;
 
-  // A hard delete deliberately skips record lookup, external deletion, cache
-  // invalidation, and audit logging.
+  // A hard delete removes references, enqueues unreferenced media to 30-day trash,
+  // and deletes the record from the database.
   if (!shouldSoftDelete) {
+    for (const entityId of ids) {
+      try {
+        await removeEntityMediaReferences(modelName, entityId);
+      } catch (refErr) {
+        console.warn(
+          `[deleteRecordsSafely] removeEntityMediaReferences error for ${modelName}:${entityId}`,
+          refErr
+        );
+      }
+    }
+
     const result = await txClient.$transaction(async (tx: any) => {
       return tx[modelName].deleteMany({ where: whereClause });
     });

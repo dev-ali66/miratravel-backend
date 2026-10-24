@@ -11,7 +11,6 @@ import {
   verificationEmailTemplate,
 } from "../../shared/email_template.service.js";
 import { Request } from "express";
-import { uploadFilesToCloudinary } from "../../shared/upload_cloudinary.service.js";
 import { object } from "zod";
 
 // export const accessRequestContractorService = async (data: any, role: any, authId: any) => {

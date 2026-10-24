@@ -11,8 +11,10 @@ import config from "../../config/index.js";
 import AuthHelper from "../../utils/auth.helper.js";
 import * as AuthService from "./auth.service.js";
 import { NextFunction, Request, Response } from "express";
-import { uploadFilesToCloudinary } from "../../shared/upload_cloudinary.service.js";
-import { deleteFromCloudinary } from "../../shared/delete_cloudinary.service.js";
+import {
+  uploadFilesToLocalStorage,
+  deleteFromLocalStorage,
+} from "../../shared/upload_local.service.js";
 import { auditLogger } from "../../logger/audit.logger.js";
 import prisma from "../../config/prisma.js";
 const OTP_CONFIG = {
@@ -621,28 +623,15 @@ export const updateProfile = catchAsync(async (req: Request, res: Response) => {
 
       const oldImages = existingRecord?.userPersonalInfo?.photoUrl || [];
 
-      // 🔥 DELETE OLD IMAGES FROM CLOUDINARY
-      if (oldImages.length) {
-        await Promise.all(
-          oldImages.map(async (url: string) => {
-            try {
-              const result = await deleteFromCloudinary(url);
-            } catch (err) {
-              console.error("Cloudinary delete error:", err);
-            }
-          }),
-        );
-      }
-
-      // 🔥 UPLOAD NEW IMAGE
-      const result: any = await uploadFilesToCloudinary(
+      // Safe storage on VPS local storage
+      const result: any = await uploadFilesToLocalStorage(
         file.buffer,
         file.mimetype,
         field,
-        {},
+        file.originalname || "avatar.jpg",
       );
 
-      personalData.photoUrl = [result.secure_url];
+      personalData.photoUrl = [result.secure_url || result.url];
     }
   }
 

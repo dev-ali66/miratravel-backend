@@ -198,12 +198,19 @@ export const manageLocationService = async (req: any, res: any) => {
 
     const sanitizedBody: any = { ...rest };
 
+    const isUpdate = Boolean(
+      req.validated?.body?.id ||
+      req.body?.id ||
+      req.params?.id ||
+      req.query?.id
+    );
+
     // Handle Prisma relation for parent location
     if (parentId && typeof parentId === "string" && parentId.trim() !== "") {
       sanitizedBody.parent = {
         connect: { id: parentId.trim() },
       };
-    } else if (req.validated.body.id && (parentId === null || parentId === "")) {
+    } else if (isUpdate && (parentId === null || parentId === "")) {
       sanitizedBody.parent = {
         disconnect: true,
       };
@@ -212,7 +219,7 @@ export const manageLocationService = async (req: any, res: any) => {
     const formatExperienceRelation = (ids: any) => {
       if (!Array.isArray(ids)) return undefined;
       const validIds = ids.filter((id) => typeof id === "string" && id.trim() !== "");
-      if (req.validated.body.id) {
+      if (isUpdate) {
         return { set: validIds.map((id: string) => ({ id })) };
       } else if (validIds.length > 0) {
         return { connect: validIds.map((id: string) => ({ id })) };

@@ -1,4 +1,5 @@
 import prisma from "../../config/prisma.js";
+import { syncEntityMediaReferences } from "../../shared/mediaReference.service.js";
 
 export const getSiteSettings = async () => {
   let settings = await prisma.siteSettings.findUnique({
@@ -33,6 +34,12 @@ export const updateSiteSettings = async (data: any) => {
       ...updatePayload,
     },
   });
+
+  try {
+    await syncEntityMediaReferences("SiteSettings", "global", settings);
+  } catch (syncErr) {
+    console.warn(`[updateSiteSettings] syncEntityMediaReferences error for SiteSettings:global`, syncErr);
+  }
 
   return settings;
 };

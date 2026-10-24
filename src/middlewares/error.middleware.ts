@@ -112,55 +112,56 @@ export const globalErrorHandler = (
     statusCode = 400;
 
     // Split Prisma message into lines
-    const lines = err.message.split("\n");
+    const lines = (err.message || "").split("\n");
 
-    // Filter all lines that start with "Argument `field`"
-    const argLines = lines.filter((line: any) =>
-      line.trim().startsWith("Argument `"),
-    );
+    // Look for specific validation diagnostic lines
+    const specificLines = lines
+      .map((line: string) => line.replace(/[\r\n~]+/g, " ").trim())
+      .filter(
+        (line: string) =>
+          line.startsWith("Argument `") ||
+          line.startsWith("Unknown argument `") ||
+          line.startsWith("Unknown field `") ||
+          line.startsWith("Invalid value for `") ||
+          line.includes("Unknown argument") ||
+          line.includes("Unknown field")
+      );
 
-    if (argLines.length) {
-      // Map lines to friendly messages
-      const messages = argLines.map((line: any) => {
-        // Remove tildes and extra whitespace
-        line = line.replace(/[\n~]+/g, "").trim();
-
-        // Check if it's a missing field
+    if (specificLines.length) {
+      const messages = specificLines.map((line: string) => {
         const missingMatch = line.match(/Argument `(\w+)` is missing/);
-        if (missingMatch) {
-          const field = missingMatch[1];
-          return `${field} is required`;
-        }
+        if (missingMatch) return `${missingMatch[1]} is required`;
 
-        // Otherwise, invalid value/type error
+        const unknownArgMatch = line.match(/Unknown argument `(\w+)`/);
+        if (unknownArgMatch) return line;
+
         const invalidMatch = line.match(/Argument `(\w+)`: (.+)/);
         if (invalidMatch) {
-          const field = invalidMatch[1];
-          const reason = invalidMatch[2].replace(/\n/g, " ").trim();
-          return `${field}: ${reason}`;
+          return `${invalidMatch[1]}: ${invalidMatch[2].trim()}`;
         }
 
-        // fallback to raw line
         return line;
       });
-
-      // Join all messages into a single string
-      message = messages.join("; ");
+      message = messages.slice(0, 3).join("; ");
     } else {
-      // Extract non-empty detail lines from Prisma error for meaningful feedback
-      const nonZeroLines = lines
-        .map((l: string) => l.trim())
+      // Filter out code block and JSON payload dump lines
+      const nonCodeLines = lines
+        .map((l: string) => l.trim().replace(/[\r\n~]+/g, " "))
         .filter(
           (l: string) =>
             l.length > 0 &&
             !l.startsWith("Invalid `prisma.") &&
             !l.startsWith("-->") &&
+            !l.startsWith("{") &&
+            !l.startsWith("}") &&
+            !l.startsWith("data:") &&
+            !/^[a-zA-Z0-9_$]+:\s*(\{|\[|".*"|true|false|[0-9]+|null)/.test(l) &&
             l !== "Validation failed"
         );
       message =
-        nonZeroLines.length > 0
-          ? nonZeroLines.slice(0, 3).join("; ")
-          : err.message || "Database validation failed";
+        nonCodeLines.length > 0
+          ? nonCodeLines.slice(0, 2).join("; ")
+          : "Database validation failed";
     }
   }
 

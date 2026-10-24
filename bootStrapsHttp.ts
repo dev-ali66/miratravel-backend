@@ -25,6 +25,7 @@ import wishlistRoutes from "./src/modules/wishlist/wishlist.routes.js";
 import journeyWizardRoutes from "./src/modules/journeyWizard/journeyWizard.routes.js";
 import newsletterRoutes from "./src/modules/newsletter/newsletter.routes.js";
 import enumRoutes from "./src/modules/enum/enum.routes.js";
+import mediaRoutes from "./src/modules/media/media.routes.js";
 
 export const bootStapHttps = (app: any) => {
   mount(app, "/api/v1/audit", auditRoutes);
@@ -36,6 +37,7 @@ export const bootStapHttps = (app: any) => {
   mount(app, "/api/v1/roles", rolesRoutes);
   mount(app, "/api/v1/permissions", permissionsRoutes);
   mount(app, "/api/v1/file-upload", fileUploadRoutes);
+  mount(app, "/api/v1/media", mediaRoutes);
   mount(app, "/api/v1/cms-pages", cmsPagesRoutes);
   mount(app, "/api/v1/locations", locationRoutes);
   mount(app, "/api/v1/experiences", experienceRoutes);

@@ -43,14 +43,20 @@ export const manageFileUploadService = async (req: any, res: any) => {
   const externalUrls = new Set<string>();
 
   // -----------------------------
-  // 1. DELETE OLD IMAGES
+  // 1. SAFEGUARD: PREVENT BLIND UNLINKING
   // -----------------------------
+  // Direct file unlinking without database reference counting is disabled
+  // to protect shared assets across Location, Journey, Experience, CMS, and Settings.
+  // Physical unlinking is governed exclusively by Central Media Reference Tracking.
   if (filesToRemove.length > 0) {
     extractExternalUrlsDeep(filesToRemove, externalUrls, domains as string[]);
 
     for (const url of externalUrls) {
       if (url.includes("/multimedia/uploads/") || url.includes("/uploads/")) {
-        await deleteFromLocalStorage(url);
+        // await deleteFromLocalStorage(url);
+        console.warn(
+          `[FileUploadService] Direct unlinking skipped for '${url}'. Managed safely via Media Reference Tracking.`,
+        );
         continue;
       }
 
@@ -60,32 +66,24 @@ export const manageFileUploadService = async (req: any, res: any) => {
       const deleteFn = externalDeleteMap[matchedDomain];
       if (!deleteFn) continue;
 
-      await retryOperation(() => deleteFn(url), 2).catch(() => {});
+      await retryOperation(() => deleteFn(url), 2).catch(() => { });
     }
   }
 
   // -----------------------------
-  // 2. UPLOAD NEW FILES (VPS DISK STORAGE)
+  // 2. UPLOAD NEW FILES VIA CENTRAL MEDIA ENGINE (DEDUPLICATION & REGISTRY)
   // -----------------------------
   let results: any[] = [];
   try {
-    results = await Promise.all(
-      files.map(async (file: any) => {
-        const result = await uploadFilesToLocalStorage(
-          file.buffer,
-          file.mimetype,
-          file.fieldname,
-          file.originalname || "file",
-        );
-
-        return {
-          field: file.fieldname,
-          url: result.secure_url || result.url,
-        };
-      }),
-    );
+    const { uploadMediaAssets } = await import("../media/media.service.js");
+    const assets = await uploadMediaAssets(files, req.user?.id);
+    results = assets.map((asset: any, idx: number) => ({
+      field: files[idx]?.fieldname || "file",
+      url: asset.url,
+      isDuplicate: asset.isDuplicate,
+    }));
   } catch (error: any) {
-    console.error("Local file upload error in service:", error);
+    console.error("Central media upload bridge error in service:", error);
     throw new ApiError(
       error?.message || "Failed to upload files to server storage",
       StatusCodes.INTERNAL_SERVER_ERROR,

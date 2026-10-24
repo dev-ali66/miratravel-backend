@@ -1,0 +1,79 @@
+model MediaAsset {
+  id           String           @id @default(cuid())
+  fileName     String
+  originalName String?
+  storagePath  String
+  url          String           @unique
+  mimeType     String
+  size         Int
+  hash         String?
+  width        Int?
+  height       Int?
+  title        String?
+  altText      String?
+  caption      String?
+  status       MediaStatus      @default(ACTIVE)
+  deletedAt    DateTime?
+  references   MediaReference[]
+  auditLogs    MediaAuditLog[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([status])
+  @@index([hash])
+  @@index([createdAt])
+}
+
+enum MediaStatus {
+  ACTIVE
+  IN_TRASH
+  DELETING
+  DELETED
+}
+
+model MediaReference {
+  id         String     @id @default(cuid())
+  mediaId    String
+  media      MediaAsset @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  entityType String     // e.g. "Location", "Journey", "Experience", "Story", "CmsPage", "SiteSettings"
+  entityId   String
+  fieldPath  String     // e.g. "hero.image.url", "card.image.url", "accommodations[0].stay.multimedia.image.url"
+  createdAt  DateTime   @default(now())
+
+  @@unique([mediaId, entityType, entityId, fieldPath])
+  @@index([mediaId])
+  @@index([entityType, entityId])
+}
+
+model MediaDeletionJob {
+  id           String         @id @default(cuid())
+  mediaId      String
+  filePath     String
+  scheduledFor DateTime
+  status       MediaJobStatus @default(PENDING)
+  attempts     Int            @default(0)
+  lastError    String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([status, scheduledFor])
+}
+
+enum MediaJobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model MediaAuditLog {
+  id          String     @id @default(cuid())
+  mediaId     String
+  media       MediaAsset @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  action      String     // "UPLOAD", "REPLACE", "MOVE_TO_TRASH", "RESTORE", "PURGE"
+  performedBy String?
+  details     Json?
+  createdAt   DateTime   @default(now())
+
+  @@index([mediaId])
+}

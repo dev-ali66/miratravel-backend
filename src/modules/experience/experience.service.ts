@@ -220,6 +220,13 @@ export const manageExperienceService = async (req: any, res: any) => {
       sanitizedBody.price = Number(Number(sanitizedBody.price).toFixed(2));
     }
 
+    const isUpdate = Boolean(
+      req.validated?.body?.id ||
+      req.body?.id ||
+      req.params?.id ||
+      req.query?.id
+    );
+
     // Helper for many-to-many location relations
     const formatLocationRelation = (items: any, fallbackSingle?: any) => {
       let ids: string[] = [];
@@ -228,7 +235,7 @@ export const manageExperienceService = async (req: any, res: any) => {
       } else if (typeof fallbackSingle === "string" && fallbackSingle.trim() !== "") {
         ids = [fallbackSingle.trim()];
       }
-      if (req.validated.body.id) {
+      if (isUpdate) {
         return { set: ids.map((id) => ({ id })) };
       } else if (ids.length > 0) {
         return { connect: ids.map((id) => ({ id })) };
@@ -256,7 +263,7 @@ export const manageExperienceService = async (req: any, res: any) => {
 
     // Many-to-Many Journeys
     if (Array.isArray(journeys)) {
-      if (req.validated.body.id) {
+      if (isUpdate) {
         sanitizedBody.journeys = {
           set: journeys.filter(Boolean).map((jId: string) => ({ id: jId })),
         };
@@ -269,7 +276,7 @@ export const manageExperienceService = async (req: any, res: any) => {
 
     // Many-to-Many Stories
     if (Array.isArray(stories)) {
-      if (req.validated.body.id) {
+      if (isUpdate) {
         sanitizedBody.stories = {
           set: stories.filter(Boolean).map((sId: string) => ({ id: sId })),
         };

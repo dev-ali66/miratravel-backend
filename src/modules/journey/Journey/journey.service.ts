@@ -260,6 +260,15 @@ export const manageJourneyService = async (req: any, res: any) => {
     const body = req.validated.body;
     const sanitizedBody = { ...body };
 
+    const targetId =
+      body?.id ||
+      req.validated?.params?.id ||
+      req.params?.id ||
+      req.validated?.query?.id ||
+      req.query?.id;
+    const isCreate =
+      !targetId || (typeof targetId === "string" && targetId.trim() === "");
+
     const hasLocationField =
       "locations" in body ||
       "itinerary" in body ||
@@ -277,9 +286,19 @@ export const manageJourneyService = async (req: any, res: any) => {
         validLocationIds = existingLocations.map((loc) => loc.id);
       }
 
-      sanitizedBody.locations = {
-        set: validLocationIds.map((id) => ({ id })),
-      };
+      if (isCreate) {
+        if (validLocationIds.length > 0) {
+          sanitizedBody.locations = {
+            connect: validLocationIds.map((id) => ({ id })),
+          };
+        } else {
+          delete sanitizedBody.locations;
+        }
+      } else {
+        sanitizedBody.locations = {
+          set: validLocationIds.map((id) => ({ id })),
+        };
+      }
     }
 
     if ("addOns" in body) {
@@ -296,18 +315,29 @@ export const manageJourneyService = async (req: any, res: any) => {
           select: { id: true },
         });
         const validExpIds = existingExps.map((e) => e.id);
-        sanitizedBody.addOns = {
-          set: validExpIds.map((id) => ({ id })),
-        };
+        if (isCreate) {
+          sanitizedBody.addOns = {
+            connect: validExpIds.map((id) => ({ id })),
+          };
+        } else {
+          sanitizedBody.addOns = {
+            set: validExpIds.map((id) => ({ id })),
+          };
+        }
       } else {
-        sanitizedBody.addOns = {
-          set: [],
-        };
+        if (isCreate) {
+          delete sanitizedBody.addOns;
+        } else {
+          sanitizedBody.addOns = {
+            set: [],
+          };
+        }
       }
       delete (sanitizedBody as any).experiences;
     }
 
     req.validated.body = sanitizedBody;
+    req.body = sanitizedBody;
   }
 
   const result = await manageRecordWithFiles({

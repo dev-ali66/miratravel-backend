@@ -56,8 +56,19 @@ const createPrismaClient = () => {
   return client.$extends({
     query: {
       $allModels: {
-        async $allOperations({ operation, args, query }: any) {
+        async $allOperations({ model, operation, args, query }: any) {
           if (!readActions.has(operation)) return query(args);
+
+          // MediaAsset, MediaReference, MediaDeletionJob, and MediaAuditLog manage
+          // their own lifecycle via status and audit logs; do not force deletedAt: null on them.
+          if (
+            model === "MediaAsset" ||
+            model === "MediaReference" ||
+            model === "MediaDeletionJob" ||
+            model === "MediaAuditLog"
+          ) {
+            return query(args);
+          }
 
           const where = args?.where ?? {};
 

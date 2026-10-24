@@ -11,6 +11,7 @@ import ApiError from "../utils/api.error.js";
 import { redisManager } from "../config/redis.js";
 import { l1Cache } from "../utils/l1Cache.helper.js";
 import { auditLogger } from "../logger/audit.logger.js";
+import { syncEntityMediaReferences } from "./mediaReference.service.js";
 
 type DeleteFn = (url: string) => Promise<any>;
 
@@ -189,41 +190,51 @@ export const manageRecordWithFiles = async ({
       for (const key in previousRecord) {
         const value = previousRecord[key];
 
-        if (!Array.isArray(value)) continue;
+        // Handle Array fields
+        if (Array.isArray(value)) {
+          const toRemove = value.filter((url) => externalUrls.has(url));
+          if (toRemove.length) {
+            updateData[key] = value.filter((url) => !externalUrls.has(url));
+            toRemove.forEach((url: any) => {
+              if (
+                typeof url === "string" &&
+                (url.includes("/multimedia/uploads/") || url.includes("/uploads/"))
+              ) {
+                console.warn(
+                  `[manageRecordWithFiles] Direct unlinking skipped for '${url}'. Managed safely via Media Reference Tracking.`,
+                );
+              }
+            });
+          }
+          continue;
+        }
 
-        // URLs to remove from this field
-        const toRemove = value.filter((url) => externalUrls.has(url));
+        // Handle Object fields (e.g. Canonical Universal Multimedia JSON objects)
+        if (value && typeof value === "object") {
+          const objectUrls = new Set<string>();
+          extractExternalUrlsDeep(value, objectUrls, domains);
+          const hasMatchingUrl = Array.from(objectUrls).some((u) => externalUrls.has(u));
 
-        if (!toRemove.length) continue;
+          if (hasMatchingUrl) {
+            const sanitizeObject = (obj: any): any => {
+              if (!obj || typeof obj !== "object") return obj;
+              if (Array.isArray(obj)) {
+                return obj.filter((item) => !externalUrls.has(item)).map(sanitizeObject);
+              }
+              const result: any = { ...obj };
+              for (const prop in result) {
+                if (typeof result[prop] === "string" && externalUrls.has(result[prop])) {
+                  result[prop] = "";
+                } else if (typeof result[prop] === "object") {
+                  result[prop] = sanitizeObject(result[prop]);
+                }
+              }
+              return result;
+            };
 
-        // Update DB value (keep remaining)
-        updateData[key] = value.filter((url) => !externalUrls.has(url));
-
-        //  Delete from external storage
-        await Promise.all(
-          toRemove.map(async (url: any) => {
-            if (
-              typeof url === "string" &&
-              (url.includes("/multimedia/uploads/") || url.includes("/uploads/"))
-            ) {
-              await deleteFromLocalStorage(url);
-              externalDeletedCount++;
-              return;
-            }
-
-            const matchedDomain = domains.find((d) => url.includes(d));
-            if (!matchedDomain) return;
-
-            const deleteFn = externalDeleteMap[matchedDomain];
-            if (!deleteFn) {
-              console.warn("No delete function mapped for URL:", url);
-              return;
-            }
-
-            await retryOperation(() => deleteFn(url), 2).catch(() => {});
-            externalDeletedCount++;
-          }),
-        );
+            updateData[key] = sanitizeObject(value);
+          }
+        }
       }
     }
 
@@ -282,6 +293,15 @@ export const manageRecordWithFiles = async ({
             operation: data.id ? "UPDATE" : "CREATE",
           },
         });
+      }
+
+      // Sync media references so Media Gallery tracks live usage & prevents accidental deletion
+      if (operation && operation.id && modelName) {
+        try {
+          await syncEntityMediaReferences(modelName, operation.id, operation);
+        } catch (syncErr) {
+          console.warn(`[manageRecordWithFiles] syncEntityMediaReferences error for ${modelName}:${operation.id}`, syncErr);
+        }
       }
       // 🔥 CACHE INVALIDATION (L1 RAM + L2 REDIS)
       l1Cache.clear();
