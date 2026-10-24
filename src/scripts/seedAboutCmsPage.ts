@@ -522,7 +522,7 @@ const defaultAboutPageData = {
 };
 
 async function seedAboutCmsPage() {
-  console.log("Seeding / updating 'about-us' CMS Page in Neon PostgreSQL DB...");
+  console.log("Seeding / updating 'about-us' CMS Page in  PostgreSQL DB...");
 
   const existing = await prisma.cmsPage.findFirst({
     where: { slug: "about-us" },

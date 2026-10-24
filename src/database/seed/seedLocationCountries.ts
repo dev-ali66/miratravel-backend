@@ -2523,7 +2523,7 @@ export const placeSeedData = [
 
 
 export async function seedLocationCountries() {
-  console.log("📍 Seeding Europe Continent, Country Locations, Region Locations & Place Locations into Neon Database...")
+  console.log("📍 Seeding Europe Continent, Country Locations, Region Locations & Place Locations into  Database...")
 
   const regionMap = new Map<string, string>()
   const placeMap = new Map<string, string>()
@@ -2807,7 +2807,7 @@ export async function seedLocationCountries() {
     }
   }
 
-  console.log("✅ Successfully seeded Europe Continent, 9 Countries, 16 Regions, 48 Places, LANDMARKS, and ACCOMMODATIONS into Neon DB!")
+  console.log("✅ Successfully seeded Europe Continent, 9 Countries, 16 Regions, 48 Places, LANDMARKS, and ACCOMMODATIONS into  DB!")
 }
 
 export const landmarkSeedData = [

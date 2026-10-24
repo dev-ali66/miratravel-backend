@@ -66,7 +66,7 @@ let backupHistory = [
     filename: "mira_db_snapshot_20260908_020000.sql.gz",
     sizeMb: 14.8,
     type: "AUTOMATED_DAILY",
-    destination: "AWS S3 (eu-west-1) & Neon Storage",
+    destination: "AWS S3 (eu-west-1) &  Storage",
     status: "COMPLETED",
     checksum: "sha256:8f4c2e1b9a0d...",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
@@ -76,7 +76,7 @@ let backupHistory = [
     filename: "mira_db_snapshot_20260907_020000.sql.gz",
     sizeMb: 14.2,
     type: "AUTOMATED_DAILY",
-    destination: "AWS S3 (eu-west-1) & Neon Storage",
+    destination: "AWS S3 (eu-west-1) &  Storage",
     status: "COMPLETED",
     checksum: "sha256:1a2b3c4d5e6f...",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 28).toISOString(),
@@ -121,7 +121,7 @@ let cronJobs = [
   {
     id: "cron-4",
     key: "DATABASE_SNAPSHOT_DAILY",
-    name: "Automated Neon DB Nightly Backup",
+    name: "Automated  DB Nightly Backup",
     cronExpression: "0 2 * * * (Daily at 02:00 AM)",
     description: "Creates encrypted daily snapshot backup and validates checksum.",
     lastRun: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
@@ -160,31 +160,31 @@ const auditLogsStore: Array<{
   details: string;
   timestamp: string;
 }> = [
-  {
-    id: "audit-init-1",
-    action: "SYSTEM_STARTUP",
-    entity: "SERVER",
-    entityId: "srv-01",
-    user: { id: "system", email: "system@miratravel.com", role: "SUPER_ADMIN" },
-    ip: "127.0.0.1",
-    userAgent: "MIRA Internal Daemon/1.0",
-    status: "SUCCESS",
-    details: "MIRA Backend Server initialized with Neon PostgreSQL & Redis cluster.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-  },
-  {
-    id: "audit-init-2",
-    action: "POLICY_SYNC",
-    entity: "PAYMENT_CONFIG",
-    entityId: "cfg-standard",
-    user: { id: "admin", email: "admin@dev.com", role: "ADMIN" },
-    ip: "127.0.0.1",
-    userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-    status: "SUCCESS",
-    details: "Standard Staged Payment Policy synced: 30% deposit, 70% final balance (60-day rule).",
-    timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-  },
-];
+    {
+      id: "audit-init-1",
+      action: "SYSTEM_STARTUP",
+      entity: "SERVER",
+      entityId: "srv-01",
+      user: { id: "system", email: "system@miratravel.com", role: "SUPER_ADMIN" },
+      ip: "127.0.0.1",
+      userAgent: "MIRA Internal Daemon/1.0",
+      status: "SUCCESS",
+      details: "MIRA Backend Server initialized with  PostgreSQL & Redis cluster.",
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+    },
+    {
+      id: "audit-init-2",
+      action: "POLICY_SYNC",
+      entity: "PAYMENT_CONFIG",
+      entityId: "cfg-standard",
+      user: { id: "admin", email: "admin@dev.com", role: "ADMIN" },
+      ip: "127.0.0.1",
+      userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+      status: "SUCCESS",
+      details: "Standard Staged Payment Policy synced: 30% deposit, 70% final balance (60-day rule).",
+      timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+    },
+  ];
 
 import { broadcastAuditEvent, broadcastConfigUpdate } from "./system.socket.js";
 
@@ -295,7 +295,7 @@ export const getSystemHealthService = async (_req: Request) => {
     },
     responseTimeMs: Date.now() - startTime,
     database: {
-      provider: "Neon PostgreSQL",
+      provider: " PostgreSQL",
       status: dbStatus,
       latencyMs: dbLatencyMs,
     },
@@ -539,7 +539,7 @@ export const triggerSystemBackupService = async (req: Request) => {
     filename: `mira_manual_snapshot_${timestamp}.sql.gz`,
     sizeMb: Math.round((14.5 + Math.random() * 0.8) * 10) / 10,
     type: "MANUAL_ADMIN_EXPORT",
-    destination: "AWS S3 Glacier (eu-west-1) & Neon Cloud",
+    destination: "AWS S3 Glacier (eu-west-1) &  Cloud",
     status: "COMPLETED",
     checksum: `sha256:${Math.random().toString(36).substring(2)}${Math.random().toString(36).substring(2)}`,
     createdAt: new Date().toISOString(),
@@ -678,11 +678,11 @@ export const getGatewaysStatusService = async () => {
       endpoint: "api.stripe.com/v1",
     },
     {
-      name: "Neon PostgreSQL Cloud",
+      name: " PostgreSQL Cloud",
       service: "Serverless Database",
       status: "OPERATIONAL",
       latencyMs: 48,
-      endpoint: "aws.neon.tech:5432",
+      endpoint: "aws..tech:5432",
     },
     {
       name: "Twilio SMS Communications",

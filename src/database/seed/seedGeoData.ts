@@ -590,7 +590,7 @@ async function main() {
     }
   }
 
-  console.log(`\n🎉 Successfully updated real geoData for ALL ${updatedCount} locations in Neon PostgreSQL DB!`);
+  console.log(`\n🎉 Successfully updated real geoData for ALL ${updatedCount} locations in  PostgreSQL DB!`);
 }
 
 main()

@@ -65,7 +65,7 @@ const collectTelemetrySnapshot = async () => {
     status: dbStatus === "CONNECTED" ? "HEALTHY" : "DEGRADED",
     responseTimeMs: Date.now() - startTime,
     database: {
-      provider: "Neon PostgreSQL",
+      provider: " PostgreSQL",
       status: dbStatus,
       latencyMs: dbLatencyMs,
     },

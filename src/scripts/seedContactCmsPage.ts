@@ -709,7 +709,7 @@ const defaultContactPageData = {
 };
 
 async function seedContactCmsPage() {
-  console.log("Seeding / updating 'contact-us' CMS Page in Neon PostgreSQL DB...");
+  console.log("Seeding / updating 'contact-us' CMS Page in  PostgreSQL DB...");
 
   const existing = await prisma.cmsPage.findFirst({
     where: { slug: "contact-us" },
