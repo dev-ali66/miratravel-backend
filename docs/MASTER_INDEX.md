@@ -2009,6 +2009,23 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
   - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
   - Dashboard Production Build: `npm run build` in `dashboard/` ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 3.22s)**.
 
+### 47. Universal PageHeader & CompactStatCard Height Normalization (`h-14` / 56px)
+- **User Directive**:
+  *"Page header er je height ta ache, setao navbar er moto... navbar er height er soman height jeno page header er thakbe, oirokom koro."*
+  (Translation: Make the PageHeader height match the navbar height, exactly equal to the navbar's height).
+- **Technical Implementation**:
+  1. *Measurement & Proportioning*:
+     - Verified [`Navbar.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/layout/Navbar.tsx): uses `h-14` (56px / `3.5rem`).
+     - Updated [`PageHeader.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/shared/PageHeader.tsx):
+       - Container height set to `h-auto lg:h-14 lg:min-h-14 mb-2 sm:mb-2.5` to strictly match the 56px navbar baseline on desktop.
+       - Updated `CompactStatCard` to `h-14` (56px) (replacing the previous oversized `h-[70px] sm:h-[74px]`).
+       - Compacted `CompactStatCard` internal spacing: `px-2.5 py-1.5 sm:px-3 sm:py-2` with `h-4 w-4` icon pill, `text-[10px]` uppercase label, `text-sm sm:text-base` metric value, and `text-[9px] sm:text-[9.5px]` subtext.
+       - Standardized left 30% section (`items-center h-full gap-2.5 sm:gap-3.5`) with balanced icon (`h-9 w-9 sm:h-10 sm:w-10`), `truncate` on title and subtitle.
+       - Standardized right 70% stats grid (`h-full flex items-center min-w-0`).
+  2. *Verification & Production Build*:
+     - Dashboard Production Build: `tsc -b && vite build` in `dashboard/` ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 3.04s)**.
+     - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
+
 ### Track C: Frontend & User-Facing Web Application Integration
 1. **Frontend Repository Clean Synchronization (`frontend/`) [COMPLETED]**:
    - **User Directive**:
