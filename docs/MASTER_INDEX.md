@@ -2098,6 +2098,25 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
   - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 4.14s)**.
   - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
 
+### 40. Media Library Inspector Drawer Streamlining & Hover Swipe-Up Specifications (`MediaInspectorDrawer.tsx`)
+- **User Directive**:
+  - *"Ekhane je... bottom-e je... amra dekhte pachchi je baire je amader ache 'Delete' ar 'Close' button ache... ekhane bottom-e... part ta thakbena... part ta baad diye... oi je 'Delete' ... oi je icon gulo ache... oi je media-r upor dan pashe je ache... download, copy... egulo dekhte pachchi... oi jaygay eta add koro... oi jaygay add koro... Ar... oi je total specifications-er jaiga... height-ta... height-ta eto boro thakbena... oi jaigai ekta arrow button thakbe... ekta transparent arrow button... arrow-r upor jokhon ami hover korbo... tokhon-e... nicher side-e swipe-up hoye baki data gulo dekhabe... Oi arrow-r upor hover korlei baki data gulo swipe hoye dekhabe... Otherwise emnite dekhabena..."*
+- **Implementation in [`dashboard/src/components/pages/MediaLibrary/MediaInspectorDrawer.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/MediaLibrary/MediaInspectorDrawer.tsx)**:
+  1. **Relocated Delete Button to Floating Action Overlay Toolbar**:
+     - Moved the `Delete` action (`Trash2` icon) into the media preview card's floating top-right action overlay toolbar alongside Download, Copy CDN URL, Copy Embed Tag, and Fullscreen.
+     - Preserved in-use protection: if `asset.usageCount > 0`, the button is rendered with disabled state (`opacity-40 cursor-not-allowed text-muted-foreground`), hover prevention, and shows a tooltip/toast warning (`Cannot delete: asset is actively in use`). If unused, hover applies `hover:bg-destructive/15 text-destructive` and clicking triggers `onSoftDelete(asset.id)`.
+  2. **Removed Bottom Footer Bar Entirely**:
+     - Completely removed the redundant bottom footer bar (`In Use (Protected)` / `Move to Trash` + `Close` button), allowing the drawer to remain clean, compact, and eliminating redundant close buttons (since top header already has the 'X' button).
+  3. **Collapsible Specifications with Transparent Arrow Hover Swipe-Up**:
+     - The specifications area no longer takes up excessive vertical height.
+     - Placed a sleek, transparent arrow button (`ChevronUp` with gentle bounce animation and subtitle "Hover to swipe up details & usage") below the media preview.
+     - When hovered (or clicked to pin open), a smooth `framer-motion` sheet swipes up from the bottom (`initial={{ y: "100%" }}`, `animate={{ y: 0 }}`, `transition={{ type: "spring", damping: 28, stiffness: 260 }}`) to reveal the full Technical Specifications, Active System Usage, and SEO Metadata Editor.
+     - On mouse leave, the sheet smoothly slides back down to the collapsed state.
+     - Added pinning support: clicking the arrow or "Pin Open" badge pins the sheet open, and focusing any input field in the SEO editor automatically pins it so editing is seamless and uninterrupted.
+- **Verification**:
+  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 3.34s)**.
+  - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
+
 ### Track C: Frontend & User-Facing Web Application Integration
 1. **Frontend Repository Clean Synchronization (`frontend/`) [COMPLETED]**:
    - **User Directive**:
