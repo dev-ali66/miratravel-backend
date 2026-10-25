@@ -2117,6 +2117,37 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
   - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 3.34s)**.
   - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
 
+### 41. Universal Dashboard Pagination Standardization - Pinned Floating Bottom Bar (`Pagination.tsx`)
+- **User Directive**:
+  - *"Ai pagination bar-ta to pura-tai alada... Grid-er moddhe je pagination bar-ta use korsi... Same to same position-e ami pagination bar-ta chachhi... Same to same bhabe chachhi... Same to same layout-e chachhi... Eta to amar table-er pore jeye thake... Table-er end point-e jeye e page-ta... pagination-er open bar-ta dekha jai... Ar grid-e jeita dekhun... Grid-e jeita location-e ba ekhane ache... Eita kintu amader ekdom... Ekdom footer-er thik niche ache... Thik oi rokom format-e ami chachhi..."*
+- **Problem Statement**:
+  - In table views, the pagination bar was decoupled into an in-flow full-width block rendered directly below `<table>`. When a table only had 1 or 2 rows (such as Travel Inquiries with 1 lead), the pagination bar was rendered halfway up the screen with vast empty space below, instead of being pinned to the bottom of the viewport like Grid views (Location, Stories, Experiences).
+- **Implementation & Standardization**:
+  1. **Unified Canonical Floating Position (`Pagination.tsx`)**:
+     - Updated `effectiveFixed = fixed !== undefined ? fixed : true` so that all views (Grid and Table alike) default to the canonical pinned floating bottom bar (`fixed bottom-0 left-0 md:left-[280px] right-0 z-30 border-t border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-lg`).
+     - Preserved in-flow behavior strictly for modal pickers (e.g. `MediaPickerModal.tsx` passing `fixed={false}`).
+  2. **Identical Centered 1/5th Layout**:
+     - Rendered the exact same centered 1/5th compact width progress bar (`Showing X of Y items` on left, percentage on right, and animated progress bar) with glassmorphism styling across all pages.
+     - Added clean right-aligned items-per-page selector (`[ 10 per page v ]`) for quick batch changes without disrupting the centered progress bar.
+  3. **Standardized Across All 11 Table Views**:
+     - Removed `fixed={false}` and `isTable` overrides from:
+       - [`Inquiry/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Inquiry/index.tsx)
+       - [`Bookings/BookingTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Bookings/BookingTable.tsx)
+       - [`UserListTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/UserList/UserListTable.tsx)
+       - [`RequestListTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Requests/RequestListTable.tsx)
+       - [`JourneyWizardTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Requests/JourneyWizardTable.tsx)
+       - [`Newsletter/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Newsletter/index.tsx)
+       - [`MediaLibraryPage.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/MediaLibrary/MediaLibraryPage.tsx)
+       - [`RolesTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/IAM/RolesTable.tsx)
+       - [`PermissionsTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/IAM/PermissionsTable.tsx)
+       - [`AuditLogs/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/AuditLogs/index.tsx)
+       - [`Promotions/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Promotions/index.tsx)
+  4. **Bottom Clearance in [`RootLayout.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/layout/RootLayout.tsx)**:
+     - Set main content padding to `pb-14 sm:pb-16` so the last table row or card always has clean clearance and is never obstructed by the floating pagination bar.
+- **Verification**:
+  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 3.12s)**.
+  - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
+
 ### Track C: Frontend & User-Facing Web Application Integration
 1. **Frontend Repository Clean Synchronization (`frontend/`) [COMPLETED]**:
    - **User Directive**:
