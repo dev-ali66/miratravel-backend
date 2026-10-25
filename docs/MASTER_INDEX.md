@@ -2056,6 +2056,48 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
   - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (✓ 3,183 modules transformed in 3.31s)**.
   - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
 
+### 49. Universal Canonical Table Design System Across All Dashboard Views [COMPLETED]
+- **User Directive (Audio Prompt)**:
+  *"Eibar table gula shundor kore fix koro... ek ek jaygay ek ek rokom hoye ache... kothao ek rokom, kothao onno rokom... table gula shundor kore fix koro... UI ta jate ek rokom thake... mane kothao dekhsi text size boro hoise, kothao dekhsi choto hoise, ba kothao border disi kothao dei ni, round disi kothao round dei ni... ekta ekta ek ek rokom... kothao table heading er design ekta, arek jaygay onno rokom... toh egula consistent koro... same to same design koro... kothao loading hocche ekta, kothao loading hocche onno rokom... shob table gulare... table ta shundor kore fix koro... onno jinish na... functional change hobe na... amar UI related je change gula table er... usable kora lagbe... ei jinish ta kore dao"*
+- **Design System Standards & Technical Architecture**:
+  1. **Canonical Container & Card Wrapper**:
+     - Standardized outer container: `overflow-hidden rounded-md border border-border/60 bg-card/60 shadow-xs backdrop-blur-xl`.
+     - Standardized horizontal scroll wrapper: `<div className="overflow-x-auto">`.
+     - Replaced non-standard `rounded-xl`, `border-border`, plain `bg-background/50` or `shadow-sm` across all table modules.
+  2. **Canonical Table Tag & Header**:
+     - Standardized table element: `<table className="w-full text-left text-sm border-collapse">`.
+     - Standardized header element: `<thead className="border-b border-border/60 bg-muted/40 text-xs font-semibold uppercase tracking-wider text-muted-foreground select-none">`.
+     - Standardized header cells: `th` uses `px-5 py-3.5 font-semibold` (actions column: `text-right font-semibold`).
+  3. **Canonical Table Body & Data Cells**:
+     - Standardized body element: `<tbody className="divide-y divide-border/40 text-foreground">`.
+     - Standardized data cells: `td` uses `px-5 py-3.5 text-sm` (actions column: `px-5 py-3.5 text-right whitespace-nowrap`).
+     - Standardized row hover: `transition-colors hover:bg-muted/30`.
+  4. **Universal In-Table Skeleton Loading**:
+     - Eliminated layout shifts and jarring table unmounting (where loading states previously destroyed the table and replaced it with floating plain text or spin boxes).
+     - Standardized to 5 uniform pulse skeleton `<tr>` rows directly inside `<tbody>` matching the exact column count and paddings of the table, keeping `<thead>` visible.
+  5. **Universal Centered Empty State**:
+     - Standardized empty state rows inside `<tbody>`: `<td colSpan={N} className="px-5 py-12 text-center text-muted-foreground">` with canonical icon (`h-8 w-8 text-muted-foreground/40`), bold title, and descriptive subtitle.
+  6. **Decoupled In-Flow Pagination**:
+     - `<Pagination fixed={false} isTable ... />` sits in-flow directly beneath the table container across all table views.
+- **Files Standardized**:
+  - [`UserListTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/UserList/UserListTable.tsx)
+  - [`Promotions/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Promotions/index.tsx)
+  - [`RequestListTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Requests/RequestListTable.tsx)
+  - [`JourneyWizardTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Requests/JourneyWizardTable.tsx)
+  - [`Newsletter/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Newsletter/index.tsx)
+  - [`MediaTableView.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/MediaLibrary/MediaTableView.tsx)
+  - [`RolesTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/IAM/RolesTable.tsx)
+  - [`PermissionsTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/IAM/PermissionsTable.tsx)
+  - [`BookingTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Bookings/BookingTable.tsx)
+  - [`Inquiry/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Inquiry/index.tsx)
+  - [`AuditLogs/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/AuditLogs/index.tsx)
+  - [`RecentTransactions.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Home/RecentTransactions.tsx)
+  - [`SystemHealth/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/SystemHealth/index.tsx)
+- **Verification & Zero Functional Changes**:
+  - Zero functional logic changes: all state handlers, mutations, filter queries, row click sheets, and action triggers preserved 100%.
+  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 4.14s)**.
+  - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
+
 ### Track C: Frontend & User-Facing Web Application Integration
 1. **Frontend Repository Clean Synchronization (`frontend/`) [COMPLETED]**:
    - **User Directive**:
