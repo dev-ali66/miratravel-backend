@@ -19,8 +19,7 @@ export const initAuditSocket = (io: Server) => {
 
 export const broadcastAuditLog = (auditLog: any) => {
   if (ioInstance) {
-    // Send to audit_stream room and as global event
+    // Send to audit_stream room
     ioInstance.to("audit_stream").emit("audit:stream:new", auditLog);
-    ioInstance.emit("audit:log", auditLog);
   }
 };
