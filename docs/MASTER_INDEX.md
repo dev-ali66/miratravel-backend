@@ -567,7 +567,7 @@ The project consists of three main applications:
   - **Bottom Image Overlay**: Overlaid experience status and price metadata, bold serif title (`text-xl font-serif font-bold text-white leading-tight`), and monospace slug (`text-[11px] font-mono text-white/70`).
   - **Hero Summary Block**: Included header with sparkles icon, formatted price display (`formatCurrencySymbol`), and 2-line clamp narrative description.
   - **SEO Governance Status Card**: Integrated the standard SEO readiness pill (`SEO Ready` in emerald, `SEO Partial` in amber, or `SEO Missing` in red) with dynamic meta title, meta description, and keywords badges.
-  - **Full-Width Edit Action CTA**: Added bottom full-width button `inline-flex items-center justify-between rounded-xl bg-primary/10 px-4 py-2.5 text-xs font-semibold text-primary hover:bg-primary hover:text-primary-foreground` with animated hover arrow (`→`).
+  - **Full-Width Edit Action CTA**: Added bottom full-width button `inline-flex items-center justify-between rounded-md bg-primary/10 px-4 py-2.5 text-xs font-semibold text-primary hover:bg-primary hover:text-primary-foreground` with animated hover arrow (`→`).
   - **Delete Trigger**: Top-right floating circular backdrop-blur button (`Trash2`) on hover.
 - **Verification**:
   - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **Build Success (Code 0)**
@@ -762,7 +762,7 @@ The project consists of three main applications:
   - Multi-Item Galleries: [`dashboard/src/components/pages/Journey/sections/gallery/GalleryForm.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Journey/sections/gallery/GalleryForm.tsx)
 - **Sub-Tasks Checklist:**
   - **Task 8.1 [COMPLETED]: Core Media Picker Modal (`dashboard/src/components/shared/MediaPickerModal.tsx`)**:
-    - Dialog container with Radix Dialog, edge-to-edge backdrop blur (`bg-background/95 backdrop-blur-xl border border-border shadow-2xl rounded-2xl`).
+    - Dialog container with Radix Dialog, edge-to-edge backdrop blur (`bg-background/95 backdrop-blur-xl border border-border shadow-2xl rounded-xl`).
     - Prop contract supporting both `mode="single"` and `mode="multiple"`, `allowedTypes` filtering, initial URL pre-selection, and double-click fast select.
     - Header with instant debounced search across titles/filenames, media type filter tabs (`All`, `Images`, `Videos`), and sort dropdown (`Newest`, `Oldest`, `Most Used`, `Largest Size`).
     - Visual Cards Grid rendering thumbnail, aspect ratio, dimensions badge, file size, selection checkmark, and keyboard enter/esc support.
@@ -821,7 +821,7 @@ The project consists of three main applications:
   - **Critical User Constraint**: `"backend kintu change hbena bole dilam"` — strictly frontend standardization without touching `mira_backend_v1/`.
 
 - **Core Component Architecture ([`dashboard/src/components/shared/FilterToolbar.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/shared/FilterToolbar.tsx))**:
-  - `FilterToolbar`: Responsive container with `sticky={false}` default flow positioning, sitting directly below `PageHeader` in natural document flow. Uses sleek compact padding (`p-1.5 sm:p-2 rounded-xl border border-border/70 bg-card/60 shadow-2xs`).
+  - `FilterToolbar`: Responsive container with `sticky={false}` default flow positioning, sitting directly below `PageHeader` in natural document flow. Uses sleek compact padding (`p-1.5 sm:p-2 rounded-md border border-border/70 bg-card/60 shadow-2xs`).
   - `FilterGroup`: Responsive flexbox wrapper ensuring search inputs and filters wrap cleanly without layout shifts or collisions.
   - `FilterSearch`: Compact universal search input with magnifying glass icon, instant clear `X` button, standard `h-8 sm:h-8.5` height, and `w-44 sm:w-56` width preventing other controls from being forced onto next lines.
   - `FilterSelect`: Accessible Popover-based dropdown select with checkmarks, item count badges, icons, compact `h-8 sm:h-8.5` height, and `min-w-[105px] max-w-[165px]` width.
@@ -879,7 +879,7 @@ Reference: [`docs/BOOKING_AND_PAYMENT_RULES_SPEC_AND_INTEGRATION.md`](file:///c:
 ### Track B: Media Management Final Acceptance, RichText Integration & Enterprise Sign-Off (Phase 9) [COMPLETED]
 Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/docs/MEDIA_MANAGEMENT_ROADMAP.md)
 1. **Task 9.1 [COMPLETED]: TipTap RichTextEditor Media Picker Extension (`dashboard/src/components/shared/RichTextEditor.tsx`)**:
-   - Installed and configured `@tiptap/extension-image@3.31.3` with responsive prose styling (`rounded-xl max-w-full my-3.5 border border-border/60 shadow-xs`).
+   - Installed and configured `@tiptap/extension-image@3.31.3` with responsive prose styling (`rounded-md max-w-full my-3.5 border border-border/60 shadow-xs`).
    - Integrated `Image` button inside TipTap `MenuBar` opening `MediaPickerModal` in `mode="single"` with `allowedTypes={["image"]}`.
    - Preserves cursor position, inserts `<img src="..." alt="..." />`, and maps stored SEO alt text and title automatically.
 2. **Task 9.2 [COMPLETED]: Automated End-to-End Acceptance Test Matrix (`mira_backend_v1/scripts/verifyPhase9Acceptance.cjs`)**:
@@ -1117,7 +1117,7 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
       - **Problem Solved**: Page headers across dashboard sidebar routes had inconsistent fonts (serif vs sans), differing icon styles/sizes/positions, disparate margins, and random color tokens.
       - **Single Source of Truth Component**: Created [`PageHeader.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/shared/PageHeader.tsx).
       - **Standardized Styling & Layout**:
-        - **Left Icon Badge**: `flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-xs`.
+        - **Left Icon Badge**: `flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary border border-primary/20 shadow-xs`.
         - **Title (`h1`)**: Consistent size `text-2xl sm:text-3xl font-bold tracking-tight`. Primary light mode theme color `text-[#182D09]` and dark mode `dark:text-white`.
         - **Subtitle (`p`)**: Consistent size `text-xs sm:text-sm mt-1 leading-normal`. Light mode `text-[#565E69]` and dark mode `dark:text-[#94A3B8]`.
         - **PageHeader Layout Refinement**:
