@@ -2125,7 +2125,24 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
   - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 4.05s)**.
   - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
 
-
+### 41. Navbar Profile Pill Compact Circle & Hover Slide-Out Animation (`Navbar.tsx`)
+- **User Directive**:
+  - *"Eita o thik ei rokom... animate korte parchho? Like prothome... oi je gol shudu je profile picture-er icon ta dekhabe... Ar hover korlei... slide hoye... oi je name ta, admin ta... Abar okhane click korle drop-down ta ashbe..."*
+- **Implementation in [`dashboard/src/components/layout/Navbar.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/layout/Navbar.tsx)**:
+  1. **Compact Circular Avatar by Default**:
+     - Converted the default user profile button into a compact, clean circular avatar button (`h-9 w-9 rounded-full`) showing solely the user's profile image and status indicator ring.
+  2. **Hover Slide-Out Expansion**:
+     - When hovered (`onMouseEnter`), smooth `framer-motion` animation expands the button horizontally (`initial={{ width: 0, opacity: 0 }}`, `animate={{ width: "auto", opacity: 1 }}`), sliding out:
+       - User Name (`profileName`, e.g. "Mira Travel")
+       - User Role (`userRole`, e.g. "ADMIN")
+       - `ChevronDown` arrow indicator
+  3. **Dropdown State Management**:
+     - Clicking the profile pill opens the existing profile `DropdownMenu`.
+     - While the dropdown is open (`isDropdownOpen === true`), the pill remains pinned in its expanded state so the active profile context is visible.
+     - On mouse leave (and when dropdown closes), it smoothly slides back down to the circular avatar icon.
+- **Verification**:
+  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 3.69s)**.
+  - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
 
 ### Track C: Frontend & User-Facing Web Application Integration
 1. **Frontend Repository Clean Synchronization (`frontend/`) [COMPLETED]**:
