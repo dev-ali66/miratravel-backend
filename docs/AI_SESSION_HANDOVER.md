@@ -65,7 +65,19 @@ This document outlines everything built, configured, and standardized in recent 
     - `IAM/PermissionsTable.tsx` (Table)
     - `AuditLogs/index.tsx` (Table)
 
-### 2. Responsive Grid Alignment & Zero-Empty-Slot System
+### 2. Media Library Runaway Infinite Scroll Fix & Defense-in-Depth Observer Latch
+- **Issue Solved**:
+  Scrolling in `/media-library` caused rapid-fire page changes (page 1 -> 2 -> 3 -> 4...) before data could load, endlessly looping.
+- **Root Causes Fixed**:
+  1. In `MediaLibraryPage.tsx`, `isLoadingMore={isFetching && meta.page > 1}` was evaluated against cached `galleryData.meta` (which stayed at page 1 while page 2 was in-flight due to TanStack Query `placeholderData`).
+  2. Because `isLoadingMore` was `false`, `Pagination`'s IntersectionObserver fired repeatedly without latching.
+  3. `MediaLibraryPage.tsx` was pushing `page` into `URLSearchParams`, causing continuous URL replacements and router navigation re-renders.
+- **Implementation**:
+  - `MediaLibraryPage.tsx`: Integrated canonical `useListingPagination<MediaAsset>`, passed `isLoading={isLoading && currentPage === 1}`, removed `page` from URL params, and connected `setIncomingData`.
+  - `Pagination.tsx`: Added internal latch `hasTriggeredRef = useRef<boolean>(false)` which latches immediately on intersection and only resets when loading finishes (`!isLoadingMore`) or items arrive (`loadedCount`).
+  - `MediaPickerModal.tsx`: Added `isFetchingMoreRef` concurrency guard.
+
+### 3. Responsive Grid Alignment & Zero-Empty-Slot System
 - **Formula**: `gridLimit = Math.ceil(targetItems / columns) * columns`
 - **Hook**: `dashboard/src/hooks/ui/useGridColumns.ts` uses `ResizeObserver` on container DOM to read exact computed `gridTemplateColumns` count directly from the browser layout engine.
 - Every row rendered in card grids is 100% filled with zero dangling or empty card slots.

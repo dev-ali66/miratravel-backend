@@ -1477,6 +1477,32 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
                      - Dashboard Build: `npm run build` in `dashboard/` ➔ **PASSED with 0 errors (Exit Code 0, ✓ 3,179 modules transformed in 3.05s)**.
                      - Backend TypeCheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit Code 0)**.
 
+                  - **Media Library Infinite Scroll Runaway Fix & Defense-in-Depth Intersection Latch**:
+                    - **Issue Reported**: User audio at http://localhost:5173/media-library:
+                      *"Ekhane na ekta data fetching er issue hocche like ami jokhon e nicher dike scroll kortesi tokhon infinity scroll mane shuru hoye jaasse page 1 page 2 page 3 page 4 evabe ekter por ekta page change hoite ase hoite ase data loading er aage mane thamtese na eita oita ekdom infinity choltese."*
+                    - **Root Cause Confirmed**:
+                      1. In MediaLibraryPage.tsx, isLoadingMore={isFetching && meta.page > 1} was evaluated against cached galleryData.meta (which stayed at page 1 while page 2 was fetching due to TanStack Query placeholderData). Therefore, isLoadingMore was evaluated as false while page 2 was in-flight!
+                      2. Because isLoadingMore was false, Pagination's IntersectionObserver kept re-triggering rapid-fire increments onLoadMore -> page 3, 4, 5, 6...
+                      3. MediaLibraryPage.tsx was also writing q.set('page', String(params.page)) into the URL query string, triggering URL replacements and router navigation cascades.
+                    - **Comprehensive Solution Implemented**:
+                      1. dashboard/src/components/pages/MediaLibrary/MediaLibraryPage.tsx:
+                         - Replaced bespoke manual pagination state with canonical useListingPagination<MediaAsset>.
+                         - Wired page: currentPage, limit: effectiveLimit to useMediaGallery.
+                         - Connected setIncomingData(galleryData.data, galleryData.meta?.total) to handle accumulation and deduplication automatically.
+                         - Removed page from URL searchParams synchronization in infinite scroll mode to prevent URL spamming.
+                         - Wrapped MediaGrid in <div ref={gridRef}> and passed isLoading={isLoading && currentPage === 1} so that background fetching doesn't cause grid flash.
+                         - Wired <Pagination> with isLoadingMore={isLoadingMore || (isFetching && currentPage > 1)} and onLoadMore={handleLoadMore}.
+                         - Added pagination support to the Trash bin view as well.
+                      2. dashboard/src/components/shared/Pagination.tsx:
+                         - Added internal defense-in-depth latch hasTriggeredRef = useRef<boolean>(false).
+                         - Immediately latches upon intersection (hasTriggeredRef.current = true), preventing any subsequent triggers during the same intersection event.
+                         - Automatically resets hasTriggeredRef.current = false when isLoadingMore transitions from true to false or when loadedCount increases.
+                      3. dashboard/src/components/shared/MediaPickerModal.tsx:
+                         - Added isFetchingMoreRef concurrency guard so modal media browsing cannot skip batches or race.
+                    - **Verification & Compliance**:
+                      - Dashboard Build: npm run build in dashboard/ -> PASSED with 0 errors (Exit Code 0, 3,179 modules transformed).
+                      - Backend TypeCheck (Rule 1): npx tsc --noEmit in mira_backend_v1/ -> PASSED with 0 errors (Exit Code 0).
+
 ### Track C: Frontend & User-Facing Web Application Integration
 1. **Public Catalog Alignment**:
    - Verify dynamic rendering of Journeys, Locations, Experiences, and Stories on `frontend/`.
