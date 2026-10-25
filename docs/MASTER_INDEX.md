@@ -2098,16 +2098,30 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
   - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 4.14s)**.
   - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
 
-### 40. Media Library Inspector Drawer Reverted to Previous State (`MediaInspectorDrawer.tsx`)
+### 40. Media Library Inspector Drawer Streamlined Actions & Collapsible Toolbar (`MediaInspectorDrawer.tsx`)
 - **User Directive**:
-  - *"Oi jaigaye hover issue ta ektu change korte hobe... eita kora jabena... eta undo koro. Ami je mark kora jaiga ta... oi mark kora jaigaye thakbena... Age-er ta age-er moton koro... age undo koro... tarpor ektu shono."*
-- **Action Taken**:
-  - Reverted [`MediaInspectorDrawer.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/MediaLibrary/MediaInspectorDrawer.tsx) back to its original state (Commit `21b9d58`).
-  - Restored the original bottom footer action bar (`In Use (Protected)` / `Move to Trash` and `Close` buttons).
-  - Restored the original media action toolbar and static specifications sheet.
-  - Changes committed and pushed to `main`. Awaiting user's next instructions.
+  - *"Achcha, shono. Ekhane je... oi je mark kora jaygata... eta thakbe... kintu ekhane oi je Delete button ta boshbe... Kintu... oi je hover korle... oi green mark kora jaygatay... boro hochche... height boro hocche... Okhane ekta arrow thakbe... oi arrow-te jokhon ami hover korbo... Tokhon oi button-gulo dekhabe... Thik ache? Ei rokom..."*
+- **Implementation in [`dashboard/src/components/pages/MediaLibrary/MediaInspectorDrawer.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/MediaLibrary/MediaInspectorDrawer.tsx)**:
+  1. **Top-Right Media Toolbar Collapsed by Default with Arrow Indicator**:
+     - In the top-right corner of the high-res media preview card (the green marked area), replaced the permanently visible action buttons with a sleek, compact transparent arrow button (`ChevronLeft`).
+     - **Hover/Click Reveal**: Hovering on the arrow button (or clicking it) smoothly expands the toolbar (`framer-motion` `opacity: 1, scale: 1, x: 0`), revealing all media actions:
+       - **Download** (direct asset download with loading state)
+       - **Copy CDN URL** (clipboard copy with green checkmark feedback)
+       - **Copy Embed Tag** (`<Image />` or `<video />` code snippet)
+       - **Open Full Size** (new tab full resolution view)
+       - **Delete Asset** (`Trash2` icon with in-use protection)
+       - **Collapse Toggle** (`ChevronRight` button)
+     - On mouse leave, the toolbar smoothly collapses back into the unobtrusive transparent arrow button, keeping the preview completely clean and unobstructed.
+  2. **Relocated Delete Action into Top-Right Toolbar**:
+     - Moved the Delete action into the floating action overlay. If `asset.usageCount > 0`, it is disabled with protected tooltip and error toast. If unused, hover applies destructive styling and clicking initiates soft deletion.
+  3. **Removed Bottom Footer Action Bar**:
+     - Removed the redundant bottom footer bar (`In Use (Protected)` / `Move to Trash` and `Close` buttons), eliminating visual clutter and duplicate close actions.
+  4. **Normal Specifications Sheet Preserved**:
+     - Retained the normal in-flow display of Technical Specifications, Active System Usage, and SEO & Accessibility Metadata in the scrollable drawer body.
 - **Verification**:
+  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 4.78s)**.
   - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
+
 
 
 ### Track C: Frontend & User-Facing Web Application Integration
