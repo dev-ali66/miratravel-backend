@@ -2118,8 +2118,11 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
      - Removed the redundant bottom footer bar (`In Use (Protected)` / `Move to Trash` and `Close` buttons), eliminating visual clutter and duplicate close actions.
   4. **Normal Specifications Sheet Preserved**:
      - Retained the normal in-flow display of Technical Specifications, Active System Usage, and SEO & Accessibility Metadata in the scrollable drawer body.
+  5. **Arrow Positioning & Sizing Polish**:
+     - Based on user audio feedback, adjusted the arrow trigger position to sit snug in the very top-right corner (`top-1.5 right-1.5`).
+     - Slightly enlarged the arrow button container from `h-7 w-7` to `h-8 w-8` and icon size to `h-5 w-5` for optimal visual prominence and effortless hover targeting.
 - **Verification**:
-  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 4.78s)**.
+  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 4.05s)**.
   - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
 
 
