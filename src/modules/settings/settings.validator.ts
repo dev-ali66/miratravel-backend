@@ -34,8 +34,11 @@ export const updateSettingsValidator = z.object({
     siteLogoDark: z.any().nullish(),
     siteFavicon: z.any().nullish(),
     navbarLogo: z.any().nullish(),
+    navbarLogoDark: z.any().nullish(),
     footerLogo: z.any().nullish(),
+    footerLogoDark: z.any().nullish(),
     authLogo: z.any().nullish(),
+    authLogoDark: z.any().nullish(),
     loadingVideo: z.any().nullish(),
 
     // 3. Social

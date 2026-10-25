@@ -15,6 +15,7 @@ import {
   uploadFilesToLocalStorage,
   deleteFromLocalStorage,
 } from "../../shared/upload_local.service.js";
+import { syncEntityMediaReferences } from "../../shared/mediaReference.service.js";
 import { auditLogger } from "../../logger/audit.logger.js";
 import prisma from "../../config/prisma.js";
 const OTP_CONFIG = {
@@ -668,6 +669,11 @@ export const updateProfile = catchAsync(async (req: Request, res: Response) => {
       userPersonalInfo: true,
       userTravelPreferences: true,
     },
+  });
+
+  // Track media reference for user avatar so it is recognized as IN_USE and protected from deletion
+  await syncEntityMediaReferences("Auth", req.auth.id, updated).catch((err) => {
+    console.warn("[updateProfile] Failed to sync user avatar media references:", err);
   });
 
   return successResponse({

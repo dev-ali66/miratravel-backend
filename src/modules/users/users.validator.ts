@@ -32,6 +32,7 @@ export const createUpdateUserValidator = z.object({
     nationality: z.string().optional(),
     dateOfBirth: z.string().optional(),
     about: z.string().optional(),
+    photoUrl: z.union([z.string(), z.array(z.string())]).optional().nullable(),
     status: z.enum(["ACTIVE", "INACTIVE", "DEACTIVE", "BLOCKED", "SUSPENDED", "PENDING", "DELETED", "ARCHIVED"]).optional(),
     isVerified: z.boolean().optional(),
     termsAccepted: z.boolean().optional(),

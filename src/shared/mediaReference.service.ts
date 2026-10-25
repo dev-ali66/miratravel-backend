@@ -106,6 +106,31 @@ async function resolveEntityMetadata(
       };
     }
 
+    if (entityType === "Auth" || entityType === "User") {
+      let label = `User Profile (${entityId})`;
+      try {
+        const u = await prisma.auth.findUnique({
+          where: { id: entityId },
+          select: {
+            email: true,
+            userPersonalInfo: { select: { firstName: true, lastName: true } },
+          },
+        });
+        if (u) {
+          const name = [u.userPersonalInfo?.firstName, u.userPersonalInfo?.lastName]
+            .filter(Boolean)
+            .join(" ");
+          label = name ? `User: ${name} (${u.email})` : `User: ${u.email}`;
+        }
+      } catch {
+        // fallback to default
+      }
+      return {
+        title: label,
+        editUrl: "/settings",
+      };
+    }
+
     const delegateName = entityType.charAt(0).toLowerCase() + entityType.slice(1);
     const delegate = (prisma as any)[delegateName];
     let item: any = null;
@@ -284,6 +309,44 @@ export async function syncEntityMediaReferences(
           : "image/jpeg";
 
         const diskPath = path.resolve(getUploadsDir(), baseName);
+        if (!fs.existsSync(diskPath)) {
+          const cloudinaryDirs = [
+            path.resolve(process.cwd(), "../cloudinary/image"),
+            path.resolve(process.cwd(), "../cloudinary/raw"),
+            path.resolve(process.cwd(), "../cloudinary/video"),
+            path.resolve(process.cwd(), "cloudinary/image"),
+            path.resolve(process.cwd(), "cloudinary/raw"),
+            path.resolve(process.cwd(), "cloudinary/video"),
+          ];
+          for (const cDir of cloudinaryDirs) {
+            const candidate = path.resolve(cDir, baseName);
+            if (fs.existsSync(candidate)) {
+              try {
+                fs.copyFileSync(candidate, diskPath);
+              } catch {
+                // ignore
+              }
+              break;
+            }
+          }
+        }
+
+        if (
+          !fs.existsSync(diskPath) &&
+          rawUrl &&
+          (rawUrl.startsWith("http://") || rawUrl.startsWith("https://"))
+        ) {
+          try {
+            const res = await fetch(rawUrl, { signal: AbortSignal.timeout(4000) });
+            if (res.ok) {
+              const arr = await res.arrayBuffer();
+              fs.writeFileSync(diskPath, Buffer.from(arr));
+            }
+          } catch {
+            // ignore network errors
+          }
+        }
+
         if (fs.existsSync(diskPath)) {
           try {
             const buf = fs.readFileSync(diskPath);

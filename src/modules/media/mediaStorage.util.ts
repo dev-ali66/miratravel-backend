@@ -97,6 +97,31 @@ export function extractImageDimensions(
         offset += 2 + len;
       }
     }
+
+    // 5. SVG
+    if (
+      mimeType.includes("svg") ||
+      buffer.toString("utf8", 0, Math.min(buffer.length, 100)).includes("<svg")
+    ) {
+      const svgText = buffer.toString("utf8", 0, Math.min(buffer.length, 4096));
+      const widthMatch = svgText.match(/\bwidth=["']?(\d+(?:\.\d+)?)/i);
+      const heightMatch = svgText.match(/\bheight=["']?(\d+(?:\.\d+)?)/i);
+      if (widthMatch && heightMatch) {
+        return {
+          width: Math.round(parseFloat(widthMatch[1])),
+          height: Math.round(parseFloat(heightMatch[1])),
+        };
+      }
+      const viewBoxMatch = svgText.match(
+        /\bviewBox=["']?[\d\.\-]+\s+[\d\.\-]+\s+([\d\.\-]+)\s+([\d\.\-]+)/i
+      );
+      if (viewBoxMatch) {
+        return {
+          width: Math.round(parseFloat(viewBoxMatch[1])),
+          height: Math.round(parseFloat(viewBoxMatch[2])),
+        };
+      }
+    }
   } catch {
     // If dimension parsing fails, safely ignore
   }

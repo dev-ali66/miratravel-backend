@@ -8,7 +8,7 @@ import {
   getMediaUsage as getMediaUsageReport,
   syncEntityMediaReferences,
 } from "../../shared/mediaReference.service.js";
-import { deleteFromLocalStorage } from "../../shared/upload_local.service.js";
+import { deleteFromLocalStorage, getUploadsDir } from "../../shared/upload_local.service.js";
 import {
   computeSha256,
   extractImageDimensions,
@@ -138,11 +138,86 @@ export async function getMediaGallery(params: GetMediaGalleryParams) {
     }),
   ]);
 
-  const data = items.map((item) => ({
-    ...item,
-    usageCount: item._count.references,
-    _count: undefined,
-  }));
+  const data = await Promise.all(
+    items.map(async (item) => {
+      if (
+        item.size <= 0 ||
+        (item.mimeType.startsWith("image/") && (!item.width || !item.height))
+      ) {
+        try {
+          const uploadsDir = getUploadsDir();
+          const destPath = path.resolve(uploadsDir, item.fileName);
+          if (!fs.existsSync(destPath)) {
+            const cloudinaryDirs = [
+              path.resolve(process.cwd(), "../cloudinary/image"),
+              path.resolve(process.cwd(), "../cloudinary/raw"),
+              path.resolve(process.cwd(), "../cloudinary/video"),
+              path.resolve(process.cwd(), "cloudinary/image"),
+              path.resolve(process.cwd(), "cloudinary/raw"),
+              path.resolve(process.cwd(), "cloudinary/video"),
+            ];
+            for (const cDir of cloudinaryDirs) {
+              const candidate = path.resolve(cDir, item.fileName);
+              if (fs.existsSync(candidate)) {
+                try {
+                  fs.copyFileSync(candidate, destPath);
+                } catch {
+                  // ignore
+                }
+                break;
+              }
+            }
+          }
+
+          if (
+            !fs.existsSync(destPath) &&
+            item.url &&
+            (item.url.startsWith("http://") || item.url.startsWith("https://"))
+          ) {
+            try {
+              const res = await fetch(item.url, { signal: AbortSignal.timeout(3000) });
+              if (res.ok) {
+                const arr = await res.arrayBuffer();
+                fs.writeFileSync(destPath, Buffer.from(arr));
+              }
+            } catch {
+              // ignore network timeouts
+            }
+          }
+
+          if (fs.existsSync(destPath)) {
+            const buf = fs.readFileSync(destPath);
+            const size = buf.length;
+            const dims = item.mimeType.startsWith("image/")
+              ? extractImageDimensions(buf, item.mimeType)
+              : {};
+            item.size = size;
+            if (dims.width) item.width = dims.width;
+            if (dims.height) item.height = dims.height;
+
+            prisma.mediaAsset
+              .update({
+                where: { id: item.id },
+                data: {
+                  size,
+                  width: dims.width ?? item.width,
+                  height: dims.height ?? item.height,
+                },
+              })
+              .catch(() => {});
+          }
+        } catch {
+          // fallback gracefully
+        }
+      }
+
+      return {
+        ...item,
+        usageCount: item._count.references,
+        _count: undefined,
+      };
+    })
+  );
 
   return {
     meta: {
@@ -1054,8 +1129,11 @@ export async function executeStorageOptimization(options?: {
                 "siteLogoDark",
                 "siteFavicon",
                 "navbarLogo",
+                "navbarLogoDark",
                 "footerLogo",
+                "footerLogoDark",
                 "authLogo",
+                "authLogoDark",
                 "loadingVideo",
                 "seoOgImage",
                 "seoTwitterImage",
@@ -1076,6 +1154,33 @@ export async function executeStorageOptimization(options?: {
                   data: updateData,
                 });
                 await syncEntityMediaReferences("SiteSettings", "global", updated);
+                referencesMigrated += affectedRefs.filter((r) => r.entityId === entityId).length;
+              }
+            }
+            break;
+          }
+          case "AUTH":
+          case "USER": {
+            const authRecord = await prisma.auth.findUnique({
+              where: { id: entityId },
+              include: { userPersonalInfo: true },
+            });
+            if (authRecord?.userPersonalInfo?.photoUrl?.length) {
+              const { updatedObj, replacedCount } = replaceUrlsInObject(
+                authRecord.userPersonalInfo.photoUrl,
+                urlMap
+              );
+              if (replacedCount > 0) {
+                const updated = await prisma.auth.update({
+                  where: { id: entityId },
+                  data: {
+                    userPersonalInfo: {
+                      update: { photoUrl: updatedObj },
+                    },
+                  },
+                  include: { userPersonalInfo: true },
+                });
+                await syncEntityMediaReferences("Auth", entityId, updated);
                 referencesMigrated += affectedRefs.filter((r) => r.entityId === entityId).length;
               }
             }

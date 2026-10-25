@@ -3,6 +3,7 @@ import prisma from "../../config/prisma.js";
 import ApiError from "../../utils/api.error.js";
 import AuthHelper from "../../utils/auth.helper.js";
 import { auditLogger } from "../../logger/audit.logger.js";
+import { syncEntityMediaReferences } from "../../shared/mediaReference.service.js";
 
 export const getUsersService = async (req: Request) => {
   const { id, email, search, role, status, isVerified, page = "1", limit = "10" } = req.query as any;
@@ -156,7 +157,18 @@ export const getUsersService = async (req: Request) => {
 };
 
 export const createUserService = async (req: Request) => {
-  const { email, password = "Pa$$w0rd.", firstName, lastName, phone, role = "USER", status = "ACTIVE", isVerified = true, termsAccepted = true } = req.body;
+  const {
+    email,
+    password = "Pa$$w0rd.",
+    firstName,
+    lastName,
+    phone,
+    photoUrl,
+    role = "USER",
+    status = "ACTIVE",
+    isVerified = true,
+    termsAccepted = true,
+  } = req.body;
 
   if (!email) {
     throw new ApiError("Email is required", 400);
@@ -184,6 +196,8 @@ export const createUserService = async (req: Request) => {
     });
   }
 
+  const photoArr = photoUrl ? (Array.isArray(photoUrl) ? photoUrl : [photoUrl]) : [];
+
   const newUser = await prisma.auth.create({
     data: {
       email: String(email).toLowerCase(),
@@ -198,6 +212,7 @@ export const createUserService = async (req: Request) => {
           firstName: firstName || null,
           lastName: lastName || null,
           phone: phone || null,
+          photoUrl: photoArr,
         },
       },
     },
@@ -206,6 +221,12 @@ export const createUserService = async (req: Request) => {
       userPersonalInfo: true,
     },
   });
+
+  if (newUser.userPersonalInfo?.photoUrl?.length) {
+    await syncEntityMediaReferences("Auth", newUser.id, newUser).catch((err) => {
+      console.warn("[createUserService] Failed to sync media references:", err);
+    });
+  }
 
   // Audit Log: User Created
   await auditLogger({
@@ -242,7 +263,28 @@ export const updateUserService = async (req: Request) => {
     throw new ApiError("User ID is required", 400);
   }
 
-  const { email, password, firstName, lastName, phone, address, country, state, city, zipCode, zip, nationality, dateOfBirth, about, role, roleId, status, isVerified, termsAccepted } = req.body;
+  const {
+    email,
+    password,
+    firstName,
+    lastName,
+    phone,
+    address,
+    country,
+    state,
+    city,
+    zipCode,
+    zip,
+    nationality,
+    dateOfBirth,
+    about,
+    photoUrl,
+    role,
+    roleId,
+    status,
+    isVerified,
+    termsAccepted,
+  } = req.body;
 
   const existing = await prisma.auth.findUnique({
     where: { id: String(id) },
@@ -311,10 +353,20 @@ export const updateUserService = async (req: Request) => {
     zip !== undefined ||
     nationality !== undefined ||
     dateOfBirth !== undefined ||
-    about !== undefined;
+    about !== undefined ||
+    photoUrl !== undefined;
 
   if (hasPersonalInfoField) {
     const effectiveZipCode = zipCode ?? zip;
+    const photoArr =
+      photoUrl !== undefined
+        ? Array.isArray(photoUrl)
+          ? photoUrl
+          : photoUrl
+          ? [photoUrl]
+          : []
+        : undefined;
+
     updateData.userPersonalInfo = {
       upsert: {
         create: {
@@ -329,6 +381,7 @@ export const updateUserService = async (req: Request) => {
           nationality: nationality || null,
           dateOfBirth: dateOfBirth || null,
           about: about || null,
+          photoUrl: photoArr || [],
         },
         update: {
           ...(firstName !== undefined && { firstName }),
@@ -342,6 +395,7 @@ export const updateUserService = async (req: Request) => {
           ...(nationality !== undefined && { nationality }),
           ...(dateOfBirth !== undefined && { dateOfBirth }),
           ...(about !== undefined && { about }),
+          ...(photoArr !== undefined && { photoUrl: photoArr }),
         },
       },
     };
@@ -354,6 +408,11 @@ export const updateUserService = async (req: Request) => {
       roles: true,
       userPersonalInfo: true,
     },
+  });
+
+  // Track media reference for user avatar so it is recognized as IN_USE and protected from deletion
+  await syncEntityMediaReferences("Auth", updatedUser.id, updatedUser).catch((err) => {
+    console.warn("[updateUserService] Failed to sync user media references:", err);
   });
 
   // Audit Log: User Updated

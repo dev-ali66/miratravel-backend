@@ -10,8 +10,11 @@ model SiteSettings {
   siteLogoDark          Json?
   siteFavicon           Json?
   navbarLogo            Json?
+  navbarLogoDark        Json?
   footerLogo            Json?
+  footerLogoDark        Json?
   authLogo              Json?
+  authLogoDark          Json?
   loadingVideo          Json?
   siteUrl               String?
   defaultLanguage       String?   @default("en")
