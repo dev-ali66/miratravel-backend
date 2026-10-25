@@ -25,6 +25,17 @@ export const getSystemInfoController = catchAsync(
   },
 );
 
+export const getStorageTelemetryController = catchAsync(
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const result = await SystemService.getStorageTelemetryService(req);
+    return successResponse({
+      res,
+      data: result,
+      message: "VPS storage telemetry retrieved successfully",
+    });
+  },
+);
+
 export const getDatabaseStatsController = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
     const result = await SystemService.getDatabaseStatsService(req);

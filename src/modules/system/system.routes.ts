@@ -4,6 +4,7 @@ import { publicApiLimiter } from "../../middlewares/limiter.middleware.js";
 import {
   getSystemHealthController,
   getSystemInfoController,
+  getStorageTelemetryController,
   getDatabaseStatsController,
   getAuditLogsController,
   clearCacheController,
@@ -27,6 +28,7 @@ const router = Router();
 // Public / Diagnostic Telemetry endpoints
 router.get("/health", publicApiLimiter, getSystemHealthController);
 router.get("/info", publicApiLimiter, getSystemInfoController);
+router.get("/storage", publicApiLimiter, getStorageTelemetryController);
 router.get("/gateways", publicApiLimiter, getGatewaysStatusController);
 
 // Protected Admin / Governance endpoints

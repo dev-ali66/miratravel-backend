@@ -2,6 +2,7 @@ import { Request } from "express";
 import os from "os";
 import { exec } from "child_process";
 import prisma from "../../config/prisma.js";
+import { getVpsStorageMetrics } from "../system/systemStorage.service.js";
 
 // CPU Usage tracker for accurate non-blocking delta computation
 let lastCpuSnapshot = getCpuSnapshot();
@@ -350,7 +351,10 @@ export const getDashboardStatisticsService = async (req: Request) => {
 
   const vpsMem = getVpsMemoryMetrics();
   const vpsCpu = getVpsCpuUsagePercent();
-  const pm2Fleet = await getPm2FleetMetrics();
+  const [pm2Fleet, vpsStorage] = await Promise.all([
+    getPm2FleetMetrics(),
+    getVpsStorageMetrics(),
+  ]);
 
   return {
     overview: {
@@ -487,6 +491,7 @@ export const getDashboardStatisticsService = async (req: Request) => {
           memoryPercent: vpsMem.ramPercent,
           cpuCores: vpsMem.cores,
           platform: vpsMem.platform,
+          storage: vpsStorage,
         },
         pm2: pm2Fleet,
       },

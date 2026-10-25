@@ -4,6 +4,7 @@ import prisma from "../../config/prisma.js";
 import { redisManager } from "../../config/redis.js";
 import config from "../../config/index.js";
 import { AuditService } from "../audit/audit.service.js";
+import { getVpsStorageMetrics } from "./systemStorage.service.js";
 
 // In-memory dynamic system configuration store
 let systemConfig = {
@@ -285,6 +286,8 @@ export const getSystemHealthService = async (_req: Request) => {
       ? "HEALTHY"
       : "DEGRADED";
 
+  const storage = await getVpsStorageMetrics();
+
   return {
     status: overallStatus,
     service: "MIRA Travel Backend Server",
@@ -303,6 +306,7 @@ export const getSystemHealthService = async (_req: Request) => {
       status: redisStatus,
       latencyMs: redisLatencyMs,
     },
+    storage,
     system: {
       platform: os.platform(),
       arch: os.arch(),
@@ -322,6 +326,10 @@ export const getSystemHealthService = async (_req: Request) => {
     },
     environment: config.NODE_ENV || "development",
   };
+};
+
+export const getStorageTelemetryService = async (_req: Request) => {
+  return await getVpsStorageMetrics(true);
 };
 
 export const getSystemInfoService = async (_req: Request) => {

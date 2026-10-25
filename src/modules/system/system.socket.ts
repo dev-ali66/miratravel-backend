@@ -2,6 +2,7 @@ import { Server, Socket } from "socket.io";
 import os from "os";
 import prisma from "../../config/prisma.js";
 import { redisManager } from "../../config/redis.js";
+import { getVpsStorageMetrics } from "./systemStorage.service.js";
 
 let ioInstance: Server | null = null;
 let telemetryInterval: NodeJS.Timeout | null = null;
@@ -73,6 +74,7 @@ const collectTelemetrySnapshot = async () => {
       status: redisManager.isReady() ? "CONNECTED" : "DISCONNECTED",
       latencyMs: redisManager.isReady() ? 2 : -1,
     },
+    storage: await getVpsStorageMetrics(),
     system: {
       platform: os.platform(),
       cpus: os.cpus().length,
