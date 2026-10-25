@@ -2140,8 +2140,10 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
      - Clicking the profile pill opens the existing profile `DropdownMenu`.
      - While the dropdown is open (`isDropdownOpen === true`), the pill remains pinned in its expanded state so the active profile context is visible.
      - On mouse leave (and when dropdown closes), it smoothly slides back down to the circular avatar icon.
+  4. **Avatar Sizing Polish**:
+     - Enlarged the circular avatar image container from `h-8 w-8` to `h-9 w-9` with `scale-105` fill and enhanced status ring `h-2.5 w-2.5`, while maintaining the surrounding pill dimensions intact.
 - **Verification**:
-  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 3.69s)**.
+  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 5.21s)**.
   - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
 
 ### Track C: Frontend & User-Facing Web Application Integration
