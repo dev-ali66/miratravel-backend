@@ -2026,6 +2026,36 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
      - Dashboard Production Build: `tsc -b && vite build` in `dashboard/` ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 3.04s)**.
      - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
 
+### 48. Table Pagination In-Flow Placement & Viewport Decoupling
+- **User Directive**:
+  *"Ekhon ekta problem hoilo... je ei je user, publish, trip... table jegula ache... banner... egular khetre pagination-er je nicher bar-ta... ei bar-ta... thik table-tar niche thakbe... niche ekdom fix thakbe na... thik table-er niche... Ebong jegulate grid view, jemon location, multimedia egulate thik ache... ar jegulate table view oigulatei... fix koro..."*
+  (In table views like User, Promotions/Banner, Trip Requests, Inquiries, etc., the pagination bar must sit directly beneath the table instead of fixing to the viewport bottom. Grid views like Location and Multimedia Gallery should preserve the floating bottom bar).
+- **Technical Implementation**:
+  1. *Universal Pagination Component ([`Pagination.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/shared/Pagination.tsx))*:
+     - Added `isTable?: boolean` and `isGrid?: boolean` props to `PaginationProps`.
+     - Intelligently resolved `effectiveFixed`: Defaults to `false` for table views (`isTable === true || isGrid === false`) and `true` for grid views (`isGrid === true || columns > 0`), while strictly honoring explicit `fixed` overrides.
+     - **Table In-Flow Bar Styling**: When `effectiveFixed === false`, renders as a sleek in-flow card strip (`w-full py-2.5 px-3 sm:px-4 rounded-md border border-border/60 bg-card/60 backdrop-blur-sm shadow-2xs mt-2.5`) directly under the table:
+       - Left: Results count (`Showing X of Y items`) with live background fetching spinner.
+       - Center: Visual progress bar and percentage badge.
+       - Right: Interactive batch size selector dropdown and/or manual "Load More" button.
+     - **Grid Floating Bar Styling**: When `effectiveFixed === true`, preserves the centered 1/5th compact floating bar pinned to `fixed bottom-0` for continuous card scrolling.
+  2. *Table Views Integration*:
+     - Updated all dashboard table views to pass `fixed={false}` and `isTable={true}`:
+       - [`UserListTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/UserList/UserListTable.tsx)
+       - [`Promotions/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Promotions/index.tsx)
+       - [`RequestListTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Requests/RequestListTable.tsx)
+       - [`JourneyWizardTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Requests/JourneyWizardTable.tsx)
+       - [`Inquiry/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Inquiry/index.tsx)
+       - [`Newsletter/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Newsletter/index.tsx)
+       - [`RolesTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/IAM/RolesTable.tsx)
+       - [`PermissionsTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/IAM/PermissionsTable.tsx)
+       - [`BookingTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Bookings/BookingTable.tsx)
+       - [`AuditLogs/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/AuditLogs/index.tsx)
+       - [`MediaLibraryPage.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/MediaLibrary/MediaLibraryPage.tsx) (Dynamic: `fixed={viewMode === "grid"}` and `isTable={viewMode === "table"}`).
+- **Verification**:
+  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (✓ 3,183 modules transformed in 3.31s)**.
+  - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
+
 ### Track C: Frontend & User-Facing Web Application Integration
 1. **Frontend Repository Clean Synchronization (`frontend/`) [COMPLETED]**:
    - **User Directive**:
