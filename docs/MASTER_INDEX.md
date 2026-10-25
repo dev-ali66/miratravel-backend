@@ -1503,6 +1503,23 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
                       - Dashboard Build: npm run build in dashboard/ -> PASSED with 0 errors (Exit Code 0, 3,179 modules transformed).
                       - Backend TypeCheck (Rule 1): npx tsc --noEmit in mira_backend_v1/ -> PASSED with 0 errors (Exit Code 0).
 
+                  - **Predictive 30% Batch Scroll Early-Prefetch System (Universal Infinite Scroll Upgrade)**:
+                    - **User Directive**: User requested seamless predictive prefetching in infinite scroll: *"আমি চাচ্ছি যে লাইক আমার যতগুলা ডাটা দেখাচ্ছে... এটার ৩০% যখন আমি স্ক্রল করে ফেলবো, তখনই ডাটাটা ফেচ হওয়া শুরু করবে। তাহলে ইউজার আর লোডিং টাইম দেখতে পারবে না... অনেক সুন্দর একটা স্মুথ ফিলিংস পায়।"*
+                    - **Architecture & Implementation**:
+                      1. In `dashboard/src/components/shared/Pagination.tsx`:
+                         - Added `prefetchThreshold = 0.3` prop (defaulting to 30% of batch scroll progress).
+                         - Added `prevMaxScrollRef` to track the maxScroll ceiling of preceding batches.
+                         - Traverses DOM hierarchy dynamically via `getScrollParent` to detect enclosing scrollable container (`<main>`, modal drawer, or window).
+                         - Uses lightweight, high-performance `requestAnimationFrame` scroll listener.
+                         - **Batch Formula**: `currentBatchDistance = Math.max(0, maxScroll - prevMaxScrollRef.current)`; `threshold = prevMaxScrollRef.current + (currentBatchDistance * prefetchThreshold)`.
+                         - As soon as user scrolls past 30% of the newly added batch, `effectiveOnLoadMore()` is triggered ahead of time in the background.
+                         - By the time the user reaches the lower portion of the batch, the next batch has already returned from the server and expanded into the DOM.
+                         - The user never experiences any loading pauses, spin interruptions, or bottom walls.
+                         - `IntersectionObserver` with `rootMargin: "0px 0px 150px 0px"` serves as an automatic fallback safety net.
+                    - **Verification & Compliance**:
+                      - Dashboard Build: `npm run build` in `dashboard/` -> **PASSED with 0 errors (Exit Code 0, 3,179 modules transformed in 3.21s)**.
+                      - Backend TypeCheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` -> **PASSED with 0 errors (Exit Code 0)**.
+
 ### Track C: Frontend & User-Facing Web Application Integration
 1. **Public Catalog Alignment**:
    - Verify dynamic rendering of Journeys, Locations, Experiences, and Stories on `frontend/`.

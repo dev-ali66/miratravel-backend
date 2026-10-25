@@ -77,7 +77,20 @@ This document outlines everything built, configured, and standardized in recent 
   - `Pagination.tsx`: Added internal latch `hasTriggeredRef = useRef<boolean>(false)` which latches immediately on intersection and only resets when loading finishes (`!isLoadingMore`) or items arrive (`loadedCount`).
   - `MediaPickerModal.tsx`: Added `isFetchingMoreRef` concurrency guard.
 
-### 3. Responsive Grid Alignment & Zero-Empty-Slot System
+### 3. Predictive 30% Batch Scroll Early-Prefetch System (Zero Waiting Time)
+- **User Directive**:
+  User requested seamless early prefetching so they never hit a loading wall: *"আমি চাচ্ছি যে লাইক আমার যতগুলা ডাটা দেখাচ্ছে... এটার ৩০% যখন আমি স্ক্রল করে ফেলবো, তখনই ডাটাটা ফেচ হওয়া শুরু করবে। তাহলে ইউজার আর লোডিং টাইম দেখতে পারবে না... অনেক সুন্দর একটা স্মুথ ফিলিংস পায়।"*
+- **Solution & Implementation in `Pagination.tsx`**:
+  - Added `prefetchThreshold = 0.3` prop (defaulting to 30% into current batch scroll range).
+  - Added `prevMaxScrollRef` to track preceding batch ceilings.
+  - Dynamically discovers scroll parent (`<main>`, modal drawer, or window) using DOM style inspection.
+  - Uses performant `requestAnimationFrame` scroll tracking to evaluate batch progress:
+    `threshold = prevMaxScrollRef.current + (currentBatchDistance * prefetchThreshold)`
+  - When the user scrolls past 30% of the active batch, `effectiveOnLoadMore()` triggers in the background.
+  - By the time the user scrolls down, the next batch has already arrived and seamlessly expanded the list!
+  - `IntersectionObserver` sentinel functions as an automatic fallback.
+
+### 4. Responsive Grid Alignment & Zero-Empty-Slot System
 - **Formula**: `gridLimit = Math.ceil(targetItems / columns) * columns`
 - **Hook**: `dashboard/src/hooks/ui/useGridColumns.ts` uses `ResizeObserver` on container DOM to read exact computed `gridTemplateColumns` count directly from the browser layout engine.
 - Every row rendered in card grids is 100% filled with zero dangling or empty card slots.
