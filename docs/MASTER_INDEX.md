@@ -2219,8 +2219,8 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
        - Removed duplicate background from outer sticky wrapper: `className={cn("w-full transition-all duration-200", sticky && cn("sticky z-20 pb-2", topOffset), className)}`.
        - Inner card alone carries `bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60`, rendering the exact single-layer 60% translucent frosted glass of Navbar.
     2. All 11 Table Views:
-       - `thead` has transparent background (`className="sticky top-[106px] z-10 border-b border-border/60 text-xs font-semibold uppercase tracking-wider text-muted-foreground select-none"`).
-       - Each `th` carries `sticky top-[106px] z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-5 py-3.5 font-semibold ...`.
+       - `thead` has transparent background (`className="sticky top-[96px] z-10 border-b border-border/60 text-xs font-semibold uppercase tracking-wider text-muted-foreground select-none"`).
+       - Each `th` carries `sticky top-[96px] z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-5 py-3.5 font-semibold ...`.
        - This eliminates double/triple opacity compounding and ensures the table header frosted glass matches Navbar 1:1.
 - **11 Synchronized Table Views**:
   1. [`dashboard/src/components/pages/Bookings/BookingTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Bookings/BookingTable.tsx)
@@ -2234,9 +2234,67 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
   9. [`dashboard/src/components/pages/Newsletter/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Newsletter/index.tsx)
   10. [`dashboard/src/components/pages/Promotions/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Promotions/index.tsx)
   11. [`dashboard/src/components/pages/MediaLibrary/MediaTableView.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/MediaLibrary/MediaTableView.tsx)
+### 47. User Profile Dropdown Redesign & Redundancy Removal [COMPLETED]
+- **User Directive**:
+  - *"ei dropdown ta same info multiple use hoise oita thik koro redesign kro and global site setting & live audit ta bad dew"*
+  - Fix redundant duplicated info in user profile dropdown, redesign cleanly, and remove "Global Site Settings" and "Live Audit Logs".
+- **Implementation & Refactoring ([`Navbar.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/layout/Navbar.tsx))**:
+  - **Eliminated Repetitive Clutter**:
+    - Removed bulky middle "Remember This Device Status Banner" box that redundantly repeated "Online Now", "Active: 1 Device", and session lifetime.
+    - Placed a clean online status dot directly on the avatar in the header.
+    - Preserved essential role badge (`ADMIN`) and concise session lifetime badge (`30d session`).
+  - **Removed Navigation Clutter**:
+    - Removed `Global Site Settings` (`/site-settings`) and `Live Audit Logs` (`/audit-logs`) as requested (both already exist in the sidebar).
+  - **Streamlined Menu Structure**:
+    - `My Profile & Security` (`/settings`).
+    - `Security & Sessions` (opens `ActiveDevicesModal`) with a single clean device badge (`{activeDevicesCount} device(s)`).
+    - `Developer Mode` toggle with modern indicator badge.
+    - `Log Out` with keyboard shortcut `⌥⇧Q`.
 - **Verification**:
-  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 3.39s)**.
+  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 4.36s)**.
   - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
+
+### 48. Independent Dedicated Export API & Comprehensive CSV Download Infrastructure [COMPLETED]
+- **User Audio Directive**:
+  - *"jekhane jekhane export csv ba download csv ase, oi jayga gulote... csv-te ja ja information lage, shegulo information er upor depend kore csv banaye dao. Dorkare otar jonno jodi api create kora lage, api create korio shomossha nai. Kintu independent, ota alada api hoto... toh create kore ja ja information lage ekta csv-te, booking-e ki ki information lage, ba tomar hocche user-er details-e ki ki information lage... mane je genuine information-er upor depend kore ki ki lage shetar upor csv banaye download banaye dao."*
+- **Backend Independent Export Module (`/api/v1/export`)**:
+  - Created standalone module in `mira_backend_v1/src/modules/export/` with router, controller, and service.
+  - Mounted at `/api/v1/export` in `bootStrapsHttp.ts`.
+  - Endpoints with RFC 4180 quotation, UTF-8 BOM (`\uFEFF`) for Microsoft Excel, and direct attachment headers:
+    1. `GET /api/v1/export/bookings`: 26 genuine columns (ref #, timestamps, booking/payment status, package title, traveler full/first/last name, email, phone, nationality, traveler type, adults, children, children ages, arrival/departure dates, duration days, currency, confirmed total, paid amount, balance, traveler notes, terms agreed).
+    2. `GET /api/v1/export/users`: 19 genuine columns (user ID, email, full name, first/last name, phone, roles, account status, email verification, total bookings count, nationality, country, state, city, address, zip code, DOB, registration/updated dates).
+    3. `GET /api/v1/export/inquiries`: 13 genuine columns (inquiry #, status, traveler name, email, phone, destination, travel date, travelers count, journey types, message, admin notes, timestamps).
+    4. `GET /api/v1/export/newsletter`: 6 genuine columns (subscriber ID, email, status, source channel, timestamps).
+    5. `GET /api/v1/export/audit-logs`: 13 genuine columns (log ID, timestamp, actor name/email/role, action, entity type, entity ID, event status, IP, HTTP method, route, details).
+    6. `GET /api/v1/export/journey-requests`: 14 genuine columns (request ID, status, name, email, phone, duration, budget, styles, pace, comfort, notes, timestamps).
+- **Dashboard Implementation (`dashboard/`)**:
+  - Created universal utility [`dashboard/src/lib/exportUtils.ts`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/lib/exportUtils.ts) (`triggerCsvExport`, `exportToCsv`, `downloadBlob`).
+  - Added new `FilterExportButton` in [`UserListTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/UserList/UserListTable.tsx).
+  - Upgraded [`BookingTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Bookings/BookingTable.tsx) to export all genuine booking data beyond the 10-row page limit.
+  - Upgraded [`Inquiry/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Inquiry/index.tsx) and [`Newsletter/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Newsletter/index.tsx).
+  - Converted [`AuditLogs/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/AuditLogs/index.tsx) from raw JSON download to formatted audit CSV.
+  - Added Export CSV in [`Requests/JourneyWizardTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Requests/JourneyWizardTable.tsx).
+  - Wired live exports in [`Home/ExportReports.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Home/ExportReports.tsx).
+- **Verification**:
+  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,184 modules transformed in 3.78s)**.
+  - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
+
+### 49. Journey Requests Page Tab Switcher & Instructor Request Elimination [COMPLETED]
+- **User Directive**:
+  - *"journey request page-e... ekta tab dekhte pacchi uporer dike... journey request wizard... ar hocche instructor request... amarto oi tab ta dorkari nai... oi tab ar oi tab related functionality... karon amarto journey request jekew dite pare..."*
+  - Remove the top tab switcher ("Journey Requests (Wizard)" vs "Instructor Requests") and the legacy Instructor Request functionality entirely from the Journey Requests page.
+- **Implementation in [`dashboard/src/components/pages/Requests/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Requests/index.tsx)**:
+  - Eliminated the redundant top `FilterToolbar` and `FilterTabs` switcher.
+  - Directly rendered [`JourneyWizardTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Requests/JourneyWizardTable.tsx), which contains the complete self-contained interface:
+    - 30%/70% PageHeader with live telemetry stats (Total, New / Unread, In Follow-Up, Completed).
+    - Dedicated search input on the left and status filter tabs (`All`, `New`, `Contacted`, `In Progress`, `Completed`) on the right.
+    - Export CSV button calling the independent `/api/v1/export/journey-requests` endpoint.
+    - Refresh & Reset button.
+    - Frosted glass sticky table header matching the Navbar.
+    - Detail modal inspection and in-table live status mutations.
+    - Non-collapsing infinite pagination.
+- **Verification**:
+  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,180 modules transformed in 3.74s)**.
 
 ### Track C: Frontend & User-Facing Web Application Integration
 1. **Frontend Repository Clean Synchronization (`frontend/`) [COMPLETED]**:

@@ -26,8 +26,10 @@ import journeyWizardRoutes from "./src/modules/journeyWizard/journeyWizard.route
 import newsletterRoutes from "./src/modules/newsletter/newsletter.routes.js";
 import enumRoutes from "./src/modules/enum/enum.routes.js";
 import mediaRoutes from "./src/modules/media/media.routes.js";
+import exportRoutes from "./src/modules/export/export.routes.js";
 
 export const bootStapHttps = (app: any) => {
+  mount(app, "/api/v1/export", exportRoutes);
   mount(app, "/api/v1/audit", auditRoutes);
   mount(app, "/api/v1/system", systemRoutes);
   mount(app, "/api/v1/auth", authRoutes);
