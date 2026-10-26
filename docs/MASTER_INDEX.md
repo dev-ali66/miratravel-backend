@@ -2146,22 +2146,22 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
   - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 5.21s)**.
   - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
 
-### 42. Navbar Developer Mode Dropdown Relocation & Clean Borderless Profile Hover Slide-Out Animation (`Navbar.tsx`)
-- **User Directive**:
+### 42. Navbar Zero-Border Clean Header & Left Slide-Out Profile Hover Pill (`Navbar.tsx`)
+- **User Directives**:
   - *"Ei jaygata Dev Mode-ta kintu thakbe na. Dev Mode-er option ta baad dao... Oita drop down-e bhora jay kina ektu dekho."*
-  - *"Ki korla? Ekhon navbar-er upor jetate hover korle to... animation hoitashilo... Hover korle nam-ta dekhaisilo... Oi animation ta thakbe, oi hover ta thakbe... Hover korle nam ta ber hoye ashbe... Ami bolsi background-er color, border, ogula shob jate na thake... Shudu profile icon ta thakbe... hover korle nam ta ber hoye ashbe... Background-er color, border, ogula bad dite bolsi."*
+  - *"Idiot, ami tomake ekbaro bolsi je navbar-er border dite bolsi? Navbar-er ami kono border chai na. Ami bolsi amar je profile picture-er avatar-ta dekhachhe avatar-tar opor hover korle bam side-e je amar lekhagulo show kortese nam, oita show kortese, oitar je side diye je border-ta chilo oi border-ta ami dekhate bolsi."*
 - **Implementation in [`dashboard/src/components/layout/Navbar.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/layout/Navbar.tsx)**:
-  1. **Relocated Developer Mode into Profile Dropdown**:
-     - Removed the standalone "Dev Mode" toggle button from the navbar header, freeing up header space and eliminating clutter.
-     - Moved the Developer Mode toggle directly inside the `<DropdownMenuContent>` as a dedicated interactive menu item with `Code2` icon, title, and a toggle badge showing active `ON` (amber pulsing indicator) / `OFF` status.
-     - Preserved complete reactive state binding with `useDevMode()` and `toggleDevMode()`.
-  2. **Clean Borderless Profile Trigger with Slide-Out Animation**:
-     - Stripped away all outer pill backgrounds (`bg-transparent`, `hover:bg-transparent`), white borders (`border-0`), and box containers from the trigger button.
-     - Default resting state displays strictly the clean, circular avatar (`h-10 w-10`, `rounded-full`) with subtle ring and live online emerald status indicator (`h-2.5 w-2.5`).
-     - On hover (`onMouseEnter`), an elegant `framer-motion` `<AnimatePresence>` smoothly slides out the user's name (`profileName`), role (`userRole`), and chevron indicator as pure typography without any surrounding card background or border.
-     - Clicking the trigger opens the profile dropdown menu, keeping the expanded state pinned while the dropdown is open.
+  1. **Removed All Borders from Navbar Header**:
+     - Removed `border-b border-border/40` from the `<header>` element entirely, eliminating the bottom dividing line across the screen.
+     - Removed the vertical dividing border line `<div className="h-6 w-px bg-border/60" />` before the user profile.
+  2. **Profile Pill Expansion to the Left (`bam side-e`) with Surrounding Border**:
+     - Anchored the circular user avatar (`h-10 w-10`, `rounded-full`) on the right.
+     - On hover (`onMouseEnter`), an elegant `framer-motion` `<AnimatePresence>` smoothly expands the pill container towards the LEFT (`bam side-e`), displaying the user's name (`profileName`), role (`userRole`), and chevron indicator (`ChevronDown`).
+     - Wrapped the pill container in a sleek rounded border (`border border-border/60 bg-card/70 hover:border-border hover:bg-muted/80 rounded-full p-0.5 shadow-2xs`).
+  3. **Developer Mode in Dropdown**:
+     - Dev Mode toggle cleanly integrated into `<DropdownMenuContent>` with interactive `Code2` icon and reactive `ON` / `OFF` indicator.
 - **Verification**:
-  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 3.28s)**.
+  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 3.42s)**.
   - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
 
 ### Track C: Frontend & User-Facing Web Application Integration
