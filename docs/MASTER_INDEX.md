@@ -2146,6 +2146,25 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
   - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 5.21s)**.
   - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
 
+### 42. Navbar Developer Mode Dropdown Relocation & Clean Circular Profile Avatar (`Navbar.tsx`)
+- **User Directive**:
+  - *"Ei jaygata Dev Mode-ta kintu thakbe na. Dev Mode-er option ta baad dao... Oita drop down-e bhora jay kina ektu dekho."*
+  - *"Ar... Side diye je... white border, background eishob thakbe na. Eishob baad diye... Just oi icon-ta... icon-ta ektu boro kore dao... Bujhecho? Pura logo-ta... Proper ektu round ta boro hobe. Just icon-ta thakbe. Samne je background, eita thakbe na. Side diye je border, background... Eita thakbe na. Ai je shamne je color gulo dekhte pachcho... Samne o shob thakbe na."*
+- **Implementation in [`dashboard/src/components/layout/Navbar.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/layout/Navbar.tsx)**:
+  1. **Relocated Developer Mode into Profile Dropdown**:
+     - Removed the standalone "Dev Mode" toggle button from the navbar header, freeing up header space and eliminating clutter.
+     - Moved the Developer Mode toggle directly inside the `<DropdownMenuContent>` as a dedicated interactive menu item with `Code2` icon, title, and a toggle badge showing active `ON` (amber pulsing indicator) / `OFF` status.
+     - Preserved complete reactive state binding with `useDevMode()` and `toggleDevMode()`.
+  2. **Clean, Borderless, Enlarged Circular Profile Avatar**:
+     - Completely removed the outer pill container, borders, background card styling, and sliding name/role text animations from the profile trigger button.
+     - Replaced the trigger with a clean, borderless, circular avatar button enlarged to `h-10 w-10` (40px) with `rounded-full`, subtle ring (`ring-2 ring-primary/20 hover:ring-primary/50`), `scale-105` image fitting, and live online emerald status indicator (`h-2.5 w-2.5`).
+     - Clicking the enlarged circular avatar seamlessly opens the profile dropdown menu.
+  3. **Code Cleanup**:
+     - Removed unused `framer-motion` (`motion`, `AnimatePresence`) and `ChevronDown` imports, keeping bundle size lean.
+- **Verification**:
+  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 3.41s)**.
+  - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
+
 ### Track C: Frontend & User-Facing Web Application Integration
 1. **Frontend Repository Clean Synchronization (`frontend/`) [COMPLETED]**:
    - **User Directive**:
