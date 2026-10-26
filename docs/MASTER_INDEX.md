@@ -2179,6 +2179,65 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
   - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 3.71s)**.
   - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
 
+### 44. Universal Sticky Table Header Architecture Under FilterToolbar (All Table Views)
+- **User Directive (Audio Instruction)**:
+  - *"Achha suno, table... table-er jei head-ta ache... onekgula ache... table-er je head-ta... table head-ta... oi table head-ta filter toolbar-er niche sticky hoye thakbe. Jokhon ami scroll korbo, tokhon oi jaigai sticky hoye thakbe, filter toolbar-er niche."*
+  - Requirement: Across all table views in the dashboard, the table header (`<thead>` / `<th>`) must remain **sticky directly below `FilterToolbar`** when the user scrolls vertically through long rows.
+- **Root Cause & Technical Investigation**:
+  - CSS specification dictates that any container with `overflow-x: auto` automatically computes `overflow-y: auto`, establishing an isolated local scroll container that breaks page-level `position: sticky`. Furthermore, outer table cards with `overflow-hidden` trap sticky elements from tracking the viewport scroll.
+  - Proven Solution:
+    1. Replaced `overflow-x: auto` with modern `overflow-x: clip`. `overflow-x: clip` provides horizontal bounds clipping without establishing a scroll container, allowing `position: sticky; top: 100px;` to anchor precisely below `FilterToolbar` (`100px` = 56px Fixed Navbar + 42px Sticky FilterToolbar + 8px pb-2).
+    2. Removed `overflow-hidden` from the outer table card.
+    3. Added `first:rounded-tl-md` and `last:rounded-tr-md` to the sticky header cells (`<th>`) to preserve rounded border-radius styling seamlessly.
+    4. Enhanced sticky header backgrounds with solid frosted glass styling (`bg-card/95 backdrop-blur-md supports-[backdrop-filter]:bg-card/85` with `border-b border-border/60` and `z-10`), ensuring scrolling body rows slide cleanly underneath without transparency bleed.
+- **11 Canonical Table Views Updated**:
+  1. [`dashboard/src/components/pages/Bookings/BookingTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Bookings/BookingTable.tsx)
+  2. [`dashboard/src/components/pages/UserList/UserListTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/UserList/UserListTable.tsx)
+  3. [`dashboard/src/components/pages/Requests/RequestListTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Requests/RequestListTable.tsx)
+  4. [`dashboard/src/components/pages/Requests/JourneyWizardTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Requests/JourneyWizardTable.tsx)
+  5. [`dashboard/src/components/pages/Inquiry/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Inquiry/index.tsx)
+  6. [`dashboard/src/components/pages/AuditLogs/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/AuditLogs/index.tsx)
+  7. [`dashboard/src/components/pages/IAM/PermissionsTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/IAM/PermissionsTable.tsx)
+  8. [`dashboard/src/components/pages/IAM/RolesTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/IAM/RolesTable.tsx)
+  9. [`dashboard/src/components/pages/Newsletter/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Newsletter/index.tsx)
+  10. [`dashboard/src/components/pages/Promotions/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Promotions/index.tsx)
+  11. [`dashboard/src/components/pages/MediaLibrary/MediaTableView.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/MediaLibrary/MediaTableView.tsx)
+- **Verification**:
+  - Headless Browser Verification: Validated sticky positioning via Edge DevTools protocol (`TH_STICKY_106`).
+  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 6.53s)**.
+  - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
+
+### 46. Exact Navbar Color & Transparency Synchronization across FilterToolbar & All Table Headers [COMPLETED]
+- **User Directive**:
+  - *"motherchod sala tok bolchi trasparency hbe same navbar er mto for all table head and filtertoobar"*
+  - The color and frosted glass transparency of `FilterToolbar` and all Table Heads across the entire dashboard must be 100% identical to the Navbar.
+- **Root Cause & Architectural Solution**:
+  - In CSS, stacking multiple semi-transparent blur layers (`0.6` opacity on parent and `0.6` on child) compounds to $1 - (1 - 0.6)^2 = 84\%$ opacity, destroying the translucent frosted effect and making elements appear opaque/muddy.
+  - `Navbar` carries its frosted glass background on a single outer container (`<header className="fixed top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">`).
+  - **Single-Layer Alignment**:
+    1. [`dashboard/src/components/shared/FilterToolbar.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/shared/FilterToolbar.tsx):
+       - Removed duplicate background from outer sticky wrapper: `className={cn("w-full transition-all duration-200", sticky && cn("sticky z-20 pb-2", topOffset), className)}`.
+       - Inner card alone carries `bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60`, rendering the exact single-layer 60% translucent frosted glass of Navbar.
+    2. All 11 Table Views:
+       - `thead` has transparent background (`className="sticky top-[106px] z-10 border-b border-border/60 text-xs font-semibold uppercase tracking-wider text-muted-foreground select-none"`).
+       - Each `th` carries `sticky top-[106px] z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-5 py-3.5 font-semibold ...`.
+       - This eliminates double/triple opacity compounding and ensures the table header frosted glass matches Navbar 1:1.
+- **11 Synchronized Table Views**:
+  1. [`dashboard/src/components/pages/Bookings/BookingTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Bookings/BookingTable.tsx)
+  2. [`dashboard/src/components/pages/UserList/UserListTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/UserList/UserListTable.tsx)
+  3. [`dashboard/src/components/pages/Requests/RequestListTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Requests/RequestListTable.tsx)
+  4. [`dashboard/src/components/pages/Requests/JourneyWizardTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Requests/JourneyWizardTable.tsx)
+  5. [`dashboard/src/components/pages/Inquiry/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Inquiry/index.tsx)
+  6. [`dashboard/src/components/pages/AuditLogs/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/AuditLogs/index.tsx)
+  7. [`dashboard/src/components/pages/IAM/PermissionsTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/IAM/PermissionsTable.tsx)
+  8. [`dashboard/src/components/pages/IAM/RolesTable.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/IAM/RolesTable.tsx)
+  9. [`dashboard/src/components/pages/Newsletter/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Newsletter/index.tsx)
+  10. [`dashboard/src/components/pages/Promotions/index.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Promotions/index.tsx)
+  11. [`dashboard/src/components/pages/MediaLibrary/MediaTableView.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/MediaLibrary/MediaTableView.tsx)
+- **Verification**:
+  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 3.39s)**.
+  - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
+
 ### Track C: Frontend & User-Facing Web Application Integration
 1. **Frontend Repository Clean Synchronization (`frontend/`) [COMPLETED]**:
    - **User Directive**:
