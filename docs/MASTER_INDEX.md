@@ -2165,6 +2165,20 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
   - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 3.49s)**.
   - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
 
+### 43. Clean Borderless ThemeToggle & Enlarged Icons (`ThemeToggle.tsx`)
+- **User Directive**:
+  - *"Eitar border-torder shob bad diye... icon-take boro kore dao..."*
+- **Implementation in [`dashboard/src/components/ThemeToggle.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/ThemeToggle.tsx)**:
+  1. **Removed Borders and Card Background**:
+     - Stripped out `border border-border/60`, `bg-card`, and `shadow-sm` from the toggle button.
+     - Converted button to a clean, borderless, circular element (`h-10 w-10`, `rounded-full`) matching the profile avatar dimensions.
+     - Added subtle hover and micro-animation feedback (`hover:bg-muted/70 hover:scale-105 active:scale-95`).
+  2. **Enlarged Icons**:
+     - Upgraded both `Sun` and `Moon` icons from `h-4 w-4` (16px) to `h-5 w-5` (20px) for improved visual prominence and effortless touch/click targets.
+- **Verification**:
+  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 3.71s)**.
+  - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
+
 ### Track C: Frontend & User-Facing Web Application Integration
 1. **Frontend Repository Clean Synchronization (`frontend/`) [COMPLETED]**:
    - **User Directive**:
