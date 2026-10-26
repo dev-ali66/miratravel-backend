@@ -2146,22 +2146,23 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
   - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 5.21s)**.
   - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
 
-### 42. Navbar Zero-Border Clean Header & Left Slide-Out Profile Hover Pill (`Navbar.tsx`)
+### 42. Navbar Zero-Border Clean Header & Right Slide-Out Profile Hover Pill (`Navbar.tsx`)
 - **User Directives**:
   - *"Ei jaygata Dev Mode-ta kintu thakbe na. Dev Mode-er option ta baad dao... Oita drop down-e bhora jay kina ektu dekho."*
-  - *"Idiot, ami tomake ekbaro bolsi je navbar-er border dite bolsi? Navbar-er ami kono border chai na. Ami bolsi amar je profile picture-er avatar-ta dekhachhe avatar-tar opor hover korle bam side-e je amar lekhagulo show kortese nam, oita show kortese, oitar je side diye je border-ta chilo oi border-ta ami dekhate bolsi."*
+  - *"Navbar-er ami kono border chai na... oi border-ta ami dekhate bolsi."*
+  - *"Sliding Name, Role & Chevron to the Right"*
 - **Implementation in [`dashboard/src/components/layout/Navbar.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/layout/Navbar.tsx)**:
   1. **Removed All Borders from Navbar Header**:
      - Removed `border-b border-border/40` from the `<header>` element entirely, eliminating the bottom dividing line across the screen.
      - Removed the vertical dividing border line `<div className="h-6 w-px bg-border/60" />` before the user profile.
-  2. **Profile Pill Expansion to the Left (`bam side-e`) with Surrounding Border**:
-     - Anchored the circular user avatar (`h-10 w-10`, `rounded-full`) on the right.
-     - On hover (`onMouseEnter`), an elegant `framer-motion` `<AnimatePresence>` smoothly expands the pill container towards the LEFT (`bam side-e`), displaying the user's name (`profileName`), role (`userRole`), and chevron indicator (`ChevronDown`).
+  2. **Profile Pill Expansion to the Right with Surrounding Border**:
+     - Anchored the circular user avatar (`h-10 w-10`, `rounded-full`) on the left side of the pill.
+     - On hover (`onMouseEnter`), an elegant `framer-motion` `<AnimatePresence>` smoothly expands the pill container towards the RIGHT, revealing the user's name (`profileName`), role (`userRole`), and chevron indicator (`ChevronDown`).
      - Wrapped the pill container in a sleek rounded border (`border border-border/60 bg-card/70 hover:border-border hover:bg-muted/80 rounded-full p-0.5 shadow-2xs`).
   3. **Developer Mode in Dropdown**:
      - Dev Mode toggle cleanly integrated into `<DropdownMenuContent>` with interactive `Code2` icon and reactive `ON` / `OFF` indicator.
 - **Verification**:
-  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 3.42s)**.
+  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 3.49s)**.
   - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
 
 ### Track C: Frontend & User-Facing Web Application Integration
