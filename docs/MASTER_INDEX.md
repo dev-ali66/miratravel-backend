@@ -31,6 +31,37 @@ The project consists of three main applications:
 
 ## Feature Implementation & Current Status
 
+### 0. Journey Type Canonical Updates (Limited to Normal, MIRA Collection, Signature)
+- **Requirements & Specification**:
+  - Journey types across the entire full stack are strictly limited to exactly three canonical options:
+    1. **Normal** (`NORMAL`)
+    2. **MIRA Collection** (`MIRA_COLLECTION`)
+    3. **Signature** (`SIGNATURE`)
+  - All 7 previous legacy types (`PRIVATE_JOURNEY`, `SELF_DRIVE_JOURNEY`, `SMALL_GROUP`, `LUXURY_ESCAPE`, `FAMILY_JOURNEY`, `SIGNATURE_JOURNEY`, `MIRA_COLLECTION`) were migrated and streamlined.
+- **Database Migration & Synchronization**:
+  - Prior to dropping old enum values, safely pre-migrated all 26 existing `Journey` rows in PostgreSQL so that all records conform strictly to `NORMAL`, `MIRA_COLLECTION`, or `SIGNATURE`.
+  - Updated `journey.prisma`: pruned `enum JourneyType` to `NORMAL`, `MIRA_COLLECTION`, and `SIGNATURE`.
+  - Executed `npx prisma db push --accept-data-loss` and re-generated `@prisma/client`.
+- **Backend Updates (`mira_backend_v1/`)**:
+  - `src/modules/journey/Journey/journey.validator.ts`: Updated `JourneyTypeEnum` Zod schema to `['NORMAL', 'MIRA_COLLECTION', 'SIGNATURE']`.
+  - `src/modules/enum/enum.service.ts`: Automatically exposes the new `PrismaEnums.JourneyType` options via `/api/v1/enum`.
+  - `src/scripts/seedAllFrontendJourneys.ts`: Aligned interface types and seed definition payloads.
+  - `src/modules/journey/mira-journey.postman_collection.json`: Updated collection enum descriptions and test request payloads.
+  - Verified 0 compilation errors with `npx tsc --noEmit`.
+- **Dashboard Updates (`dashboard/`)**:
+  - `src/components/pages/Journey/journeyTypes.ts`: Updated `JourneyTypeEnum` and `JOURNEY_TYPES` array; exported canonical `JOURNEY_TYPE_LABELS` mapping (`NORMAL: 'Normal'`, `MIRA_COLLECTION: 'MIRA Collection'`, `SIGNATURE: 'Signature'`).
+  - `src/components/pages/Journey/sections/basic-info/BasicInfoForm.tsx`: Uses `JOURNEY_TYPE_LABELS` for clean button pill display.
+  - `src/components/pages/Journey/index.tsx`: Filter dropdown displays "Normal", "MIRA Collection", "Signature".
+  - `src/components/pages/CMS/Journey/`: Updated fallback items in all-journeys and signature-journeys previews.
+  - Verified 0 compilation errors with `npx tsc --noEmit`.
+- **Frontend Updates (`frontend/`)**:
+  - `lib/constants/enums.ts`: Pruned `FALLBACK_ENUMS.JourneyType` and `JOURNEY_TYPE` to `NORMAL`, `MIRA_COLLECTION`, `SIGNATURE`; added display label overrides (`'Normal'`, `'MIRA Collection'`, `'Signature'`).
+  - `lib/constants/journey-wizard.ts`: Updated `JOURNEY_TYPE_OPTIONS` to `['Normal', 'MIRA Collection', 'Signature']`.
+  - `app/dashboard/saved-journeys/SavedJourneysPageClient.tsx`: Updated `JOURNEY_TYPES_CONFIG` options.
+  - `lib/api/home.ts`, `lib/api/journeys.ts`, `lib/api/wishlist.ts`, `app/(site)/page.tsx`: Updated fallback defaults and signature resolvers to support `SIGNATURE` and `NORMAL`.
+  - `components/ui/journey-badge.tsx`: Added support for resolving `NORMAL` badge text.
+  - Verified 0 compilation errors with `npx tsc --noEmit`.
+
 ### 1. Inquiry & Lead Management Module (`/api/v1/inquiry`)
 - **Backend Model & Endpoints (`mira_backend_v1/src/modules/inquiry/`)**:
   - Replaced legacy Concierge lead structure with canonical **Inquiry** model (`inquiry.prisma`).

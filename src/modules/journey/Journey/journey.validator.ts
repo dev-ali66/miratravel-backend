@@ -1,13 +1,9 @@
 import { z } from "zod";
 
 const JourneyTypeEnum = z.enum([
-  "PRIVATE_JOURNEY",
-  "SELF_DRIVE_JOURNEY",
-  "SMALL_GROUP",
-  "LUXURY_ESCAPE",
-  "FAMILY_JOURNEY",
-  "SIGNATURE_JOURNEY",
+  "NORMAL",
   "MIRA_COLLECTION",
+  "SIGNATURE",
 ]);
 
 const TravelStyleEnum = z.enum([
