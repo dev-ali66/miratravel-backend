@@ -39,6 +39,17 @@ export function isMediaUrl(val: any): boolean {
   const trimmed = val.trim();
   if (trimmed.length < 5) return false;
 
+  // Single URL should not contain HTML tags, quotes, or whitespace
+  if (
+    /\s/.test(trimmed) ||
+    trimmed.includes("<") ||
+    trimmed.includes(">") ||
+    trimmed.includes('"') ||
+    trimmed.includes("'")
+  ) {
+    return false;
+  }
+
   // Domain or storage path match
   const hasDomainMatch = KNOWN_STORAGE_DOMAINS.some((d) => trimmed.includes(d));
   if (hasDomainMatch) return true;
@@ -55,7 +66,7 @@ export function isMediaUrl(val: any): boolean {
  * Recursively extracts all media URLs and their exact field paths from any object or array.
  * 
  * @param data Any entity object or JSON value
- * @param currentPath Accumulated dot-notation path (e.g., "hero.image.url", "accommodations[0].stay.multimedia.image.url")
+ * @param currentPath Accumulated dot-notation path (e.g., "hero.image.url", "blocks[0].content.value")
  * @param results Target array collecting extracted references
  */
 export function extractMediaReferences(
@@ -65,13 +76,62 @@ export function extractMediaReferences(
 ): ExtractedMediaReference[] {
   if (data === null || data === undefined) return results;
 
-  // Handle strings (direct URL check)
+  // Handle strings (direct URL check OR embedded HTML/rich-text)
   if (typeof data === "string") {
     if (isMediaUrl(data)) {
       results.push({
         url: data.trim(),
         fieldPath: currentPath,
       });
+      return results;
+    }
+
+    // Check if string contains HTML or rich text with embedded media URLs
+    if (
+      data.includes("<") ||
+      data.includes("http://") ||
+      data.includes("https://") ||
+      data.includes("/uploads/") ||
+      data.includes("/multimedia/uploads/")
+    ) {
+      const foundUrls = new Set<string>();
+
+      // 1. Extract from src/href attributes: src="..." or src='...'
+      const attrRegex = /(?:src|href)=["']([^"']+)["']/gi;
+      let attrMatch: RegExpExecArray | null;
+      while ((attrMatch = attrRegex.exec(data)) !== null) {
+        const urlCandidate = attrMatch[1]?.trim();
+        if (urlCandidate && isMediaUrl(urlCandidate)) {
+          foundUrls.add(urlCandidate);
+        }
+      }
+
+      // 2. Extract from Markdown image syntax: ![alt](url)
+      const mdRegex = /!\[.*?\]\(([^)\s]+)\)/gi;
+      let mdMatch: RegExpExecArray | null;
+      while ((mdMatch = mdRegex.exec(data)) !== null) {
+        const urlCandidate = mdMatch[1]?.trim();
+        if (urlCandidate && isMediaUrl(urlCandidate)) {
+          foundUrls.add(urlCandidate);
+        }
+      }
+
+      // 3. Extract raw URLs matching known domains or extensions
+      const rawUrlRegex = /(https?:\/\/[^\s"'<>()]+|\/(?:multimedia\/uploads|uploads)\/[^\s"'<>()]+)/gi;
+      let rawMatch: RegExpExecArray | null;
+      while ((rawMatch = rawUrlRegex.exec(data)) !== null) {
+        const urlCandidate = rawMatch[1]?.trim();
+        if (urlCandidate && isMediaUrl(urlCandidate)) {
+          foundUrls.add(urlCandidate);
+        }
+      }
+
+      for (const u of foundUrls) {
+        results.push({
+          url: u,
+          fieldPath: currentPath,
+        });
+      }
     }
     return results;
   }

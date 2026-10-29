@@ -31,6 +31,44 @@ The project consists of three main applications:
 
 ## Feature Implementation & Current Status
 
+### 0.6 RichText Media Reference Tracking & Linked Entity (Location/Journey) Name Resolution
+- **Issue A: RichText Embedded Images Showing as "Unused" in Media Library**:
+  - *Symptom*: Images added into story paragraph blocks via the rich-text editor were actively displayed on the website and story preview, but the Media Library classified them as `Unused` (0 references).
+  - *Root Cause*: `isMediaUrl()` in `mira_backend_v1/src/utils/mediaExtractor.ts` validated strings solely with domain matching (`KNOWN_STORAGE_DOMAINS.some(d => trimmed.includes(d))`). When a rich-text block containing HTML (`<p>...<img src="...jpg" />...</p>`) was passed, `isMediaUrl()` evaluated to `true` on the entire HTML string, pushing the full HTML blob as the media URL. Consequently, `syncEntityMediaReferences` could not match the asset filename/URL in `MediaAsset` table, and 0 `MediaReference` rows were created.
+  - *Fix Applied*:
+    - Updated [`mira_backend_v1/src/utils/mediaExtractor.ts`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/mira_backend_v1/src/utils/mediaExtractor.ts): Hardened `isMediaUrl()` to reject strings containing spaces, `<`, `>`, or quotes. Added comprehensive HTML/RichText scanning using `src`/`href` regex (`/(?:src|href)=["']([^"']+)["']/gi`), Markdown syntax (`/!\[.*?\]\(([^)\s]+)\)/gi`), and raw storage URL extraction to parse all individual media URLs from rich-text blocks.
+    - Executed batch synchronization across all stories: 11 media references were immediately linked for the Vukoje story (and across other stories), transitioning all rich-text images into `ACTIVE USE` (`refCount > 0`) in the Media Library.
+- **Issue B: Linked Locations & Journeys Showing IDs instead of Names in Section 02 Form**:
+  - *Symptom*: In Story Section 02 (*Linked Locations, Journeys & Related Stories*), added locations and journeys displayed fallback labels `Location (dbbicxed)`, `Location (bw0fsqxc)`, and `Journey (Oj3norde)` instead of their human-readable titles/names.
+  - *Root Cause*: Backend endpoints `GET /api/v1/locations?id=...` and `GET /api/v1/journeys?id=...` return paginated results formatted as `{ data: [ item ] }` (an array). In `useGetLocationById` and `useGetJourneyById`, `response.data` was returned directly without unwrapping the single item from the array. In `LocationRow` and `JourneyRow`, accessing `loc?.name` and `journey?.title` on an array evaluated to `undefined`, falling back to `slice(-8)` ID labels.
+  - *Fix Applied*:
+    - Updated [`dashboard/src/hooks/location/useGetLocationById.ts`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/hooks/location/useGetLocationById.ts): Unwrapped array response (`Array.isArray(raw) ? raw[0] || null : raw`).
+    - Updated [`dashboard/src/hooks/journey/useGetJourneyById.ts`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/hooks/journey/useGetJourneyById.ts): Unwrapped array response (`Array.isArray(raw) ? raw[0] || null : raw`).
+    - Updated [`dashboard/src/components/pages/Stories/sections/relationships/RelationshipsForm.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Stories/sections/relationships/RelationshipsForm.tsx): Hardened `LocationRow`, `JourneyRow`, and `StoryRow` to safely unwrap `raw[0]` if `data` is an array.
+- **Verification**: Verified 0 TypeScript compilation errors in both `dashboard/` (`npx tsc -b`) and `mira_backend_v1/` (`npx tsc --noEmit`).
+
+### 0.5 Client Inquiry Resolution: Content Updates, Hero Videos, Region Experiences (React Error #31), and Blog Publishing
+- **Issue 1: Content Updates & Next.js Caching Behavior**:
+  - *Symptom*: Dashboard edits appear to take time or several days to appear on the live site.
+  - *Root Cause Analysis*: Next.js 14/15 uses aggressive static caching (ISR and Data Cache with tags). When records are updated in PostgreSQL via backend APIs, the Next.js cache remains active until its revalidation window expires or until `POST /api/revalidate` is invoked with relevant tags (`locations`, `stories`, `settings`).
+  - *Remediation & Recommendation*: Immediate live verification should use the CMS Live Preview or hard-refreshing (`Ctrl+F5`/`Cmd+Shift+R`). Added guidance on triggering on-demand revalidation.
+- **Issue 2: Hero Videos & Media Preservation**:
+  - *Investigation*: Audited live PostgreSQL database for all `Location` records. Verified all hero videos uploaded to Cloudinary are completely intact and safely stored in the database (e.g. Greece `ftwqcnukygr1dujid6zy.mp4`, Bulgaria `d1ovlbuqdnpygwde5mxw.mp4`, Slovenia `jmoofizmkaniphl4qlob.mp4`, Albania, etc.).
+  - *Root Cause*: Destination hero sections utilize the Universal Multimedia Object with a `show` selector (`"image"`, `"video"`, `"color"`). If a destination was edited and saved with `show: "image"`, the frontend renders the fallback image while the video URL remains preserved in the database. Selecting `show: "video"` resumes video playback immediately without re-uploading.
+- **Issue 3: Region Experiences (Section 07) Crash - Minified React Error #31**:
+  - *Root Cause*: `Minified React error #31: Objects are not valid as a React child (found: object with keys {value, textColor, textOpacity, backgroundColor, backgroundOpacity})`. In `RegionExperiencesForm.tsx`, `handleAddLocationFromSearch` fell back to `loc.hero?.subtitle` or `loc.hero?.description` when `loc.hero?.subtitle?.value` was empty. Because `loc.hero?.subtitle` is a normalized styled object, it was placed inside `newItem.subtitle.value`. Rendering `<p>{itemSubtitle}</p>` or button labels directly crashed React.
+  - *Fixes Applied*:
+    - [`dashboard/src/components/pages/CMS/shared/DynamicCmsButtonPreview.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/CMS/shared/DynamicCmsButtonPreview.tsx): Wrapped button labels with safe string unwrapper (`typeof btn.label === "object" ? btn.label?.value : btn.label`).
+    - [`dashboard/src/components/pages/CMS/shared/ButtonsField.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/CMS/shared/ButtonsField.tsx): Safely unwrapped `item.label` in `itemLabel`, preview pill, and input field.
+    - [`dashboard/src/components/pages/CMS/shared/RepeaterList.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/CMS/shared/RepeaterList.tsx): Safely unwrapped `renderedLabel` in accordion header rendering.
+    - [`dashboard/src/components/pages/Location/sections/region-experiences/RegionExperiencesForm.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Location/sections/region-experiences/RegionExperiencesForm.tsx): Imported and applied `getSafeStringValue` to extract strings in `handleAddLocationFromSearch`, `itemTitle`, `itemSubtitle`, and `itemTag`.
+    - [`dashboard/src/components/pages/Location/sections/region-experiences/RegionExperiencesPreview.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Location/sections/region-experiences/RegionExperiencesPreview.tsx): Made default sample items and section label dynamic (`EXPLORE ${destName.toUpperCase()}` and `${destName} Highlands`, etc.) so non-Albania destinations (like Kosovo) no longer display hardcoded Albania sample cards in live preview.
+    - [`dashboard/src/components/pages/Location/sections/signature-experiences/SignatureExperiencesForm.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Location/sections/signature-experiences/SignatureExperiencesForm.tsx): Hardened `handleAddLocationFromSearch` and accordion card title rendering with `getSafeStringValue`.
+- **Issue 4: Blog Section Article Publishing Workflow**:
+  - *Investigation*: Queried all stories in PostgreSQL. Found 6 stories in DB: 2 are `PUBLISHED` (`Southern Croatia Travel Guide`, `A Slow Journey Along The Croatian Coast`) and visible on the website; 4 stories (`A Journey Across the Croatian Islands`, `Travel Story`, `Dubrovnik — The Gateway to Southern Croatia`, `Vukoje: A Different Vintage of Herzegovina`) were saved with `status: "DRAFT"`.
+  - *Explanation*: The website frontend strictly filters stories by `status === 'PUBLISHED'` so in-progress articles are never exposed to public visitors. When saving in the dashboard, authors must switch the publication status toggle from `DRAFT` to `PUBLISHED` in the Story Settings bar.
+- **Verification**: Verified 0 TypeScript errors across `dashboard/` (`npx tsc -b`) and `mira_backend_v1/` (`npx tsc --noEmit`).
+
 ### 0. Journey Type Canonical Updates (Limited to Normal, MIRA Collection, Signature)
 - **Requirements & Specification**:
   - Journey types across the entire full stack are strictly limited to exactly three canonical options:
@@ -58,8 +96,7 @@ The project consists of three main applications:
   - `lib/constants/enums.ts`: Pruned `FALLBACK_ENUMS.JourneyType` and `JOURNEY_TYPE` to `NORMAL`, `MIRA_COLLECTION`, `SIGNATURE`; added display label overrides (`'Normal'`, `'MIRA Collection'`, `'Signature'`).
   - `lib/constants/journey-wizard.ts`: Updated `JOURNEY_TYPE_OPTIONS` to `['Normal', 'MIRA Collection', 'Signature']`.
   - `app/dashboard/saved-journeys/SavedJourneysPageClient.tsx`: Updated `JOURNEY_TYPES_CONFIG` options.
-  - `lib/api/home.ts`, `lib/api/journeys.ts`, `lib/api/wishlist.ts`, `app/(site)/page.tsx`: Updated fallback defaults and signature resolvers to support `SIGNATURE` and `NORMAL`.
-  - `components/ui/journey-badge.tsx`: Added support for resolving `NORMAL` badge text.
+  - `lib/api/home.ts`, `lib/api/journeys.ts`, `lib/api/wishlist.ts`: Synced types and query mappings.
   - Verified 0 compilation errors with `npx tsc --noEmit`.
 
 ---
@@ -76,14 +113,26 @@ The project consists of three main applications:
   - Added performance indexes `@@index([userId])` and `@@index([email])`.
   - Pushed to Neon/VPS PostgreSQL with `npx prisma db push`.
 - **Backend Middleware & Service Implementation (`mira_backend_v1/`)**:
-  - `src/modules/journeyWizard/journeyWizard.routes.ts`: Attached `preDecode` middleware to `router.post("/")` and `router.get("/")`.
-  - `src/modules/journeyWizard/journeyWizard.validator.ts`: Added `userId` and `email` parameters to validators.
+  - `src/modules/journeyWizard/journeyWizard.routes.ts`:
+    - Attached `preDecode` middleware to `router.post("/")` and `router.get("/")`.
+  - `src/modules/journeyWizard/journeyWizard.validator.ts`:
+    - `createJourneyWizardRequestValidator`: accepts `userId: z.string().optional().nullable()`.
+    - `getJourneyWizardRequestsValidator`: accepts optional query filters `userId: z.string().optional()` and `email: z.string().optional()`.
   - `src/modules/journeyWizard/journeyWizard.service.ts`:
-    - Added `extractUserRoles(auth)` and `isStaffOrAdmin(auth)` to robustly detect roles across object arrays, string arrays, or scalar strings.
-    - Automatically links `userId` and `email` on `createJourneyWizardRequest`.
-    - Conditionally restricts records by user in `getJourneyWizardRequests` when caller is a regular user.
+    - Added helper `extractUserRoles(auth)` and `isStaffOrAdmin(auth)` to robustly detect roles from JWT decoded tokens across object arrays (`[{ name: 'USER' }]`), string arrays, or scalar strings.
+    - `createJourneyWizardRequest`: Automatically extracts `req.auth?.id` / `req.user?.id` and attaches `userId` and `email` to the persisted record.
+    - `getJourneyWizardRequests`:
+      - Validates caller authentication for HTTP requests.
+      - If caller is a regular user (`!isAdmin`), scopes the Prisma `where` clause:
+        `customWhere.OR = [{ userId: auth.id }, { email: { equals: auth.email, mode: "insensitive" } }]`.
+      - If search is also provided, groups them cleanly: `customWhere.AND = [{ OR: userConditions }, { OR: searchConditions }]`.
+      - If caller is Admin/Staff, does not restrict by user, returning the full dataset.
 - **Verification**:
-  - Ran `npx tsc --noEmit` with 0 errors.
+  - Run `npx tsc --noEmit` inside `mira_backend_v1/` with 0 errors.
+  - Verified live database query compatibility and index resolution with test script.
+  - `lib/api/home.ts`, `lib/api/journeys.ts`, `lib/api/wishlist.ts`, `app/(site)/page.tsx`: Updated fallback defaults and signature resolvers to support `SIGNATURE` and `NORMAL`.
+  - `components/ui/journey-badge.tsx`: Added support for resolving `NORMAL` badge text.
+  - Verified 0 compilation errors with `npx tsc --noEmit`.
 
 ---
 
@@ -2353,10 +2402,6 @@ Reference: [`docs/MEDIA_MANAGEMENT_ROADMAP.md`](file:///c:/Users/aalia/OneDrive/
     - `Security & Sessions` (opens `ActiveDevicesModal`) with a single clean device badge (`{activeDevicesCount} device(s)`).
     - `Developer Mode` toggle with modern indicator badge.
     - `Log Out` with keyboard shortcut `⌥⇧Q`.
-- **Verification**:
-  - Dashboard Production Build: `npm run build` (`tsc -b && vite build`) ➔ **PASSED with 0 errors (Exit code 0, ✓ 3,183 modules transformed in 4.36s)**.
-  - Backend Typecheck (Rule 1): `npx tsc --noEmit` in `mira_backend_v1/` ➔ **PASSED with 0 errors (Exit code 0)**.
-
 ### 48. Independent Dedicated Export API & Comprehensive CSV Download Infrastructure [COMPLETED]
 - **User Audio Directive**:
   - *"jekhane jekhane export csv ba download csv ase, oi jayga gulote... csv-te ja ja information lage, shegulo information er upor depend kore csv banaye dao. Dorkare otar jonno jodi api create kora lage, api create korio shomossha nai. Kintu independent, ota alada api hoto... toh create kore ja ja information lage ekta csv-te, booking-e ki ki information lage, ba tomar hocche user-er details-e ki ki information lage... mane je genuine information-er upor depend kore ki ki lage shetar upor csv banaye download banaye dao."*
