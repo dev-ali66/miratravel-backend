@@ -10,6 +10,7 @@ export const createJourneyWizardRequestValidator = z.object({
     duration: z.string().optional().nullable(),
     budget: z.number().optional().nullable(),
     budgetText: z.string().optional().nullable(),
+    userId: z.string().optional().nullable(),
     name: z.string().optional().nullable(),
     email: z.string().optional().nullable(),
     phone: z.string().optional().nullable(),
@@ -23,6 +24,8 @@ export const getJourneyWizardRequestsValidator = z.object({
     page: z.string().optional(),
     limit: z.string().optional(),
     search: z.string().optional(),
+    userId: z.string().optional(),
+    email: z.string().optional(),
   }),
 });
 

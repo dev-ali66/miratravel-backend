@@ -62,6 +62,78 @@ The project consists of three main applications:
   - `components/ui/journey-badge.tsx`: Added support for resolving `NORMAL` badge text.
   - Verified 0 compilation errors with `npx tsc --noEmit`.
 
+---
+
+### 0.1 User Journey Requests API & Role-Based Scoping (`GET /api/v1/journey-wizard`)
+- **Requirements & User Query**:
+  - Provide an API to retrieve all journey requests submitted by a specific user.
+  - Rather than creating a detached endpoint, unify the existing `router.get("/")` endpoint in `journeyWizard.routes.ts` so that it inspects the authenticated caller's role:
+    - **Regular User (`USER`)**: Automatically injects a filter scoping results strictly to requests created by that user (`userId === auth.id` OR case-insensitive `email === auth.email`). Older requests without `userId` are seamlessly retrieved by email, while new requests are linked by both `userId` and `email`.
+    - **Admin / Staff (`ADMIN`, `SUPER_ADMIN`, `MANAGER`, `STAFF`)**: Returns all journey requests across the platform without restriction, preserving full admin table management, search, status filtering, and pagination in the admin dashboard. Admins can also filter explicitly by `userId` or `email` via query parameters.
+    - **Unauthenticated HTTP Requests**: Rejects with `401 Unauthorized`.
+- **Database Schema Updates (`mira_backend_v1/prisma/schema/journeyWizard.prisma`)**:
+  - Added `userId String?` to `model JourneyWizardRequest`.
+  - Added performance indexes `@@index([userId])` and `@@index([email])`.
+  - Pushed to Neon/VPS PostgreSQL with `npx prisma db push`.
+- **Backend Middleware & Service Implementation (`mira_backend_v1/`)**:
+  - `src/modules/journeyWizard/journeyWizard.routes.ts`: Attached `preDecode` middleware to `router.post("/")` and `router.get("/")`.
+  - `src/modules/journeyWizard/journeyWizard.validator.ts`: Added `userId` and `email` parameters to validators.
+  - `src/modules/journeyWizard/journeyWizard.service.ts`:
+    - Added `extractUserRoles(auth)` and `isStaffOrAdmin(auth)` to robustly detect roles across object arrays, string arrays, or scalar strings.
+    - Automatically links `userId` and `email` on `createJourneyWizardRequest`.
+    - Conditionally restricts records by user in `getJourneyWizardRequests` when caller is a regular user.
+- **Verification**:
+  - Ran `npx tsc --noEmit` with 0 errors.
+
+---
+
+### 0.2 Download Travel Itinerary API & Document Export (`/api/v1/bookings/:id/itinerary/download`)
+- **Requirements & User Query**:
+  - Provide an API that allows users to download their travel itineraries directly from the user dashboard.
+- **Backend Architecture & Endpoints (`mira_backend_v1/`)**:
+  - **`GET /api/v1/bookings/:id/itinerary/download`** & **`GET /api/v1/bookings/:id/itinerary`**:
+    - Protected by `protect` and `publicApiLimiter`.
+    - **Ownership & RBAC Security**: Validates that the requesting caller is either the owner of the booking (`booking.createdBy === req.auth.id` or `booking.travelerEmail === req.auth.email`) or has administrative privileges (`ADMIN`, `SUPER_ADMIN`, `MANAGER`, `STAFF`). Non-owners are denied with `403 Forbidden`.
+    - Supports formats via `?format=html` (default), `?format=json`, and `?inline=true`:
+      - **HTML Document Export**: Generates an official, luxury standalone MIRA Travel itinerary document with Playfair Display/Outfit typography, booking reference badges, traveler summary, day-by-day expedition schedule, hand-picked accommodations, provisions/inclusions, 24/7 concierge support contacts, and print stylesheet (`@media print`) with an interactive "Print / Save as PDF" button.
+      - **JSON Export**: Provides the structured itinerary and booking payload for mobile or frontend consumption.
+  - **`GET /api/v1/bookings/:id`**:
+    - Returns single booking details with journey and payment schedules for the user dashboard.
+  - **`GET /api/v1/journeys/:id/itinerary/download`**:
+    - Allows direct itinerary export for any published journey by ID or slug.
+  - **`GET /api/v1/export/itinerary/:id`**:
+    - Mounted under export routes for system and administrative exports.
+- **Frontend BFF & Dashboard Integration (`frontend/`)**:
+  - `app/api/bookings/[bookingId]/itinerary/download/route.ts`: Proxies itinerary download requests to backend passing the user's session token and cookies.
+  - `app/api/bookings/[bookingId]/itinerary/route.ts`: Proxies JSON and document itinerary requests.
+  - `app/dashboard/journeys/[slug]/JourneyDetailsPageClient.tsx`: Connected `onDownloadItinerary` on `JourneyHeader` and `onAction` on `JourneySidebar` to trigger the download of `MIRA-Itinerary-<bookingNumber>.html`.
+- **Verification**:
+  - Verified with `npx tsc --noEmit` in both `mira_backend_v1/` and `frontend/` (0 errors).
+
+---
+
+### 0.3 Full-Stack 3-Codebase Production Build Verification (`npm run build`)
+- **Build Execution & Results**:
+  1. **`mira_backend_v1/` (`npm run build` -> `npx tsc`)**:
+     - Built cleanly with TypeScript (exit code 0).
+  2. **`dashboard/` (`npm run build` -> `tsc -b && vite build`)**:
+     - 3,180 modules transformed, production bundles generated in `dist/` in 5.85s (exit code 0).
+  3. **`frontend/` (`npm run build` -> `next build`)**:
+     - Fixed `socialLinks` normalization across `mira_backend_v1/src/modules/settings/settings.service.ts`, `frontend/lib/api/settings.ts`, `frontend/app/layout.tsx`, and `frontend/components/layout/footer/footer-brand.tsx` (safely parsing stringified JSON payloads and guarding with `Array.isArray`).
+     - Next.js 16.3.1 (Turbopack) compiled in 33.2s, TypeScript finished in 27.9s, and all 86 static pages prerendered successfully (exit code 0).
+
+---
+
+### 0.4 Full API Integration Documentation (`docs/API_DOCUMENTATION_3_FEATURES.md`)
+- **Documentation Resource**:
+  - Published consolidated API integration guide [`docs/API_DOCUMENTATION_3_FEATURES.md`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/docs/API_DOCUMENTATION_3_FEATURES.md) for frontend and dashboard development teams.
+  - Covers endpoint contracts, role-based scoping, query parameters, JSON schemas, HTML document export specifics, and code integration examples for:
+    1. **Journey Type Canonical Updates** (`NORMAL`, `MIRA_COLLECTION`, `SIGNATURE`).
+    2. **User Journey Requests API** (`GET /api/v1/journey-wizard` with automatic role-based scoping).
+    3. **Download Travel Itinerary API** (`GET /api/v1/bookings/:id/itinerary/download` & `GET /api/v1/bookings/:id/itinerary`).
+
+---
+
 ### 1. Inquiry & Lead Management Module (`/api/v1/inquiry`)
 - **Backend Model & Endpoints (`mira_backend_v1/src/modules/inquiry/`)**:
   - Replaced legacy Concierge lead structure with canonical **Inquiry** model (`inquiry.prisma`).

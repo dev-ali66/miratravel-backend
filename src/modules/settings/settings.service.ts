@@ -20,11 +20,27 @@ export const getSiteSettings = async () => {
     });
   }
 
+  if (settings && typeof settings.socialLinks === "string") {
+    try {
+      settings.socialLinks = JSON.parse(settings.socialLinks);
+    } catch {
+      settings.socialLinks = [];
+    }
+  }
+
   return settings;
 };
 
 export const updateSiteSettings = async (data: any) => {
   const { id, createdAt, updatedAt, ...updatePayload } = data || {};
+
+  if (updatePayload.socialLinks && typeof updatePayload.socialLinks === "string") {
+    try {
+      updatePayload.socialLinks = JSON.parse(updatePayload.socialLinks);
+    } catch {
+      // keep as is
+    }
+  }
 
   const settings = await prisma.siteSettings.upsert({
     where: { id: "global" },
@@ -34,6 +50,14 @@ export const updateSiteSettings = async (data: any) => {
       ...updatePayload,
     },
   });
+
+  if (settings && typeof settings.socialLinks === "string") {
+    try {
+      settings.socialLinks = JSON.parse(settings.socialLinks);
+    } catch {
+      settings.socialLinks = [];
+    }
+  }
 
   try {
     await syncEntityMediaReferences("SiteSettings", "global", settings);

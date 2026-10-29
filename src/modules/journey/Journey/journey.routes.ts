@@ -16,6 +16,7 @@ import {
   getJourneyValidator,
   manageJourneyValidator,
 } from "./journey.validator.js";
+import { downloadItineraryController } from "../../booking/booking/booking.controller.js";
 
 const router = Router();
 
@@ -24,6 +25,19 @@ router.get(
   publicApiLimiter,
   validate(getJourneyValidator),
   getJourneyController,
+);
+
+// DOWNLOAD Itinerary by journey id or slug
+router.get(
+  "/:id/itinerary/download",
+  publicApiLimiter,
+  downloadItineraryController,
+);
+
+router.get(
+  "/:id/itinerary",
+  publicApiLimiter,
+  downloadItineraryController,
 );
 
 router.post(

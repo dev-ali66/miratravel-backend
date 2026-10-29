@@ -14,6 +14,8 @@ import {
   cancelBookingController,
   reviseTotalController,
   deleteBookingController,
+  getSingleBookingController,
+  downloadItineraryController,
 } from "./booking.controller.js";
 
 import {
@@ -36,6 +38,29 @@ router.get(
   accessMiddleware("Booking"),
   validate(getBookingValidator),
   getBookingController,
+);
+
+// DOWNLOAD Itinerary — User dashboard & Admin travel document export
+router.get(
+  "/:id/itinerary/download",
+  protect,
+  publicApiLimiter,
+  downloadItineraryController,
+);
+
+router.get(
+  "/:id/itinerary",
+  protect,
+  publicApiLimiter,
+  downloadItineraryController,
+);
+
+// GET Single Booking by ID or bookingNumber
+router.get(
+  "/:id",
+  protect,
+  publicApiLimiter,
+  getSingleBookingController,
 );
 
 // CREATE Booking request — "Reserve your journey" form (spec §11: no payment taken here).

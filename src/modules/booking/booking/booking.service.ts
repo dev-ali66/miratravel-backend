@@ -12,6 +12,7 @@ import {
   round2,
   validateManualScheduleItems,
 } from "../engine/paymentEngine.service.js";
+import { isStaffOrAdmin } from "./itineraryDownload.service.js";
 
 const bookingInclude = {
   journey: {
@@ -653,4 +654,38 @@ export const deleteBookingService = async (req: any) => {
     maxLimit: 10,
     txClient: prisma,
   });
+};
+
+// ---------------------------------------------------------------------------
+// GET SINGLE BOOKING
+// ---------------------------------------------------------------------------
+export const getSingleBookingService = async (req: any) => {
+  const { id } = req.params;
+  const booking = await prisma.booking.findFirst({
+    where: {
+      OR: [
+        { id },
+        { bookingNumber: id },
+      ],
+      deletedAt: null,
+    },
+    include: bookingInclude,
+  });
+
+  if (!booking) {
+    throw new ApiError("Booking not found", 404);
+  }
+
+  const auth = req.auth;
+  const isAdmin = isStaffOrAdmin(auth);
+  if (auth && !isAdmin) {
+    const isOwner =
+      booking.createdBy === auth.id ||
+      (booking.travelerEmail && auth.email && booking.travelerEmail.toLowerCase() === auth.email.toLowerCase());
+    if (!isOwner) {
+      throw new ApiError("Access denied. You do not have permission to view this booking.", 403);
+    }
+  }
+
+  return { data: booking, message: "Booking retrieved successfully" };
 };

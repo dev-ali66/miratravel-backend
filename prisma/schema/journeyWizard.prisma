@@ -9,16 +9,19 @@ model JourneyWizardRequest {
     budget       Int?
     budgetText   String?
 
-    name   String?
-    email  String?
-    phone  String?
-    notes  String? @db.Text
-    status String  @default("NEW")
+    userId       String?
+    name         String?
+    email        String?
+    phone        String?
+    notes        String?   @db.Text
+    status       String    @default("NEW")
 
-    deletedAt DateTime?
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
+    deletedAt    DateTime?
+    createdAt    DateTime  @default(now())
+    updatedAt    DateTime  @updatedAt
 
     @@index([status])
     @@index([createdAt])
+    @@index([userId])
+    @@index([email])
 }

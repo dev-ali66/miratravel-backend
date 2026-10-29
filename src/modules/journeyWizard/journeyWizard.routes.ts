@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { validate } from "../../middlewares/zod.middleware.js";
 import { publicApiLimiter } from "../../middlewares/limiter.middleware.js";
+import { preDecode } from "../../middlewares/auth.middleware.js";
 
 import {
   createJourneyWizardRequestController,
@@ -17,17 +18,19 @@ import {
 
 const router = Router();
 
-// Public route for frontend submission
+// Route for journey wizard submission (attaches authenticated user if session present)
 router.post(
   "/",
+  preDecode,
   publicApiLimiter,
   validate(createJourneyWizardRequestValidator),
   createJourneyWizardRequestController
 );
 
-// Admin routes
+// Unified journey requests route (Admin gets all, authenticated regular User gets their own requests)
 router.get(
   "/",
+  preDecode,
   validate(getJourneyWizardRequestsValidator),
   getJourneyWizardRequestsController
 );

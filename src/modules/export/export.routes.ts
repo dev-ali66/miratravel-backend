@@ -9,6 +9,7 @@ import {
   exportAuditLogsController,
   exportJourneyRequestsController,
 } from "./export.controller.js";
+import { downloadItineraryController } from "../booking/booking/booking.controller.js";
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.get("/inquiries", protect, publicApiLimiter, exportInquiriesController);
 router.get("/newsletter", protect, publicApiLimiter, exportNewsletterController);
 router.get("/audit-logs", protect, publicApiLimiter, exportAuditLogsController);
 router.get("/journey-requests", protect, publicApiLimiter, exportJourneyRequestsController);
+router.get("/itinerary/:id", protect, publicApiLimiter, downloadItineraryController);
 
 export default router;

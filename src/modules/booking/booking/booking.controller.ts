@@ -4,6 +4,7 @@ import catchAsync from "../../../utils/catch.async.js";
 import successResponse from "../../../utils/success.response.js";
 
 import * as BookingService from "./booking.service.js";
+import { downloadItineraryService } from "./itineraryDownload.service.js";
 
 export const getBookingController = catchAsync(
   async (req: Request, res: Response) => {
@@ -58,5 +59,35 @@ export const deleteBookingController = catchAsync(
   async (req: Request, res: Response) => {
     const result = await BookingService.deleteBookingService(req);
     return successResponse({ res, ...result });
+  },
+);
+
+export const getSingleBookingController = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await BookingService.getSingleBookingService(req);
+    return successResponse({ res, ...result });
+  },
+);
+
+export const downloadItineraryController = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await downloadItineraryService(req);
+
+    if (result.format === "json") {
+      return successResponse({
+        res,
+        data: result.data,
+        meta: { filename: result.filename },
+        message: "Itinerary retrieved successfully",
+      });
+    }
+
+    const disposition = req.query.inline === "true" ? "inline" : "attachment";
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader(
+      "Content-Disposition",
+      `${disposition}; filename="${result.filename}"`
+    );
+    return res.status(200).send(result.htmlContent);
   },
 );
