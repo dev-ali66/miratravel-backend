@@ -31,6 +31,42 @@ The project consists of three main applications:
 
 ## Feature Implementation & Current Status
 
+### 0.8 Searchable Story Picker (`StorySearchPicker`) for Home CMS & Location CMS
+- **Requirements & Specification**:
+  - Replace the plain static HTML `<select>` dropdown (*"Select from Published Stories"*) in both Home Page CMS (`MiraStoriesForm.tsx`) and Location CMS (`LocationStoriesForm.tsx`) with an interactive, searchable combobox popover.
+- **New Reusable Component ([`StorySearchPicker.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/CMS/shared/StorySearchPicker.tsx))**:
+  - Live search input with `Search` icon, clear button (`X`), and outside-click auto-close.
+  - Multi-attribute live client filtering matching on story `title`, `slug`, and `type`.
+  - Floating popover dropdown showing:
+    - Story thumbnail preview (hero image or cover image fallback).
+    - Story title, slug link (`/stories/${slug}`), and uppercase type badge (`STORY`, `GUIDANCE`, etc.).
+    - "Auto-fill" action badge with hover highlight.
+  - Temporary auto-fill confirmation badge (*"✓ Auto-filled!"*) and active story title indicator.
+- **Form Integrations**:
+  - [`LocationStoriesForm.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Location/sections/stories/LocationStoriesForm.tsx): Replaced `<select>` with `<StorySearchPicker>`. Autofills title, subtitle, button URL, and canonical 4-section multimedia item media image if available from the published story.
+  - [`MiraStoriesForm.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/CMS/Home/sections/mira-stories/MiraStoriesForm.tsx): Replaced `<select>` with `<StorySearchPicker>`. Autofills title, subtitle, button URL, and canonical 4-section multimedia item media image if available from the published story.
+- **Verification**: Verified 0 TypeScript errors in `dashboard/` (`npx tsc -b`) and `mira_backend_v1/` (`npx tsc --noEmit`).
+
+### 0.7 Location Stories Section Full Alignment with Home CMS Mira Stories (1:1 Match)
+- **Requirements & Specification**:
+  - Align `LocationStoriesForm` and `LocationStoriesPreview` in `dashboard/src/components/pages/Location/sections/stories/` so they function and render identically to Home CMS `mira-stories` (`MiraStoriesForm` and `MiraStoriesPreview`).
+- **Form Enhancements ([`LocationStoriesForm.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Location/sections/stories/LocationStoriesForm.tsx))**:
+  - **1-Click Story Autofill**: Integrated `useGetStories()` hook to fetch published stories. Added a dropdown picker (*"Select from Published Stories"*) inside each story item accordion. Selecting any published story automatically populates the title, excerpt/description subtitle, and formats the button URL as `/stories/${slug}`.
+  - **Styled Text Fields with Color Pickers**: Enabled styled typography (`enableStyle`, `onStyleChange`) for section `eyebrow`, `title`, `description`, item `title`, and item `subtitle`.
+  - **Per-Item Action Buttons**: Added individual `ButtonsField` inside each story item allowing custom button labels (*"Read Story"*), URLs, styles, and variants.
+  - **Left Section Media**: Configured `UniversalMultimediaForm` for `stories.leftSideMultimedia` with `defaultShow="image"`, side image title/label, and placeholder styling.
+  - **Background Media**: Configured `UniversalMultimediaForm` for `stories.backgroundMultimedia` with `defaultShow="color"` and color picker options.
+  - **Call to Action (CTA) Buttons**: Added `ButtonsField` for section-level `stories.buttons` (e.g. *"View All Stories"* linking to `/stories`).
+- **Preview Enhancements ([`LocationStoriesPreview.tsx`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Location/sections/stories/LocationStoriesPreview.tsx))**:
+  - Structured 2-column layout matching `MiraStoriesPreview` with exact aspect ratio `aspect-[776/661]` for the left editorial media card.
+  - Dynamic typography with `DynamicStyledTextPreview` for eyebrow, title, and description.
+  - Interactive story item links with gold/accent index badges (`01`, `02`, `03`...), font-heading titles, and subtitles.
+  - Dynamic placeholder fallback: If 0 items are added, renders clean sample stories (1-4) with story title and subtitle placeholders so the preview maintains visual balance.
+  - CTA button rendering via `DynamicCmsButtonPreview`.
+- **Normalization Updates ([`normalizeStories.ts`](file:///c:/Users/aalia/OneDrive/Desktop/Poli%20Full%20stack/dashboard/src/components/pages/Location/sections/stories/normalizeStories.ts))**:
+  - Normalizes `leftSideMultimedia`, `backgroundMultimedia`, item buttons with `normalizeButton`, and CTA buttons with `normalizeButtonsArray`.
+- **Verification**: Verified 0 TypeScript compilation errors in `dashboard/` (`npx tsc -b`) and `mira_backend_v1/` (`npx tsc --noEmit`).
+
 ### 0.6 RichText Media Reference Tracking & Linked Entity (Location/Journey) Name Resolution
 - **Issue A: RichText Embedded Images Showing as "Unused" in Media Library**:
   - *Symptom*: Images added into story paragraph blocks via the rich-text editor were actively displayed on the website and story preview, but the Media Library classified them as `Unused` (0 references).
