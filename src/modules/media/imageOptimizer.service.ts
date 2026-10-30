@@ -40,6 +40,11 @@ export const IMAGE_OPTIMIZER_CONFIG = {
 
   // Cache duration: 3 months (90 days in seconds = 7,776,000s)
   CACHE_MAX_AGE_SECONDS: 90 * 24 * 60 * 60,
+
+  // High-fidelity upscaling configuration (Method 1: Lanczos3 + Smart Sharpening)
+  ALLOW_UPSCALE: true,
+  UPSCALE_KERNEL: "lanczos3" as const,
+  ENABLE_SMART_SHARPEN: true,
 };
 
 export type SupportedFormat = (typeof IMAGE_OPTIMIZER_CONFIG.SUPPORTED_FORMATS)[number];
@@ -144,14 +149,24 @@ export async function transformImage(
 
   let pipeline = sharp(input, { failOn: "none" });
 
-  // Apply responsive resize
+  // Apply responsive resize with high-fidelity Lanczos3 interpolation
   if (width || height) {
     pipeline = pipeline.resize({
       width,
       height,
       fit,
-      withoutEnlargement: true, // Prevents blurring small images beyond original dimensions
+      withoutEnlargement: !IMAGE_OPTIMIZER_CONFIG.ALLOW_UPSCALE,
+      kernel: sharp.kernel[IMAGE_OPTIMIZER_CONFIG.UPSCALE_KERNEL] || sharp.kernel.lanczos3,
     });
+
+    if (IMAGE_OPTIMIZER_CONFIG.ENABLE_SMART_SHARPEN) {
+      // Unsharp mask filter to maintain crisp edges when upscaled
+      pipeline = pipeline.sharpen({
+        sigma: 1.0,
+        m1: 0.5,
+        m2: 2.0,
+      });
+    }
   }
 
   // Apply format & compression
