@@ -129,6 +129,26 @@ export const getLocationService = async (req: any) => {
     modelName: "Location",
     include: {
       parent: true,
+      children: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          type: true,
+          featured: true,
+          hero: true,
+          card: true,
+          essence: true,
+          why: true,
+          parent: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      },
       journeys: {
         select: {
           id: true,
