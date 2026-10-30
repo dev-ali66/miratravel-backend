@@ -79,6 +79,7 @@ jobs:
             mkdir -p "${{ env.VPS_APP_PATH }}"
             mkdir -p "/var/www/miratravel/multimedia/uploads"
             chmod -R 755 "/var/www/miratravel/multimedia/uploads" || true
+            which cpulimit >/dev/null || apt-get install -y cpulimit 2>/dev/null || true
 
             echo "Backend path: ${{ env.VPS_APP_PATH }}"
             echo "Multimedia path: /var/www/miratravel/multimedia/uploads"

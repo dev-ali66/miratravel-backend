@@ -27,8 +27,11 @@ export const AI_ENHANCER_CONFIG = {
   // Tile size for CPU cache optimization (256x256 tiles fit inside CPU L2/L3 cache, 2-3x faster)
   TILE_SIZE: 256,
 
-  // Thread limit (load:proc:save): limits to 1 CPU core so remaining CPU stays 100% free for API & OS
-  THREADS: "1:1:1",
+  // Thread allocation: 2 threads (load:proc:save) to leverage 2 CPU cores in parallel for 2x faster inference
+  THREADS: "2:2:2",
+
+  // CPU Limit percentage on 2-core machine (180 = 90% of total 200% capacity, leaving 10% strictly reserved)
+  CPU_LIMIT_PERCENT: 180,
 
   // Nice niceness level for Linux process scheduler (19 = lowest background priority)
   NICE_PRIORITY: 19,
@@ -82,7 +85,7 @@ export async function enhanceImageWithAi(input: string | Buffer): Promise<Buffer
       inputNeedsCleanup = true;
     }
 
-    // 2. Execute Real-ESRGAN NCNN Vulkan with CPU throttling & cache optimization
+    // 2. Execute Real-ESRGAN NCNN Vulkan with 2-core parallelism, tile caching & 90% CPU limit
     const args = [
       "-i", tempInputPath,
       "-o", tempOutputPath,
@@ -94,8 +97,31 @@ export async function enhanceImageWithAi(input: string | Buffer): Promise<Buffer
     ];
 
     const isLinux = process.platform === "linux";
-    const execCmd = isLinux ? "nice" : binaryPath;
-    const execArgs = isLinux ? ["-n", String(AI_ENHANCER_CONFIG.NICE_PRIORITY), binaryPath, ...args] : args;
+    const hasCpulimit = isLinux && (fs.existsSync("/usr/bin/cpulimit") || fs.existsSync("/bin/cpulimit"));
+
+    let execCmd: string;
+    let execArgs: string[];
+
+    if (hasCpulimit) {
+      // Hard cap at 90% of 2 cores (180%) + lowest background priority (nice -n 19)
+      execCmd = "cpulimit";
+      execArgs = [
+        "-l",
+        String(AI_ENHANCER_CONFIG.CPU_LIMIT_PERCENT),
+        "--",
+        "nice",
+        "-n",
+        String(AI_ENHANCER_CONFIG.NICE_PRIORITY),
+        binaryPath,
+        ...args,
+      ];
+    } else if (isLinux) {
+      execCmd = "nice";
+      execArgs = ["-n", String(AI_ENHANCER_CONFIG.NICE_PRIORITY), binaryPath, ...args];
+    } else {
+      execCmd = binaryPath;
+      execArgs = args;
+    }
 
     await execFileAsync(execCmd, execArgs, {
       timeout: AI_ENHANCER_CONFIG.TIMEOUT_MS,
