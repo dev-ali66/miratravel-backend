@@ -172,6 +172,7 @@ export async function transformImage(
   buffer: Buffer;
   mimeType: string;
   aiEnhanced: boolean;
+  isAiFallback: boolean;
   originalDimensions?: { width: number; height: number };
 }> {
   const { width, height, quality = IMAGE_OPTIMIZER_CONFIG.DEFAULT_QUALITY, format = "webp", fit = "cover", ai, disableAutoAi } = options;
@@ -196,6 +197,7 @@ export async function transformImage(
   }
 
   let actualAiApplied = false;
+  let isAiFallback = false;
 
   // Real-ESRGAN AI Super-Resolution (Zero Permanent Storage - operating via temp RAM/disk cleanup)
   if (shouldUseAi && IMAGE_OPTIMIZER_CONFIG.ENABLE_AI_SUPER_RESOLUTION) {
@@ -205,6 +207,7 @@ export async function transformImage(
     } catch (aiErr) {
       console.warn("[ImageOptimizer] Real-ESRGAN AI enhance error, falling back to Sharp Lanczos3:", aiErr);
       imageSource = input;
+      isAiFallback = true;
     }
   }
 
@@ -259,7 +262,7 @@ export async function transformImage(
   const buffer = await pipeline.toBuffer();
   const mimeType = MIME_MAP[format] || "image/webp";
 
-  return { buffer, mimeType, aiEnhanced: actualAiApplied, originalDimensions };
+  return { buffer, mimeType, aiEnhanced: actualAiApplied, isAiFallback, originalDimensions };
 }
 
 /**
@@ -306,14 +309,24 @@ export const imageOptimizationMiddleware = async (
       return next(); // Non-image assets (e.g. .mp4, .pdf) bypass optimizer
     }
 
-    const { buffer, mimeType, aiEnhanced, originalDimensions } = await transformImage(absoluteFilePath, options);
+    const { buffer, mimeType, aiEnhanced, isAiFallback, originalDimensions } = await transformImage(absoluteFilePath, options);
 
-    // Send optimized response with Cloudflare-friendly 3-month cache header
+    // Send optimized response
     res.setHeader("Content-Type", mimeType);
-    res.setHeader(
-      "Cache-Control",
-      `public, max-age=${IMAGE_OPTIMIZER_CONFIG.CACHE_MAX_AGE_SECONDS}, immutable`
-    );
+
+    // If AI timed out or failed into fallback, NEVER let Cloudflare or browser cache the un-enhanced image!
+    if (isAiFallback) {
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+      res.setHeader("Pragma", "no-cache");
+      res.setHeader("Expires", "0");
+      res.setHeader("X-AI-Fallback", "true");
+    } else {
+      res.setHeader(
+        "Cache-Control",
+        `public, max-age=${IMAGE_OPTIMIZER_CONFIG.CACHE_MAX_AGE_SECONDS}, immutable`
+      );
+    }
+
     res.setHeader("Vary", "Accept");
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
@@ -387,13 +400,22 @@ export const optimizeMediaRouteHandler = async (
       sourceBuffer = absoluteFilePath;
     }
 
-    const { buffer, mimeType, aiEnhanced, originalDimensions } = await transformImage(sourceBuffer, options);
+    const { buffer, mimeType, aiEnhanced, isAiFallback, originalDimensions } = await transformImage(sourceBuffer, options);
 
     res.setHeader("Content-Type", mimeType);
-    res.setHeader(
-      "Cache-Control",
-      `public, max-age=${IMAGE_OPTIMIZER_CONFIG.CACHE_MAX_AGE_SECONDS}, immutable`
-    );
+
+    if (isAiFallback) {
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+      res.setHeader("Pragma", "no-cache");
+      res.setHeader("Expires", "0");
+      res.setHeader("X-AI-Fallback", "true");
+    } else {
+      res.setHeader(
+        "Cache-Control",
+        `public, max-age=${IMAGE_OPTIMIZER_CONFIG.CACHE_MAX_AGE_SECONDS}, immutable`
+      );
+    }
+
     res.setHeader("Vary", "Accept");
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");

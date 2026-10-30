@@ -21,8 +21,8 @@ export const AI_ENHANCER_CONFIG = {
   // Standard AI upscaling factor: 4x
   SCALE: 4,
 
-  // Neural network model for natural travel photos, landscapes, and architecture
-  MODEL: "realesrgan-x4plus",
+  // Compact fast neural network model (SRVGGNet: ~1.2MB, 5x-10x faster inference on CPU)
+  MODEL: "realesr-animevideov3",
 
   // Tile size for CPU cache optimization (256x256 tiles fit inside CPU L2/L3 cache, 2-3x faster)
   TILE_SIZE: 256,
@@ -36,8 +36,8 @@ export const AI_ENHANCER_CONFIG = {
   // Nice niceness level for Linux process scheduler (19 = lowest background priority)
   NICE_PRIORITY: 19,
 
-  // Timeout for AI inference (milliseconds)
-  TIMEOUT_MS: 30000,
+  // Timeout for AI inference: 2 minutes (120,000 milliseconds)
+  TIMEOUT_MS: 120000,
 };
 
 /**
