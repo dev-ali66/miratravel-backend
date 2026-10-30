@@ -12,9 +12,9 @@ import { getUploadsDir } from "../../shared/upload_local.service.js";
  * default quality, fallback clamping, and Cloudflare/browser cache TTL.
  */
 export const IMAGE_OPTIMIZER_CONFIG = {
-  // Hard maximum boundary (2K = 2048px). Any value above this triggers clamping.
-  MAX_ALLOWED_WIDTH: 2048,
-  MAX_ALLOWED_HEIGHT: 2048,
+  // Hard maximum boundary (4K = 3840px). Any value above this triggers clamping.
+  MAX_ALLOWED_WIDTH: 3840,
+  MAX_ALLOWED_HEIGHT: 3840,
 
   // Fallback clamping dimension when an excessive or malicious value is passed
   FALLBACK_CLAMP_WIDTH: 1440,
@@ -24,7 +24,7 @@ export const IMAGE_OPTIMIZER_CONFIG = {
   MIN_ALLOWED_DIMENSION: 10,
 
   // Default quality if not specified (range: 1 - 100)
-  DEFAULT_QUALITY: 85,
+  DEFAULT_QUALITY: 100,
 
   // Default output format (WebP yields 70-80% smaller size than JPEG/PNG)
   DEFAULT_FORMAT: "webp" as const,
