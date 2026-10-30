@@ -28,6 +28,7 @@ import { setupSwagger } from "./src/docs/swagger/swagger.js";
 import { responseLogger } from "./src/logger/response.logger.js";
 import { requestLogger } from "./src/logger/request.logger.js";
 
+import { imageOptimizationMiddleware } from "./src/modules/media/imageOptimizer.service.js";
 import prisma from "./src/config/prisma.js";
 
 dotenv.config({ quiet: true });
@@ -71,6 +72,7 @@ const staticUploadsMiddleware = [
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
     next();
   },
+  imageOptimizationMiddleware,
   express.static(uploadsDir, {
     maxAge: "30d",
   }),

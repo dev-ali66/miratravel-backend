@@ -28,8 +28,12 @@ import {
   getMediaGalleryValidator,
   updateMediaMetadataValidator,
 } from "./media.validator.js";
+import { optimizeMediaRouteHandler } from "./imageOptimizer.service.js";
 
 const router = Router();
+
+// 0. On-demand dynamic image optimization endpoint (supports both local & legacy Cloudinary URLs)
+router.get("/optimize", optimizeMediaRouteHandler);
 
 // 0. Pre-upload instant hash check (Zero-byte client-side deduplication)
 router.get("/check-hash/:hash", checkMediaHashController);
