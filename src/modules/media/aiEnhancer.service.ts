@@ -24,6 +24,15 @@ export const AI_ENHANCER_CONFIG = {
   // Neural network model for natural travel photos, landscapes, and architecture
   MODEL: "realesrgan-x4plus",
 
+  // Tile size for CPU cache optimization (256x256 tiles fit inside CPU L2/L3 cache, 2-3x faster)
+  TILE_SIZE: 256,
+
+  // Thread limit (load:proc:save): limits to 1 CPU core so remaining CPU stays 100% free for API & OS
+  THREADS: "1:1:1",
+
+  // Nice niceness level for Linux process scheduler (19 = lowest background priority)
+  NICE_PRIORITY: 19,
+
   // Timeout for AI inference (milliseconds)
   TIMEOUT_MS: 30000,
 };
@@ -73,16 +82,22 @@ export async function enhanceImageWithAi(input: string | Buffer): Promise<Buffer
       inputNeedsCleanup = true;
     }
 
-    // 2. Execute Real-ESRGAN NCNN Vulkan
+    // 2. Execute Real-ESRGAN NCNN Vulkan with CPU throttling & cache optimization
     const args = [
       "-i", tempInputPath,
       "-o", tempOutputPath,
       "-s", String(AI_ENHANCER_CONFIG.SCALE),
+      "-t", String(AI_ENHANCER_CONFIG.TILE_SIZE),
+      "-j", AI_ENHANCER_CONFIG.THREADS,
       "-m", modelsDir,
       "-n", AI_ENHANCER_CONFIG.MODEL,
     ];
 
-    await execFileAsync(binaryPath, args, {
+    const isLinux = process.platform === "linux";
+    const execCmd = isLinux ? "nice" : binaryPath;
+    const execArgs = isLinux ? ["-n", String(AI_ENHANCER_CONFIG.NICE_PRIORITY), binaryPath, ...args] : args;
+
+    await execFileAsync(execCmd, execArgs, {
       timeout: AI_ENHANCER_CONFIG.TIMEOUT_MS,
       windowsHide: true,
     });
