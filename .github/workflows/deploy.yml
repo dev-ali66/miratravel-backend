@@ -39,6 +39,7 @@ jobs:
         run: |
           zip -r backend-build.zip \
             dist \
+            bin \
             node_modules \
             prisma \
             package.json \
@@ -109,6 +110,7 @@ jobs:
 
             echo "==== Extracting deployment package ==="
             unzip -o backend-build.zip
+            chmod +x bin/realesrgan/realesrgan-ncnn-vulkan 2>/dev/null || true
 
             echo "=== Removing deployment package ==="
             rm -f backend-build.zip
