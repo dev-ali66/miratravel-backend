@@ -82,7 +82,16 @@ const normalizeCmsPageData = (page: any) => {
     }
   });
 
+  const isLegalPage =
+    page?.slug === "terms-of-service" ||
+    page?.slug === "terms" ||
+    page?.slug === "privacy-policy" ||
+    page?.slug === "privacy" ||
+    dataObj.page === "terms" ||
+    dataObj.page === "privacy";
+
   if (
+    isLegalPage ||
     dataObj.page === "journey" ||
     page?.slug === "journey" ||
     dataObj.page === "stories" ||
@@ -92,8 +101,19 @@ const normalizeCmsPageData = (page: any) => {
   ) {
     delete dataObj.sections;
     delete dataObj.seo;
+    if (dataObj.hero && dataObj.hero.key) {
+      delete dataObj.hero.key;
+    }
   } else {
     dataObj.sections = sections;
+  }
+
+  // Ensure canonical empty string for null media urls per Rule 3
+  if (dataObj.hero?.backgroundMultimedia?.video && dataObj.hero.backgroundMultimedia.video.url === null) {
+    dataObj.hero.backgroundMultimedia.video.url = "";
+  }
+  if (dataObj.hero?.backgroundMultimedia?.image && dataObj.hero.backgroundMultimedia.image.url === null) {
+    dataObj.hero.backgroundMultimedia.image.url = "";
   }
 
   return {
@@ -141,6 +161,23 @@ export const manageCmsPageService = async (req: any, res: any) => {
     }
     if (typeof req.validated.body.data === "object") {
       req.validated.body.data = normalizeCmsPageData({ data: req.validated.body.data }).data;
+    }
+  }
+
+  // Prevent duplicate CMS page records by resolving existing record by slug
+  const incomingId = req.body?.id || req.validated?.body?.id;
+  const incomingSlug = req.body?.slug || req.validated?.body?.slug;
+  if (!incomingId && incomingSlug) {
+    const existing = await prisma.cmsPage.findFirst({
+      where: { slug: incomingSlug, deletedAt: null },
+      orderBy: { createdAt: "desc" },
+    });
+    if (existing?.id) {
+      if (!req.body) req.body = {};
+      req.body.id = existing.id;
+      if (req.validated?.body) {
+        req.validated.body.id = existing.id;
+      }
     }
   }
 
