@@ -3,7 +3,6 @@ import path from "path";
 import sharp from "sharp";
 import type { Request, Response, NextFunction } from "express";
 import { getUploadsDir } from "../../shared/upload_local.service.js";
-import { enhanceImageWithAi } from "./aiEnhancer.service.js";
 
 /**
  * ============================================================================
@@ -42,17 +41,8 @@ export const IMAGE_OPTIMIZER_CONFIG = {
   // Cache duration: 3 months (90 days in seconds = 7,776,000s)
   CACHE_MAX_AGE_SECONDS: 90 * 24 * 60 * 60,
 
-  // High-fidelity upscaling configuration (Method 1: Lanczos3 + Smart Sharpening)
-  ALLOW_UPSCALE: true,
-  UPSCALE_KERNEL: "lanczos3" as const,
-  ENABLE_SMART_SHARPEN: true,
-
-  // Real-ESRGAN AI Super-Resolution
-  ENABLE_AI_SUPER_RESOLUTION: true,
-
-  // Auto AI Upscale: If requested width/height exceeds original genuine image size,
-  // automatically triggers Real-ESRGAN AI without needing ?ai=true in URL!
-  AUTO_AI_ON_UPSCALE: true,
+  // Resizing interpolation kernel
+  RESIZE_KERNEL: "lanczos3" as const,
 };
 
 export type SupportedFormat = (typeof IMAGE_OPTIMIZER_CONFIG.SUPPORTED_FORMATS)[number];
@@ -72,8 +62,6 @@ export interface ImageOptimizationOptions {
   quality?: number;
   fit?: SupportedFit;
   format?: SupportedFormat;
-  ai?: boolean;
-  disableAutoAi?: boolean;
 }
 
 /**
@@ -85,10 +73,9 @@ export function parseOptimizationParams(query: Record<string, any>): ImageOptimi
   const rawQ = query.q ?? query.quality;
   const rawFmt = query.fmt ?? query.format;
   const rawFit = query.fit;
-  const rawAi = query.ai ?? query.enhance;
 
-  // If no resize, format, or AI params are supplied, return null to bypass processing
-  if (rawW === undefined && rawH === undefined && rawQ === undefined && rawFmt === undefined && rawAi === undefined) {
+  // If no resize or format params are supplied, return null to bypass processing
+  if (rawW === undefined && rawH === undefined && rawQ === undefined && rawFmt === undefined) {
     return null;
   }
 
@@ -146,24 +133,11 @@ export function parseOptimizationParams(query: Record<string, any>): ImageOptimi
     }
   }
 
-  // AI Super-Resolution toggle & explicit opt-out
-  let ai: boolean | undefined = undefined;
-  let disableAutoAi = false;
-  if (rawAi !== undefined) {
-    const rawAiStr = String(rawAi).toLowerCase().trim();
-    if (rawAiStr === "false" || rawAiStr === "0") {
-      disableAutoAi = true;
-      ai = false;
-    } else {
-      ai = rawAiStr === "true" || rawAiStr === "1" || rawAiStr === "";
-    }
-  }
-
-  return { width, height, quality, format, fit, ai, disableAutoAi };
+  return { width, height, quality, format, fit };
 }
 
 /**
- * Resizes and transforms an image input (file path or Buffer) via Sharp and optional Real-ESRGAN AI.
+ * Resizes and transforms an image input (file path or Buffer) via Sharp.
  */
 export async function transformImage(
   input: string | Buffer,
@@ -171,72 +145,32 @@ export async function transformImage(
 ): Promise<{
   buffer: Buffer;
   mimeType: string;
-  aiEnhanced: boolean;
-  isAiFallback: boolean;
   originalDimensions?: { width: number; height: number };
 }> {
-  const { width, height, quality = IMAGE_OPTIMIZER_CONFIG.DEFAULT_QUALITY, format = "webp", fit = "cover", ai, disableAutoAi } = options;
+  const { width, height, quality = IMAGE_OPTIMIZER_CONFIG.DEFAULT_QUALITY, format = "webp", fit = "cover" } = options;
 
-  let imageSource = input;
-  let shouldUseAi = Boolean(ai);
   let originalDimensions: { width: number; height: number } | undefined = undefined;
 
-  // Auto-detect genuine dimensions and auto-engage Real-ESRGAN if requested size > genuine size
   try {
     const origMeta = await sharp(input, { failOn: "none" }).metadata();
     if (origMeta.width && origMeta.height) {
       originalDimensions = { width: origMeta.width, height: origMeta.height };
-      if (!shouldUseAi && !disableAutoAi && IMAGE_OPTIMIZER_CONFIG.AUTO_AI_ON_UPSCALE && (width || height)) {
-        if ((width && width > origMeta.width) || (height && height > origMeta.height)) {
-          shouldUseAi = true;
-        }
-      }
     }
   } catch {
     // ignore metadata extraction error
   }
 
-  let actualAiApplied = false;
-  let isAiFallback = false;
+  let pipeline = sharp(input, { failOn: "none" });
 
-  // Real-ESRGAN AI Super-Resolution (Zero Permanent Storage - operating via temp RAM/disk cleanup)
-  if (shouldUseAi && IMAGE_OPTIMIZER_CONFIG.ENABLE_AI_SUPER_RESOLUTION) {
-    try {
-      imageSource = await enhanceImageWithAi(input);
-      actualAiApplied = true;
-    } catch (aiErr) {
-      console.warn("[ImageOptimizer] Real-ESRGAN AI enhance error, falling back to Sharp Lanczos3:", aiErr);
-      imageSource = input;
-      isAiFallback = true;
-    }
-  }
-
-  let pipeline = sharp(imageSource, { failOn: "none" });
-
-  // Determine target dimensions:
-  // If the caller specified width or height, respect them.
-  // If AI was applied but NO width or height was specified, PRESERVE THE ORIGINAL GENUINE RESOLUTION!
-  const targetWidth = width ?? (actualAiApplied && originalDimensions?.width ? originalDimensions.width : undefined);
-  const targetHeight = height ?? (actualAiApplied && originalDimensions?.height ? originalDimensions.height : undefined);
-
-  // Apply responsive resize with high-fidelity Lanczos3 interpolation
-  if (targetWidth || targetHeight) {
+  // Apply responsive resize
+  if (width || height) {
     pipeline = pipeline.resize({
-      width: targetWidth,
-      height: targetHeight,
+      width,
+      height,
       fit,
-      withoutEnlargement: false,
-      kernel: sharp.kernel[IMAGE_OPTIMIZER_CONFIG.UPSCALE_KERNEL] || sharp.kernel.lanczos3,
+      withoutEnlargement: true, // Prevents upscaling beyond original dimensions (safeguard)
+      kernel: sharp.kernel[IMAGE_OPTIMIZER_CONFIG.RESIZE_KERNEL] || sharp.kernel.lanczos3,
     });
-
-    if (IMAGE_OPTIMIZER_CONFIG.ENABLE_SMART_SHARPEN) {
-      // Unsharp mask filter to maintain crisp edges
-      pipeline = pipeline.sharpen({
-        sigma: 1.0,
-        m1: 0.5,
-        m2: 2.0,
-      });
-    }
   }
 
   // Apply format & compression
@@ -262,7 +196,7 @@ export async function transformImage(
   const buffer = await pipeline.toBuffer();
   const mimeType = MIME_MAP[format] || "image/webp";
 
-  return { buffer, mimeType, aiEnhanced: actualAiApplied, isAiFallback, originalDimensions };
+  return { buffer, mimeType, originalDimensions };
 }
 
 /**
@@ -304,33 +238,23 @@ export const imageOptimizationMiddleware = async (
 
     // Verify it is a valid image extension before passing to Sharp
     const ext = path.extname(absoluteFilePath).toLowerCase();
-    const isImage = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif", ".tiff"].includes(ext);
+    const isImage = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif", ".tiff", ".heic", ".heif"].includes(ext);
     if (!isImage) {
       return next(); // Non-image assets (e.g. .mp4, .pdf) bypass optimizer
     }
 
-    const { buffer, mimeType, aiEnhanced, isAiFallback, originalDimensions } = await transformImage(absoluteFilePath, options);
+    const { buffer, mimeType, originalDimensions } = await transformImage(absoluteFilePath, options);
 
     // Send optimized response
     res.setHeader("Content-Type", mimeType);
-
-    // If AI timed out or failed into fallback, NEVER let Cloudflare or browser cache the un-enhanced image!
-    if (isAiFallback) {
-      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-      res.setHeader("Pragma", "no-cache");
-      res.setHeader("Expires", "0");
-      res.setHeader("X-AI-Fallback", "true");
-    } else {
-      res.setHeader(
-        "Cache-Control",
-        `public, max-age=${IMAGE_OPTIMIZER_CONFIG.CACHE_MAX_AGE_SECONDS}, immutable`
-      );
-    }
-
+    res.setHeader(
+      "Cache-Control",
+      `public, max-age=${IMAGE_OPTIMIZER_CONFIG.CACHE_MAX_AGE_SECONDS}, immutable`
+    );
     res.setHeader("Vary", "Accept");
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-    res.setHeader("X-AI-Enhanced", aiEnhanced ? "true" : "false");
+
     if (originalDimensions?.width && originalDimensions?.height) {
       res.setHeader("X-Original-Dimensions", `${originalDimensions.width}x${originalDimensions.height}`);
     }
@@ -400,26 +324,17 @@ export const optimizeMediaRouteHandler = async (
       sourceBuffer = absoluteFilePath;
     }
 
-    const { buffer, mimeType, aiEnhanced, isAiFallback, originalDimensions } = await transformImage(sourceBuffer, options);
+    const { buffer, mimeType, originalDimensions } = await transformImage(sourceBuffer, options);
 
     res.setHeader("Content-Type", mimeType);
-
-    if (isAiFallback) {
-      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-      res.setHeader("Pragma", "no-cache");
-      res.setHeader("Expires", "0");
-      res.setHeader("X-AI-Fallback", "true");
-    } else {
-      res.setHeader(
-        "Cache-Control",
-        `public, max-age=${IMAGE_OPTIMIZER_CONFIG.CACHE_MAX_AGE_SECONDS}, immutable`
-      );
-    }
-
+    res.setHeader(
+      "Cache-Control",
+      `public, max-age=${IMAGE_OPTIMIZER_CONFIG.CACHE_MAX_AGE_SECONDS}, immutable`
+    );
     res.setHeader("Vary", "Accept");
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-    res.setHeader("X-AI-Enhanced", aiEnhanced ? "true" : "false");
+
     if (originalDimensions?.width && originalDimensions?.height) {
       res.setHeader("X-Original-Dimensions", `${originalDimensions.width}x${originalDimensions.height}`);
     }

@@ -13,6 +13,8 @@ const MIME_EXTENSION_MAP: Record<string, string> = {
   "image/gif": ".gif",
   "image/svg+xml": ".svg",
   "image/avif": ".avif",
+  "image/heic": ".heic",
+  "image/heif": ".heic",
   "video/mp4": ".mp4",
   "video/webm": ".webm",
   "video/quicktime": ".mov",
@@ -137,6 +139,31 @@ export function computeSha256(buffer: Buffer): string {
 }
 
 /**
+ * Computes SHA-256 hash of a file on disk via read stream with minimal RAM footprint.
+ */
+export function computeFileStreamSha256(filePath: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const hash = crypto.createHash("sha256");
+    const stream = fs.createReadStream(filePath);
+    stream.on("data", (chunk) => hash.update(chunk));
+    stream.on("end", () => resolve(hash.digest("hex")));
+    stream.on("error", (err) => reject(err));
+  });
+}
+
+/**
+ * Returns the temporary uploads directory path, creating it if necessary.
+ */
+export const getTempUploadsDir = (): string => {
+  const uploadsDir = getUploadsDir();
+  const tempDir = path.join(uploadsDir, ".tmp");
+  if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir, { recursive: true });
+  }
+  return tempDir;
+};
+
+/**
  * Generates canonical file metadata and disk storage paths.
  */
 export function generateMediaStoragePath(
@@ -173,10 +200,25 @@ export function generateMediaStoragePath(
 }
 
 /**
- * Memory-backed Multer uploader handling single & bulk uploads up to 200MB.
+ * Disk-backed Multer storage streaming incoming files to temporary NVMe disk.
+ * Eliminates RAM buffer bloat and protects against PM2 RSS out-of-memory crashes.
+ */
+export const mediaDiskStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => {
+    cb(null, getTempUploadsDir());
+  },
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname || "").toLowerCase();
+    const randomHash = crypto.randomBytes(6).toString("hex");
+    cb(null, `tmp-${Date.now()}-${randomHash}${ext}`);
+  },
+});
+
+/**
+ * Temporary disk-streamed Multer uploader handling single & bulk uploads up to 200MB.
  */
 export const mediaMulterUpload = multer({
-  storage: multer.memoryStorage(),
+  storage: mediaDiskStorage,
   limits: {
     fileSize: 200 * 1024 * 1024, // 200 MB
   },

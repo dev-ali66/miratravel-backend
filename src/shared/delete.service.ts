@@ -132,6 +132,18 @@ export const deleteRecordsSafely = async ({
       console.warn("Redis cache invalidation error in deleteRecordsSafely:", redisErr);
     }
   }
+
+  // Clean up media references and soft-delete unreferenced assets
+  if (modelName && records.length > 0) {
+    for (const record of records) {
+      if (record?.id) {
+        removeEntityMediaReferences(modelName, record.id).catch((err: any) => {
+          console.warn(`[deleteRecordsSafely] removeEntityMediaReferences error for ${modelName}:${record.id}:`, err);
+        });
+      }
+    }
+  }
+
   // ===========================
   // AUDIT LOG (OPTIONAL)
   // ===========================

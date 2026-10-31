@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import sharp from "sharp";
 import { StatusCodes } from "http-status-codes";
 import prisma from "../../config/prisma.js";
 import ApiError from "../../utils/api.error.js";
@@ -11,6 +12,7 @@ import {
 import { deleteFromLocalStorage, getUploadsDir } from "../../shared/upload_local.service.js";
 import {
   computeSha256,
+  computeFileStreamSha256,
   extractImageDimensions,
   generateMediaStoragePath,
 } from "./mediaStorage.util.js";
@@ -362,24 +364,86 @@ export async function uploadMediaAssets(
   const results = [];
 
   for (const file of files) {
-    const buffer =
-      file.buffer ||
-      (file.path && fs.existsSync(file.path)
-        ? await fs.promises.readFile(file.path)
-        : null);
+    const hasDiskPath = Boolean(file.path && fs.existsSync(file.path));
+    const fileSize = file.size || (hasDiskPath ? fs.statSync(file.path).size : file.buffer?.length || 0);
 
-    if (!buffer) {
+    if (fileSize <= 0 && !file.buffer && !hasDiskPath) {
       throw new ApiError(
-        `Invalid or empty file buffer for '${file.originalname || "upload"}'`,
+        `Invalid or empty file for '${file.originalname || "upload"}'`,
         StatusCodes.BAD_REQUEST
       );
     }
 
-    const hash = computeSha256(buffer);
+    const isImage = file.mimetype.startsWith("image/");
+    const MAX_IMAGE_SIZE_BYTES = 30 * 1024 * 1024; // 30 MB
+    const MAX_MEDIA_SIZE_BYTES = 200 * 1024 * 1024; // 200 MB
+
+    // Requirement 7: Enforce strict 30MB upload limit specifically for images
+    if (isImage && fileSize > MAX_IMAGE_SIZE_BYTES) {
+      if (hasDiskPath) await fs.promises.unlink(file.path).catch(() => {});
+      throw new ApiError(
+        `Image file '${file.originalname}' exceeds the 30MB maximum upload limit (${(fileSize / (1024 * 1024)).toFixed(2)} MB)`,
+        StatusCodes.BAD_REQUEST
+      );
+    }
+
+    if (!isImage && fileSize > MAX_MEDIA_SIZE_BYTES) {
+      if (hasDiskPath) await fs.promises.unlink(file.path).catch(() => {});
+      throw new ApiError(
+        `Media file '${file.originalname}' exceeds the 200MB maximum upload limit (${(fileSize / (1024 * 1024)).toFixed(2)} MB)`,
+        StatusCodes.BAD_REQUEST
+      );
+    }
+
+    // Requirements 15 & 16: Magic-byte file signature validation & Pixel Bomb defense
+    let imageWidth: number | null = null;
+    let imageHeight: number | null = null;
+    let hash: string;
+
+    if (isImage) {
+      // For images (max 30MB), reading the buffer for Sharp / SVG dimension extraction is safe
+      const imageBuffer =
+        file.buffer ||
+        (hasDiskPath ? await fs.promises.readFile(file.path) : Buffer.alloc(0));
+
+      if (file.mimetype === "image/svg+xml" || file.originalname.toLowerCase().endsWith(".svg")) {
+        const svgDims = extractImageDimensions(imageBuffer, file.mimetype);
+        imageWidth = svgDims.width || null;
+        imageHeight = svgDims.height || null;
+      } else {
+        try {
+          // Sharp verifies actual binary image structure and enforces 100MP decompression ceiling
+          const meta = await sharp(imageBuffer, { limitInputPixels: 100_000_000, failOn: "none" }).metadata();
+          if (!meta.format) {
+            throw new Error("Invalid or unreadable image file structure");
+          }
+          imageWidth = meta.width || null;
+          imageHeight = meta.height || null;
+        } catch (err: any) {
+          if (hasDiskPath) await fs.promises.unlink(file.path).catch(() => {});
+          throw new ApiError(
+            `File '${file.originalname}' failed image validation: ${err?.message || "Corrupt or invalid image file"}`,
+            StatusCodes.BAD_REQUEST
+          );
+        }
+      }
+
+      hash = computeSha256(imageBuffer);
+    } else {
+      // For videos, audio & large media: compute hash via stream to keep RAM usage near 0 MB
+      if (hasDiskPath) {
+        hash = await computeFileStreamSha256(file.path);
+      } else if (file.buffer) {
+        hash = computeSha256(file.buffer);
+      } else {
+        throw new ApiError("Failed to access uploaded media stream", StatusCodes.INTERNAL_SERVER_ERROR);
+      }
+    }
 
     // 1. In-batch deduplication check (if same file uploaded multiple times in single request)
     const inBatchExisting = results.find((r: any) => r.hash === hash);
     if (inBatchExisting) {
+      if (hasDiskPath) await fs.promises.unlink(file.path).catch(() => {});
       results.push({
         ...inBatchExisting,
         isDuplicate: true,
@@ -414,6 +478,9 @@ export async function uploadMediaAssets(
     }
 
     if (existing) {
+      // Duplicate asset: cleanup temp disk file immediately
+      if (hasDiskPath) await fs.promises.unlink(file.path).catch(() => {});
+
       // If found in trash, auto-restore
       if (existing.status === "IN_TRASH") {
         await prisma.mediaAsset.update({
@@ -435,15 +502,23 @@ export async function uploadMediaAssets(
       continue;
     }
 
-    // New unique file: write to disk and extract metadata
+    // New unique file: move from temp disk to permanent storage path (zero RAM overhead)
     const { fileName, filePath, fileUrl } = generateMediaStoragePath(
       file.originalname,
       file.mimetype
     );
 
-    await fs.promises.writeFile(filePath, buffer);
+    if (hasDiskPath) {
+      try {
+        await fs.promises.rename(file.path, filePath);
+      } catch {
+        await fs.promises.copyFile(file.path, filePath);
+        await fs.promises.unlink(file.path).catch(() => {});
+      }
+    } else if (file.buffer) {
+      await fs.promises.writeFile(filePath, file.buffer);
+    }
 
-    const dims = extractImageDimensions(buffer, file.mimetype);
     const cleanTitle = path.basename(
       file.originalname,
       path.extname(file.originalname)
@@ -456,10 +531,10 @@ export async function uploadMediaAssets(
         storagePath: filePath,
         url: fileUrl,
         mimeType: file.mimetype,
-        size: buffer.length,
+        size: fileSize,
         hash,
-        width: dims.width || null,
-        height: dims.height || null,
+        width: imageWidth,
+        height: imageHeight,
         title: cleanTitle,
         status: "ACTIVE",
       },

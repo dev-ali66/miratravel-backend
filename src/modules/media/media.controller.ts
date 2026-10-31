@@ -78,7 +78,7 @@ export const uploadMediaController = catchAsync(
       ? [req.file]
       : [];
 
-    const userId = (req as any).user?.id;
+    const userId = (req as any).auth?.id || (req as any).user?.id;
     const uploaded = await uploadMediaAssets(files, userId);
 
     return successResponse({
@@ -93,7 +93,7 @@ export const uploadMediaController = catchAsync(
 export const updateMediaMetadataController = catchAsync(
   async (req: Request, res: Response) => {
     const id = String(req.params.id);
-    const userId = (req as any).user?.id;
+    const userId = (req as any).auth?.id || (req as any).user?.id;
     const updated = await updateMediaMetadata(id, req.body, userId);
 
     return successResponse({
@@ -107,7 +107,7 @@ export const updateMediaMetadataController = catchAsync(
 export const softDeleteMediaController = catchAsync(
   async (req: Request, res: Response) => {
     const id = String(req.params.id);
-    const userId = (req as any).user?.id;
+    const userId = (req as any).auth?.id || (req as any).user?.id;
     const trashed = await softDeleteMedia(id, userId);
 
     return successResponse({
@@ -121,7 +121,7 @@ export const softDeleteMediaController = catchAsync(
 export const restoreMediaController = catchAsync(
   async (req: Request, res: Response) => {
     const id = String(req.params.id);
-    const userId = (req as any).user?.id;
+    const userId = (req as any).auth?.id || (req as any).user?.id;
     const restored = await restoreMedia(id, userId);
 
     return successResponse({
@@ -135,7 +135,7 @@ export const restoreMediaController = catchAsync(
 export const permanentDeleteMediaController = catchAsync(
   async (req: Request, res: Response) => {
     const id = String(req.params.id);
-    const userId = (req as any).user?.id;
+    const userId = (req as any).auth?.id || (req as any).user?.id;
     const result = await permanentDeleteMedia(id, userId);
 
     return successResponse({
