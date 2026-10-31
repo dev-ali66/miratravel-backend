@@ -22,8 +22,16 @@ export const manageCmsPageValidator = z.object({
       data: z.any().optional(),
     })
     .transform((data) => {
-      // Name থেকে slug generate
-      if (data.name) {
+      // If slug provided without name, generate name from slug
+      if (!data.name && data.slug) {
+        data.name = data.slug
+          .replace(/[-_]+/g, " ")
+          .trim()
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+      }
+
+      // If name provided without slug, generate slug from name
+      if (!data.slug && data.name) {
         data.slug = data.name
           .trim()
           .toLowerCase()
@@ -36,21 +44,13 @@ export const manageCmsPageValidator = z.object({
       return data;
     })
     .superRefine((data, ctx) => {
-      // Create
+      // Create requires either name or slug
       if (!data.id) {
-        if (!data.name) {
+        if (!data.name && !data.slug) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ["name"],
-            message: "name is required when creating",
-          });
-        }
-
-        if (!data.slug) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ["slug"],
-            message: "Unable to generate slug from name",
+            message: "name or slug is required when creating",
           });
         }
       }
