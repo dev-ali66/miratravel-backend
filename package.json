@@ -29,6 +29,7 @@
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "csurf": "^1.11.0",
+    "destroy": "^1.2.0",
     "dotenv": "^17.2.3",
     "dotenv-flow": "^4.1.0",
     "express": "^5.1.0",

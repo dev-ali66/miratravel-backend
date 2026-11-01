@@ -32,6 +32,9 @@ importers:
       csurf:
         specifier: ^1.11.0
         version: 1.11.0
+      destroy:
+        specifier: ^1.2.0
+        version: 1.2.0
       dotenv:
         specifier: ^17.2.3
         version: 17.4.2
