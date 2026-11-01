@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npx tsc",
     "start": "node ./dist/index.js",
-    "start:dev": "concurrently \"npm run watch\" \"npm run dev\"",
+    "start:dev": "concurrently \"pnpm run watch\" \"pnpm run dev\"",
     "watch": "tsc --watch",
     "seed": "node ./dist/src/database/seed/seed.js",
     "dev": "nodemon --watch dist --ext js --exec node ./dist/index.js",

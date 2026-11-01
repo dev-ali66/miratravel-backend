@@ -3,7 +3,7 @@ model Story {
   slug                 String          @unique
   title                String
   categories           StoryCategory[]
-  type                 String          @default("short_story") // short_story, long_story, guidance
+  type                 String          @default("normal_story") // travel_ease, mira_editorial, normal_story
   readTime             String?
   authorName           String?
   authorRole           String?
@@ -11,9 +11,8 @@ model Story {
   featured             Boolean         @default(false)
   recommended          Boolean         @default(false)
   hero                 Json?
-  intro                Json?
-  blocks               Json? // Dynamic blocks (paragraph, quote, image, etc.)
-  practicalNotes       Json? // Travel notes for Guidance
+  intro                Json? // Deprecated: removed from form
+  blocks               Json? // Dynamic blocks (paragraph, quote, image, video, notes, etc.)
   seo                  Json?
   journeys             Journey[]
   locations            Location[]

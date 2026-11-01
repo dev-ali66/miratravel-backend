@@ -7,6 +7,7 @@ import {
   syncEntityMediaReferences,
   removeEntityMediaReferences,
 } from "../../shared/mediaReference.service.js";
+import { invalidateModelCache } from "../../utils/cache.helper.js";
 
 const storyInclude = {
   categories: true,
@@ -236,8 +237,8 @@ export const manageStoryService = async (req: Request, res: Response) => {
   const titleToUse = data.title ? String(data.title).trim() : "Untitled Story";
   const baseSlug = data.slug || slugify(titleToUse) || "untitled-story";
 
-  const typeToUse = data.type || data.templateType || "short_story";
-  const statusToUse = data.status ? String(data.status).toUpperCase() : "PUBLISH";
+  const typeToUse = data.type || data.templateType || "normal_story";
+  const statusToUse = data.status ? String(data.status).toUpperCase() : "DRAFT";
   const readTime = data.readTime !== undefined ? String(data.readTime) : "";
   const authorName = data.authorName !== undefined ? String(data.authorName) : "";
   const authorRole = data.authorRole !== undefined ? String(data.authorRole) : "";
@@ -246,9 +247,7 @@ export const manageStoryService = async (req: Request, res: Response) => {
 
   // 2. Sanitize rich JSON objects
   const hero = cleanJson(data.hero) || {};
-  const intro = cleanJson(data.intro) || {};
   const blocks = cleanJson(data.blocks) || [];
-  const practicalNotes = cleanJson(data.practicalNotes !== undefined ? data.practicalNotes : data.practicalNotesData) || [];
   const seo = cleanJson(data.seo) || {};
 
   // 3. Extract & sanitize relation string arrays
@@ -380,9 +379,7 @@ export const manageStoryService = async (req: Request, res: Response) => {
     if (data.featured !== undefined) updateData.featured = featured;
     if (data.recommended !== undefined) updateData.recommended = recommended;
     if (data.hero !== undefined) updateData.hero = hero;
-    if (data.intro !== undefined) updateData.intro = intro;
     if (data.blocks !== undefined) updateData.blocks = blocks;
-    if (data.practicalNotes !== undefined) updateData.practicalNotes = practicalNotes;
     if (data.seo !== undefined) updateData.seo = seo;
 
     updateData.categories = { set: resolvedCategoryConnects };
@@ -438,9 +435,7 @@ export const manageStoryService = async (req: Request, res: Response) => {
       featured,
       recommended,
       hero,
-      intro,
       blocks,
-      practicalNotes,
       seo,
       categories: { connect: resolvedCategoryConnects },
       locations: { connect: locationConnects },
@@ -480,6 +475,13 @@ export const manageStoryService = async (req: Request, res: Response) => {
     }
   }
 
+  // Invalidate model cache so getRecords immediately serves updated story data
+  try {
+    await invalidateModelCache("Story");
+  } catch (cacheErr) {
+    console.warn("[manageStoryService] invalidateModelCache error:", cacheErr);
+  }
+
   return { data: story };
 };
 
@@ -516,6 +518,13 @@ export const deleteStoryService = async (req: Request, res: Response) => {
       description: `Deleted editorial story '${existing.title}'.`,
     },
   });
+
+  // Invalidate model cache
+  try {
+    await invalidateModelCache("Story");
+  } catch (cacheErr) {
+    console.warn("[deleteStoryService] invalidateModelCache error:", cacheErr);
+  }
 
   return { message: "Story deleted successfully" };
 };

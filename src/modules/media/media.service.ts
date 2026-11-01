@@ -1173,7 +1173,7 @@ export async function executeStorageOptimization(options?: {
           case "STORY": {
             const story = await prisma.story.findUnique({ where: { id: entityId } });
             if (story) {
-              const fields = ["hero", "intro", "blocks", "practicalNotes", "seo"];
+              const fields = ["hero", "intro", "blocks", "seo"];
               const updateData: any = {};
               for (const f of fields) {
                 if ((story as any)[f]) {

@@ -1,17 +1,6 @@
-// {
-//   "compilerOptions": {
-//     "module": "NodeNext",
-//     "moduleResolution": "NodeNext",
-//     "target": "es2016",
-//     "esModuleInterop": true,
-//     "skipLibCheck": true,
-//     "outDir": "./dist",
-//     "rootDir": "./"
-//   }
-// }
-
 {
   "compilerOptions": {
+    "incremental": true,
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "target": "ES2022",
@@ -25,3 +14,4 @@
   },
   "exclude": ["node_modules", "dist"]
 }
+
