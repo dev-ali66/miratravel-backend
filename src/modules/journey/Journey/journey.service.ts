@@ -82,6 +82,7 @@ const extractLocationIds = (body: any): string[] => {
             "destinations",
             "destinationStays",
             "days",
+            "stops",
             "steps",
           ].includes(key)
         ) {

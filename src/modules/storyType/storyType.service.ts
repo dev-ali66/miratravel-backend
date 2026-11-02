@@ -3,10 +3,9 @@ import prisma from "../../config/prisma.js";
 import ApiError from "../../utils/api.error.js";
 
 const DEFAULT_TYPES = [
-  { name: "Long Story", slug: "long-story" },
-  { name: "Short Story", slug: "short-story" },
-  { name: "Editorial Story", slug: "editorial-story" },
-  { name: "Guide Story", slug: "guide-story" },
+  { name: "Travel Essentials", slug: "travel-essentials" },
+  { name: "Mira Editorial", slug: "mira-editorial" },
+  { name: "Normal Story", slug: "normal-story" },
 ];
 
 export const getStoryTypesService = async (req: Request) => {

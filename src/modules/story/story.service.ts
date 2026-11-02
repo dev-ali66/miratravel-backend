@@ -132,7 +132,16 @@ export const getStoryService = async (req: Request) => {
 
   // Story Type match
   if (type) {
-    customWhere.type = String(type);
+    const rawTypeStr = String(type).trim().toUpperCase();
+    if (rawTypeStr === "TRAVEL_ESSENTIALS" || rawTypeStr === "TRAVEL_EASE" || rawTypeStr === "GUIDANCE") {
+      customWhere.type = "TRAVEL_ESSENTIALS";
+    } else if (rawTypeStr === "MIRA_EDITORIAL" || rawTypeStr === "LONG_STORY") {
+      customWhere.type = "MIRA_EDITORIAL";
+    } else if (rawTypeStr === "NORMAL_STORY" || rawTypeStr === "SHORT_STORY") {
+      customWhere.type = "NORMAL_STORY";
+    } else {
+      customWhere.type = rawTypeStr;
+    }
   }
 
   // Story Status match
@@ -237,7 +246,15 @@ export const manageStoryService = async (req: Request, res: Response) => {
   const titleToUse = data.title ? String(data.title).trim() : "Untitled Story";
   const baseSlug = data.slug || slugify(titleToUse) || "untitled-story";
 
-  const typeToUse = data.type || data.templateType || "normal_story";
+  const rawType = String(data.type || data.templateType || "NORMAL_STORY").trim().toUpperCase();
+  let typeToUse: "TRAVEL_ESSENTIALS" | "MIRA_EDITORIAL" | "NORMAL_STORY" = "NORMAL_STORY";
+  if (rawType === "TRAVEL_ESSENTIALS" || rawType === "TRAVEL_EASE" || rawType === "GUIDANCE") {
+    typeToUse = "TRAVEL_ESSENTIALS";
+  } else if (rawType === "MIRA_EDITORIAL" || rawType === "LONG_STORY") {
+    typeToUse = "MIRA_EDITORIAL";
+  } else {
+    typeToUse = "NORMAL_STORY";
+  }
   const statusToUse = data.status ? String(data.status).toUpperCase() : "DRAFT";
   const readTime = data.readTime !== undefined ? String(data.readTime) : "";
   const authorName = data.authorName !== undefined ? String(data.authorName) : "";
@@ -248,6 +265,7 @@ export const manageStoryService = async (req: Request, res: Response) => {
   // 2. Sanitize rich JSON objects
   const hero = cleanJson(data.hero) || {};
   const blocks = cleanJson(data.blocks) || [];
+  const faq = cleanJson(data.faq) || undefined;
   const seo = cleanJson(data.seo) || {};
 
   // 3. Extract & sanitize relation string arrays
@@ -380,6 +398,7 @@ export const manageStoryService = async (req: Request, res: Response) => {
     if (data.recommended !== undefined) updateData.recommended = recommended;
     if (data.hero !== undefined) updateData.hero = hero;
     if (data.blocks !== undefined) updateData.blocks = blocks;
+    if (data.faq !== undefined) updateData.faq = faq;
     if (data.seo !== undefined) updateData.seo = seo;
 
     updateData.categories = { set: resolvedCategoryConnects };
@@ -436,6 +455,7 @@ export const manageStoryService = async (req: Request, res: Response) => {
       recommended,
       hero,
       blocks,
+      faq,
       seo,
       categories: { connect: resolvedCategoryConnects },
       locations: { connect: locationConnects },

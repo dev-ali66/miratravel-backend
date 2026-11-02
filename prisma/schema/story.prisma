@@ -1,9 +1,15 @@
+enum StoryTypeEnum {
+  TRAVEL_ESSENTIALS
+  MIRA_EDITORIAL
+  NORMAL_STORY
+}
+
 model Story {
   id                   String          @id @default(cuid()) // Matching Location architecture
   slug                 String          @unique
   title                String
   categories           StoryCategory[]
-  type                 String          @default("normal_story") // travel_ease, mira_editorial, normal_story
+  type                 StoryTypeEnum   @default(NORMAL_STORY)
   readTime             String?
   authorName           String?
   authorRole           String?
@@ -13,6 +19,7 @@ model Story {
   hero                 Json?
   intro                Json? // Deprecated: removed from form
   blocks               Json? // Dynamic blocks (paragraph, quote, image, video, notes, etc.)
+  faq                  Json?
   seo                  Json?
   journeys             Journey[]
   locations            Location[]

@@ -26,6 +26,7 @@ export const getEnumService = async (req: Request) => {
     PaymentScheduleStatus: PrismaEnums.PaymentScheduleStatus ? Object.values(PrismaEnums.PaymentScheduleStatus) : [],
     DepositTemplateType: PrismaEnums.DepositTemplateType ? Object.values(PrismaEnums.DepositTemplateType) : [],
     Status: PrismaEnums.Status ? Object.values(PrismaEnums.Status) : [],
+    StoryType: (PrismaEnums as any).StoryTypeEnum ? Object.values((PrismaEnums as any).StoryTypeEnum) : [],
   };
 
   if (name) {

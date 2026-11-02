@@ -37,6 +37,7 @@ export const manageStoryValidator = z.object({
       recommended: z.any().optional(),
       hero: z.any().optional(),
       blocks: z.any().optional(),
+      faq: z.any().optional(),
       seo: z.any().optional(),
       journeys: z.any().optional(),
       journeyIds: z.any().optional(),
