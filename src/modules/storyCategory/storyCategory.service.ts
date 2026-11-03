@@ -3,15 +3,10 @@ import prisma from "../../config/prisma.js";
 import ApiError from "../../utils/api.error.js";
 
 const DEFAULT_CATEGORIES = [
-  "Culture & Heritage",
-  "Slow Travel",
-  "Food & Wine",
-  "Hidden Villages",
-  "Local Life",
-  "Coast & Sea",
-  "Mountains & Nature",
-  "People & Traditions",
-  "Architecture & Craft",
+  "Accommodation",
+  "Excursions",
+  "Food & Drink",
+  "Day Trips",
 ];
 
 export const getStoryCategoriesService = async (req: Request) => {
@@ -103,10 +98,23 @@ export const deleteStoryCategoryService = async (req: Request) => {
 
   const existing = await (prisma as any).storyCategory.findUnique({
     where: { id: String(id) },
+    include: { stories: true },
   });
 
   if (!existing) {
     throw new ApiError("Category not found", 404);
+  }
+
+  // Disconnect relations with stories before deletion so stories categories array remains clean
+  if (Array.isArray(existing.stories) && existing.stories.length > 0) {
+    await (prisma as any).storyCategory.update({
+      where: { id: String(id) },
+      data: {
+        stories: {
+          disconnect: existing.stories.map((s: any) => ({ id: s.id })),
+        },
+      },
+    });
   }
 
   await (prisma as any).storyCategory.delete({

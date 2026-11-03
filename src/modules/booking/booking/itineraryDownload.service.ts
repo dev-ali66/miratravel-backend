@@ -225,7 +225,9 @@ export function generateItineraryHtml(data: {
   }
 
   const accommodationsList: any[] = [];
-  if (Array.isArray(accommodations?.items)) {
+  if (Array.isArray(accommodations?.destinationStays?.items)) {
+    accommodationsList.push(...accommodations.destinationStays.items);
+  } else if (Array.isArray(accommodations?.items)) {
     accommodationsList.push(...accommodations.items);
   } else if (Array.isArray(accommodations)) {
     accommodationsList.push(...accommodations);
